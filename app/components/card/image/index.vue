@@ -28,14 +28,13 @@
 <script setup lang="ts">
 	const target = ref(null);
 	const targetIsVisible = useElementVisibility(target);
+	const hearts = ref(0);
+	const liked = ref(false);
+	const loaded = ref(false);
 
 	const { image } = defineProps({
 		image: { type: Object, required: true },
 	});
-
-	const hearts = ref(0);
-	const liked = ref(false);
-	const loaded = ref(false);
 
 	watch(targetIsVisible, (value) => {
 		if (value) {

@@ -1,8 +1,14 @@
 import type { H3Event } from "h3";
 
 export const useGetCookies = (event: H3Event) => {
+    
     const accessToken = getCookie(event, "sb-access-token");
     const refreshToken = getCookie(event, "sb-refresh-token");
+
+    // fix to allow sessions to be refreshed
+    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token")
+    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token.0")
+    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token.1")
 
     const currentSession: Session = {
         refresh_token: refreshToken as string,

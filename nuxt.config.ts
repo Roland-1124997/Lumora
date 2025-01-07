@@ -104,6 +104,15 @@ export default defineNuxtConfig({
     },
   },
 
+  nitro: {
+    experimental: {
+      tasks: true
+    },
+    scheduledTasks: {
+      '5 * * * *': ['keep-server-alive']
+    }
+  },
+
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     layoutTransition: { name: 'page', mode: 'out-in' },
