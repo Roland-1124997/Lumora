@@ -27,6 +27,7 @@ export default defineNuxtConfig({
   ],
 
   runtimeConfig: {
+    ServerUrl: process.env.SERVER_URL,
     public: {
       googleClientId: process.env.GOOGLE_CLIENT_ID,
     }
