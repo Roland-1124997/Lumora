@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     "@vee-validate/nuxt",
     "@pinia/nuxt",
     "@nuxtjs/supabase",
+    "nuxt-scheduler"
   ],
 
   runtimeConfig: {
@@ -103,15 +104,6 @@ export default defineNuxtConfig({
       type: "module",
       suppressWarnings: true,
     },
-  },
-
-  nitro: {
-    experimental: {
-      tasks: true
-    },
-    scheduledTasks: {
-      '5 * * * *': ['keep-server-alive']
-    }
   },
 
   app: {
