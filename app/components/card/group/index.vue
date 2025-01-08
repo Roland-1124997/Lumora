@@ -21,7 +21,7 @@
 	const targetIsVisible = useElementVisibility(target);
 	const loaded = ref(false);
 
-	const {group } =defineProps({
+	const { group } = defineProps({
 		group: { type: Object, required: true },
 	});
 

@@ -121,7 +121,7 @@ const groups = [
   },
   {
     id: 18,
-    name: "UI/UX Gurus",
+    name: "UI UX Gurus",
     thumbnail: "https://picsum.photos/id/18/5000/3333",
     lastActive: "2024-12-25T18:22:50.931+00:00",
     lastPhotoPostedBy: "Mark Hendriks",
@@ -214,7 +214,7 @@ const groups = [
 
 const filteredGroups = groups.sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime());
 
-function splitArrayIntoChunks(array: any[], chunkSize: number): any[][] {
+const splitArrayIntoChunks = (array: any[], chunkSize: number): any[][] => {
   const result = [];
   for (let i = 0; i < array.length; i += chunkSize) {
     result.push(array.slice(i, i + chunkSize));
@@ -224,9 +224,19 @@ function splitArrayIntoChunks(array: any[], chunkSize: number): any[][] {
 
 export default defineEventHandler((event) => {
   return new Promise((resolve, reject) => {
-    
-    const query: any = getQuery(event)
+    const query: any = getQuery(event);
+
     const currentPage = query.page ? parseInt(query.page) : 1;
+    const currentSearch = query.search ? query.search.toLowerCase() : '';
+
+    let filteredGroups = groups.filter(group => group.name.toLowerCase().startsWith(currentSearch));
+
+    if (currentSearch) {
+      filteredGroups = filteredGroups.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      filteredGroups = filteredGroups.sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime());
+    }
+    
 
     const chunkSize = 10;
     const arrayOfChunks = splitArrayIntoChunks(filteredGroups, chunkSize);
@@ -236,7 +246,8 @@ export default defineEventHandler((event) => {
       message: 'Data received',
       currentPage,
       totalPages: arrayOfChunks.length,
-      groups: arrayOfChunks[currentPage - 1],
-    })
-  })
-})
+      groups: arrayOfChunks[currentPage - 1] || [],
+    });
+  });
+});
+

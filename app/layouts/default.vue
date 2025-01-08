@@ -4,7 +4,7 @@
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<div class="flex items-center justify-center gap-2">
 					<icon v-if="!$route.name.includes('index')" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="$router.back()"></icon>
-					<h1 class="text-xl font-semibold">
+					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
 						<span v-if="$route.path == '/'">Lumora</span>
 						<span v-else-if="$route.params.slug">{{ $route.params.slug.replaceAll("-", " ") }}</span>
 						<span v-else>{{ $route.name.charAt(0).toUpperCase() + $route.name.slice(1) }} </span>
