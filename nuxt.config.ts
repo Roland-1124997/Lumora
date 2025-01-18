@@ -112,7 +112,7 @@ export default defineNuxtConfig({
     head: {
       meta: [
         { name: 'theme-color', media: '(prefers-color-scheme: light)', content: "#FFFFFF" },
-        // { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
         { name: "mobile-web-app-capable", content: "yes" },
         { name: "apple-mobile-web-app-title", content: "Lumora" },
       ],

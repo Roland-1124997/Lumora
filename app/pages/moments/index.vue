@@ -2,7 +2,7 @@
 	<div>
 		<div class="flex items-center gap-2 mb-3 -mt-4">
 			<input :disabled="searchLoading" type="text" @input="debouncedSearch" v-model="searchTerm" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
-			<button class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+			<button @click="createFunction('Create')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 			</button>
 		</div>
@@ -25,13 +25,32 @@
 			<div v-else class="flex flex-col items-center justify-center w-full h-full gap-5">
 				<icon class="text-gray-500" name="rivet-icons:sad" size="5em" />
 				<h1 class="text-center text-balance">Geen resultaten gevonden Probeer een andere zoekterm.</h1>
-				<button class="underline underline-offset-2 text-[#817a70] font-medium hover:text-[#6e675d]">Maak groep aan</button>
+				<button @click="createFunction('Create')" class="underline underline-offset-2 text-[#817a70] font-medium hover:text-[#6e675d]">Maak groep aan</button>
 			</div>
 		</section>
 	</div>
 </template>
 
 <script setup lang="ts">
+	useHead({
+		htmlAttrs: {
+			lang: "nl",
+		},
+	});
+
+	useSeoMeta({
+		title: "Lumora - Moments",
+		description: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogTitle: "Lumora",
+		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogImage: "/apple-touch-icon.png",
+		ogUrl: "/",
+		twitterTitle: "Lumora",
+		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterImage: "/apple-touch-icon.png",
+		twitterCard: "summary",
+	});
+	
 	definePageMeta({
 		middleware: "unauthorized",
 	});
@@ -59,7 +78,7 @@
 		if (searchTerm.value) navigateTo(`/moments?search=${searchTerm.value}`);
 		else navigateTo(`/moments`);
 
-		const data = await $fetch(`/api/moments?search=${searchTerm.value}`);
+		const data: any = await $fetch(`/api/moments?search=${searchTerm.value}`);
 
 		List.value = [];
 		List.value = data.groups;
@@ -96,4 +115,12 @@
 		},
 		{ direction: "bottom", distance: 20 }
 	);
+
+	const { modal, updatemodalValue }: any = inject("modal");
+	const createFunction = (name: string) => {
+		updatemodalValue({
+			open: true,
+			type: name,
+		});
+	};
 </script>

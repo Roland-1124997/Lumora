@@ -1,11 +1,11 @@
 <template>
 	<div class="w-full h-full max-w-lg mx-auto space-y-8">
 		<div class="space-y-2">
-			<h1 class="text-4xl font-bold tracking-tight">Sign in to your Account</h1>
-			<p class="text-base text-gray-500">Enter your email and password to log in</p>
+			<h1 class="text-4xl font-bold tracking-tight">Create your Account</h1>
+			<p class="text-base text-gray-500">Provide your details to create an account</p>
 		</div>
 
-		<FieldFormAuth requestUrl="/api/auth" :schema="LoginSchema" :onSuccess="handleSuccess" :onError="handleError" />
+		<FieldFormRegister requestUrl="/api/auth/register" :schema="LoginSchema" :onSuccess="handleSuccess" :onError="handleError" />
 
 		<div class="relative">
 			<div class="absolute inset-0 flex items-center">
@@ -31,9 +31,9 @@
 					</div>
 				</template>
 			</ClientOnly>
-		</div> 
+		</div>
 
-		<p class="text-sm text-center text-gray-500 bottom-5">Don't have an account?<NuxtLink class="font-bold text-[#817a70] hover:text-[#6e675d]" to="/auth/register"> Sign Up </NuxtLink></p>
+		<p class="text-sm text-center text-gray-500 bottom-5">Already have an account?<NuxtLink class="font-bold text-[#817a70] hover:text-[#6e675d]" to="/"> login </NuxtLink></p>
 	</div>
 </template>
 
@@ -48,7 +48,7 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Login",
+		title: "Lumora - Register",
 		description: "Bekijk de nieuwste en populairste posts op Lumora!",
 		ogTitle: "Lumora",
 		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
@@ -69,11 +69,16 @@
 		zod.object({
 			email: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }).email({ message: "Moet een correcte email zijn" }),
 			wachtwoord: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }).min(8, { message: "Moet minimaal 8 lang zijn" }),
-			remember: zod.boolean().optional(),
+			confirmatie: zod.string({ message: "Dit is een verplicht veld" })
 		})
+
+		.refine((data) => data.wachtwoord === data.confirmatie, {
+            message: "Wachtwoorden komen niet overheen",
+            path: ["confirmatie"],
+        })
 	);
 
-	const handleSuccess = async (response: { redirect: string } ) => {
+	const handleSuccess = async (response : { redirect: string } ) => {
 		await new Promise((resolve) => setTimeout(resolve, 500));
 		const typedResponse = response as { redirect: string };
 		navigateTo(typedResponse.redirect);
@@ -91,4 +96,3 @@
 		});
 	};
 </script>
-

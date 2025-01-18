@@ -1,6 +1,6 @@
 <template>
 	<div class="min-h-screen">
-		<header class="fixed top-0 z-50 w-full bg-white">
+		<header :class=" PWAInstalled ? 'top-11 md:top-0': 'top-0'" class="fixed z-50 w-full bg-white ">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<div class="flex items-center justify-center gap-2">
 					<icon v-if="!$route.name.includes('index')" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="$router.back()"></icon>
@@ -15,8 +15,8 @@
 					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ notificationCount }" />
 				</div>
 			</div>
-			
-			<nav v-if="$route.params.slug == null" class="container max-w-5xl mx-auto border-b ">
+
+			<nav v-if="$route.params.slug == null" class="container max-w-5xl mx-auto border-b">
 				<div class="flex items-center w-full h-10 gap-2 p-1 px-2 bg-gray-100 cursor-pointer md:rounded-lg justify-evenly">
 					<NuxtLink to="/" class="flex items-center justify-center h-full gap-2 px-2 py-1 rounded-lg w-fit">
 						<icon name="mdi:home" size="1.2rem"></icon>
@@ -38,22 +38,39 @@
 		</header>
 
 		<main :class="$route.params.slug == null ? 'mt-28' : 'mt-[4.5rem]'" class="fixed w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over overflow-y-aut sm:px-6 lg:px-24">
-			<div class="container max-w-5xl mx-auto mt-4 ">
+			<div class="container max-w-5xl mx-auto mt-4">
 				<slot></slot>
 			</div>
 		</main>
-		
-		
+		<ModalBaselayer v-model="modal"> </ModalBaselayer>
 	</div>
 </template>
 
 <script setup>
 
-	const store = useSessionsStore()
-	const { data: user, error} = await store.getSession()
+	const PWAInstalled = ref(false)
+	const { $pwa } = useNuxtApp();
+
+	onMounted(() => {
+		if ($pwa.isPWAInstalled ) PWAInstalled.value = true;
+	});
+
+	const store = useSessionsStore();
+	const { data: user, error } = await store.getSession();
 
 	const notificationCount = ref(10);
 	const username = ref(user.name);
+
+	const modal = ref({
+		open: false,
+		type: "",
+	});
+
+	function updatemodalValue(option) {
+		modal.value = option;
+	}
+
+	provide("modal", { modal, updatemodalValue});
 
 	provide("username", username.value);
 	provide("notifications", notificationCount.value);

@@ -5,9 +5,27 @@
 </template>
 
 <script setup>
+	useHead({
+		htmlAttrs: {
+			lang: "nl",
+		},
+	});
+
+	useSeoMeta({
+		title: "Lumora - Home",
+		description: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogTitle: "Lumora",
+		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogImage: "/apple-touch-icon.png",
+		ogUrl: "/",
+		twitterTitle: "Lumora",
+		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterImage: "/apple-touch-icon.png",
+		twitterCard: "summary",
+	});
 
 	definePageMeta({
-		middleware: 'unauthorized',
+		middleware: "unauthorized",
 	});
 
 	const username = inject("username");

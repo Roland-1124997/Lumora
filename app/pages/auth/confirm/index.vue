@@ -10,6 +10,25 @@
 </template>
 
 <script setup>
+	useHead({
+		htmlAttrs: {
+			lang: "nl",
+		},
+	});
+
+	useSeoMeta({
+		title: "Lumora - Login",
+		description: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogTitle: "Lumora",
+		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogImage: "/apple-touch-icon.png",
+		ogUrl: "/",
+		twitterTitle: "Lumora",
+		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterImage: "/apple-touch-icon.png",
+		twitterCard: "summary",
+	});
+
 	definePageMeta({
 		layout: "auth",
 		middleware: "authorized",
