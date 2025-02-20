@@ -7,8 +7,6 @@ export default defineEventHandler( async (event) => {
     const { credential } = await readBody(event)
     const { provider } = getRouterParams(event)
 
-    console.log(credential, provider)
-
     const { error } = await client.auth.signInWithIdToken({
         provider: provider,
         token: credential,
