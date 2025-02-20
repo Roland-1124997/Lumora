@@ -73,21 +73,21 @@
 		})
 	);
 
-	const handleSuccess = async (response: { redirect: string } ) => {
-		await new Promise((resolve) => setTimeout(resolve, 500));
-		const typedResponse = response as { redirect: string };
-		navigateTo(typedResponse.redirect);
+	const handleSuccess = async (response: {response: { meta: { redirect: string } }}) => {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		const typedResponse = response as { response: { meta: { redirect: string } } };
+		navigateTo(typedResponse.response.meta.redirect);
 	};
-
-	const handleError = async ({ error, actions }: { error: { data: { data: Record<string, string> } }, actions: { setErrors: (errors: Record<string, string>) => void } }) => {
-		const errors = error.data.data;
+	
+	const handleError = async ({ error, actions }: { error: { data: { field: { errors: Record<string, string[]> } } }, actions: { setErrors: (errors: Record<string, string[]>) => void } }) => {
+		const errors = error.data.field.errors;
 		actions.setErrors(errors);
 	};
 
 	const handleGoogleSuccess = async (response: { redirect: string }) => {
 		await $fetch("/api/auth/google/identity", { method: "POST", body: response }).then((response) => {
-			const typedResponse = response as { redirect: string };
-			navigateTo(typedResponse.redirect);
+			const typedResponse = response as { meta: { redirect: string } };
+			navigateTo(typedResponse.meta.redirect);
 		});
 	};
 </script>

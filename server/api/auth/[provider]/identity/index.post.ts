@@ -1,32 +1,32 @@
 import { serverSupabaseClient, serverSupabaseUser, serverSupabaseSession } from "#supabase/server";
 
-export default defineEventHandler((event) => {
-    return new Promise(async (resolve, reject) => {
-        setTimeout(async () => {
-            const client = await serverSupabaseClient(event)
-            const { credential } = await readBody(event)
-            const { provider } = getRouterParams(event)
+export default defineEventHandler( async (event) => {
+    const time = Date.now();
 
-            const { error } = await client.auth.signInWithIdToken({
-                provider: provider,
-                token: credential,
-            });
+    const client = await serverSupabaseClient(event)
+    const { credential } = await readBody(event)
+    const { provider } = getRouterParams(event)
 
-            if (error) return reject({
-                statusCode: 400,
-                statusMessage: "Foutieve aanvraag",
-                message: "Het verzoek kon door de server niet begrepen worden vanwege een onjuiste syntaxis."
-            });
+    console.log(credential, provider)
 
-            const session: any = await serverSupabaseSession(event)
-            useSetCookies(event, session)
-        
-            return resolve({
-                statusCode: 200,
-                statusMessage: "OK",
-                message: "Je bent succesvol ingelogd.",
-                redirect: "/",
-            });
-        }, 1000);
+    const { error } = await client.auth.signInWithIdToken({
+        provider: provider,
+        token: credential,
     });
+
+    if (error) return useReturnResponse(event, time, {
+        ...badRequestError,
+        errors: error.message,
+    })
+
+    const session: any = await serverSupabaseSession(event)
+    useSetCookies(event, session)
+
+    return useReturnResponse(event, time, {
+        meta: {
+            code: 200,
+            message: "OK",
+            redirect: "/",
+        },
+    })
 });

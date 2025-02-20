@@ -35,9 +35,9 @@
 	});
 
 	const logout = () => {
-		$fetch("/api/sessions", { method: "DELETE" }).then((response) => {
+		$fetch("/api/auth/logout", { method: "POST" }).then((response) => {
 			store.clearSession();
-			navigateTo(response.redirect);
+			navigateTo(response.meta.redirect);
 		});
 	};
 </script>

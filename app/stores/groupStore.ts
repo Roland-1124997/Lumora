@@ -1,8 +1,12 @@
 
 
 interface GroupState {
-    page: number;
-    list: object[];
+
+    pagination: {
+        page: number;
+        total: number;
+    }
+    data: object[];
 }
 
 interface scrollState {
@@ -30,9 +34,9 @@ export const useGroupStore = defineStore('group', () => {
         return scrollState.get(name)
     };
 
-    const setGroupData = (name: string, page: number, list: object[]) => {
+    const setGroupData = (name: string, page: number, total: number, data: object[]) => {
         if (state.has(name)) return;
-        state.set(name, { page, list });
+        state.set(name, { pagination: { page, total }, data });
         saveToStorage(`${name}_List`, state.get(name));
     };
 
@@ -41,9 +45,9 @@ export const useGroupStore = defineStore('group', () => {
         saveToStorage(`${name}_Scroll`, scrollState.get(name));
     }
 
-    const updateGroupData = (name: string, page: number, list: object[]) => {
+    const updateGroupData = (name: string, page: number, total: number, data: object[]) => {
         if (!state.has(name)) return;
-        state.set(name, { page, list });
+        state.set(name, { pagination: { page, total }, data });
         saveToStorage(`${name}_List`, state.get(name));
     };
 

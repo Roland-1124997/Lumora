@@ -9,7 +9,7 @@
 			</div>
 
 			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/picture/${image.id}`">
-				<LazyNuxtImg :src="image.download_url" :alt="image.author" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
+				<LazyNuxtImg :src="image.url" :alt="image.author_id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
 			</NuxtLink>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
@@ -18,9 +18,9 @@
 
 		<div class="py-2">
 			<p class="text-sm text-gray-500">
-				By <span class="font-semibold">{{ image.author }}</span>
+				By <span class="font-semibold">{{ image.author_id }}</span>
 			</p>
-			<p class="text-sm text-gray-500">2 hours ago</p>
+			<p class="text-sm text-gray-500">{{ useTimeAgo(image.created_at).value }}</p>
 		</div>
 	</div>
 </template>
@@ -40,7 +40,7 @@
 		if (value) {
 			setTimeout(() => {
 				const imageLoad = new Image();
-				imageLoad.src = image.download_url;
+				imageLoad.src = image.url;
 				imageLoad.onload = () => (loaded.value = true);
 			}, 500);
 		}

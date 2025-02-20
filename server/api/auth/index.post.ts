@@ -8,46 +8,44 @@ const schema = zod.object({
   remember: zod.boolean().optional(),
 });
 
-export default defineEventHandler((event) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(async () => {
-      const request = await readBody(event)
+export default defineEventHandler(async (event) => {
 
-      const { error: zodError }: any = await schema.safeParseAsync(request);
+  const time = Date.now();
+  const request = await readBody(event)
 
-      if (zodError) return reject({
-        statusCode: 400,
-        statusMessage: "Bad Request",
-        message: "De gegevens zijn onjuist.",
-        data: zodError.errors,
-      });
+  const { error: zodError }: any = await schema.safeParseAsync(request);
 
-      const client = await serverSupabaseClient(event)
+  if (zodError) return useReturnResponse(event, time, {
+    ...badRequestError,
+    field: {
+      errors: zodError.errors,
+    }
+  })
 
-      const { error } = await client.auth.signInWithPassword({
-        email: request.email, password: request.wachtwoord
-      })
+  const client = await serverSupabaseClient(event)
 
-      if (error) return reject({
-        statusCode: 401,
-        statusMessage: "Unauthorized",
-        message: "The request has not been applied because it lacks valid authentication credentials for the target resource.",
-        data: {
-          email: ["Onbekende combinatie"],
-          wachtwoord: ["Onbekende combinatie"]
-        },
-      });
+  const { error } = await client.auth.signInWithPassword({
+    email: request.email, password: request.wachtwoord
+  })
 
-      const session: any = await serverSupabaseSession(event)
-      useSetCookies(event, session)
-      
-      return resolve({
-        statusCode: 200,
-        statusMessage: "OK",
-        message: "Je bent succesvol ingelogd.",
-        redirect: "/",
-      })
+  if (error) return useReturnResponse(event, time, {
+    ...unauthorizedError,
+    field: {
+      errors: {
+        email: ["Onbekende combinatie"],
+        wachtwoord: ["Onbekende combinatie"]
+      }
+    }
+  })
 
-    }, 2000);
+  const session: any = await serverSupabaseSession(event)
+  useSetCookies(event, session)
+
+  return useReturnResponse(event, time, {
+    meta: {
+      code: 200,
+      message: "OK",
+      redirect: "/",
+    },
   })
 })

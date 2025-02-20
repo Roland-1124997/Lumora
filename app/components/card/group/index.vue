@@ -8,9 +8,12 @@
 			<div class="flex-1 pl-3 border-l">
 				<div class="flex justify-between">
 					<h3 class="text-lg font-semibold">{{ group.name }}</h3>
-					<p class="text-sm text-gray-500">{{ useTimeAgo(group.lastActive).value }}</p>
+					<p class="text-sm text-gray-500">{{ useTimeAgo(group.last_active).value }}</p>
 				</div>
-				<p class="text-sm text-gray-500">Laatste foto gepost door: {{ group.lastPhotoPostedBy }}</p>
+				<p class="text-sm text-gray-500">
+					<span v-if="group.lastPhotoPostedBy">Laatste foto gepost door: {{ group.lastPhotoPostedBy }}</span>
+					<span>Nog een activiteit, kom later terug</span>
+				</p>
 			</div>
 		</NuxtLink>
 	</div>

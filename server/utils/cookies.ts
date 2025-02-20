@@ -5,11 +5,6 @@ export const useGetCookies = (event: H3Event) => {
     const accessToken = getCookie(event, "sb-access-token");
     const refreshToken = getCookie(event, "sb-refresh-token");
 
-    // fix to allow sessions to be refreshed
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token")
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token.0")
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token.1")
-
     const currentSession: Session = {
         refresh_token: refreshToken as string,
         access_token: accessToken as string,
@@ -28,17 +23,9 @@ export const useSetCookies = (event: H3Event, session: Session) => {
         maxAge: 60 * 60 * 24 * 7, // Cookie valid for 7 days
         httpOnly: true,
     });
-
-    // fix to allow sessions to be refreshed
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token")
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token.0")
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token.1")
 }
 
 export const useDeleteCookies = (event: H3Event) => {
     deleteCookie(event, "sb-access-token");
     deleteCookie(event, "sb-refresh-token");
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token")
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token.0")
-    deleteCookie(event, "sb-wdafsfqiyugfjrtgecpr-auth-token.1")
 }

@@ -50,7 +50,7 @@
 		twitterImage: "/apple-touch-icon.png",
 		twitterCard: "summary",
 	});
-	
+
 	definePageMeta({
 		middleware: "unauthorized",
 	});
@@ -65,10 +65,12 @@
 	const searchTerm = ref(`${query.search || ""}`);
 	const searchLoading = ref(false);
 
-	const { data }: any = await useFetch(`/api/moments?search=${searchTerm.value}`);
+	const { data, error }: any = await useFetch(`/api/moments?search=${searchTerm.value}`);
 
-	List.value = data.value.groups;
-	totalPages.value = data.value?.totalPages;
+	if (!error.value) {
+		List.value = data.value.data;
+		totalPages.value = data.value.pagination.total;
+	}
 
 	const debouncedSearch = useDebounce(async () => {
 		Page.value = 1;
@@ -78,16 +80,19 @@
 		if (searchTerm.value) navigateTo(`/moments?search=${searchTerm.value}`);
 		else navigateTo(`/moments`);
 
-		const data: any = await $fetch(`/api/moments?search=${searchTerm.value}`);
+		await $fetch(`/api/moments?search=${searchTerm.value}`).then((data: any) => {
+			List.value = [];
+			List.value = data.data;
+			totalPages.value = data.pagination.total;
+		}).catch(() => List.value = [])
+		
+		.finally(() => {
+			setTimeout(() => {
+				loading.value = false;
+				searchLoading.value = false;
+			}, 1000);
+		});
 
-		List.value = [];
-		List.value = data.groups;
-		totalPages.value = data.totalPages;
-
-		setTimeout(() => {
-			loading.value = false;
-			searchLoading.value = false;
-		}, 1000);
 	});
 
 	const { containerProps, wrapperProps } = useVirtualList(List, {
@@ -108,8 +113,8 @@
 
 			setTimeout(() => {
 				loading.value = false;
-				List.value.push(...data.groups);
-				totalPages.value = data.totalPages;
+				List.value.push(...data.data);
+				totalPages.value = data.pagination.total;
 				scrollPercentage.value = scrollPercentage.value / 2;
 			}, 1000);
 		},

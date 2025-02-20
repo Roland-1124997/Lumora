@@ -31,7 +31,7 @@
 
 		await $fetch(requestUrl, { method: method as "GET" | "POST" | "PUT" | "DELETE" | "PATCH", body: values })
 			.then((response) => onSuccess({ response, actions }))
-			.catch((error) => onError({ error, actions }))
+			//.catch((error) => onError({ error, actions }))
 			.finally(() => (loading.value = false));
 	};
 </script>

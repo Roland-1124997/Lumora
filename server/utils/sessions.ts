@@ -1,5 +1,6 @@
 import type { User } from '@supabase/auth-js';
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { H3Event } from "h3";
 
 export const useGetSession = async (client: SupabaseClient, currentSession: Session) => {
     return await client.auth.getUser(currentSession.access_token);
@@ -23,4 +24,20 @@ export const useSetSessionData = (user: User) => {
         },
     };
 }
+
+export const useSessionExists = async (event: H3Event, client: SupabaseClient, time: number) => {
+
+    const currentSession = useGetCookies(event);
+    let { data, error } = await useGetSession(client, currentSession);
+
+    if (error) error = useReturnResponse(event, time, unauthorizedError);
+
+    return { data, error };
+}
+
+
+
+
+
+
 

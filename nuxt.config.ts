@@ -40,6 +40,12 @@ export default defineNuxtConfig({
       auth: {
         flowType: 'pkce',
       },
+    },
+    cookieOptions: {
+      maxAge: 60 * 60 * 8,
+      sameSite: 'lax',
+      httpOnly: true,
+      secure: false
     }
   },
 

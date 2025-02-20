@@ -17,7 +17,7 @@
 				</div>
 			</div>
 		</section>
-		<UtilsButtonScroller :totalPages :loading :scrollPercentage :scrollToTop="() => scrollToTop('auto')" :scrollToBottom="() => scrollToBottom('auto')" :Page />
+		<UtilsButtonScroller :totalPages :loading :scrollPercentage :scrollToTop="() => scrollToTop('smooth')" :scrollToBottom="() => scrollToBottom('smooth')" :Page />
 	</div>
 </template>
 
@@ -51,7 +51,7 @@
 	const List = ref([]);
 	const Page = ref(1);
 
-	const totalPages = ref(50);
+	const totalPages = ref(1);
 	const loading = ref(false);
 
 	const { getGroupData, getScrollData, setGroupData, updateGroupData, updateScrollData } = useGroupStore();
@@ -60,12 +60,17 @@
 	const scrollData = getScrollData(name);
 
 	if (!group) {
-		const data = await $fetch(`https://picsum.photos/v2/list?page=${Page.value}&limit=8`);
-		setGroupData(name, Page.value, data);
-		List.value = data;
+		const data = await $fetch(`/api/moments/${id}?page=${Page.value}`);
+		totalPages.value = data.pagination.total;
+		List.value = data.data;
+
+		setGroupData(name, Page.value, totalPages.value, data.data);
+
 	} else {
-		List.value = group.list;
-		Page.value = group.page;
+		console.log(group);
+		totalPages.value = group.pagination.total;
+		List.value = group.data;
+		Page.value = group.pagination.page;
 	}
 
 	const { containerProps, wrapperProps } = useVirtualList(List, {
@@ -90,20 +95,19 @@
 		}
 	});
 
-	useInfiniteScroll(
-		containerProps.ref,
-		async () => {
-			if (Page.value >= totalPages.value || loading.value) return;
-			loading.value = true;
+	useInfiniteScroll(containerProps.ref, async () => {
+		if (Page.value >= totalPages.value || loading.value) return;
+		loading.value = true;
 
-			Page.value += 1;
-			const data = await $fetch(`https://picsum.photos/v2/list?page=${Page.value}&limit=8`);
+		Page.value += 1;
+		const data = await $fetch(`/api/moments/${id}?page=${Page.value}`);
 
-			setTimeout(() => {
-				loading.value = false;
-				List.value.push(...data);
-				updateGroupData(name, Page.value, List.value);
-			}, 750);
+		setTimeout(() => {
+			loading.value = false;
+			List.value.push(...data.data);
+			totalPages.value = data.pagination.total;
+			updateGroupData(name, Page.value, totalPages.value, List.value);
+		}, 750);
 		},
 		{ direction: "bottom", distance: 20 }
 	);
