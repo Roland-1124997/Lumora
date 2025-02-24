@@ -39,5 +39,5 @@ export default defineNitroPlugin(() => {
         console.log(`  ${chalk[done > 0 ? 'green' : 'red']('> Task:')} ${done} action${done !== 1 ? 's' : ''} completed successfully.`);
         console.log(`  ${chalk.bold('> Time elapsed:')} ${Date.now() - startTime} ms.`);
 
-    }).everyMinutes(1)
+    }).everyMinutes(30)
 });
