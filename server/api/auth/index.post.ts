@@ -1,6 +1,6 @@
-
 import * as zod from "zod";
 import { serverSupabaseClient, serverSupabaseSession } from "#supabase/server";
+import type { Session } from "@supabase/supabase-js";
 
 const schema = zod.object({
   email: zod.string().email(),
@@ -9,16 +9,17 @@ const schema = zod.object({
 });
 
 export default defineEventHandler(async (event) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const time = Date.now();
   const request = await readBody(event)
 
-  const { error: zodError }: any = await schema.safeParseAsync(request);
+  const { error: zodError } = await schema.safeParseAsync(request);
 
   if (zodError) return useReturnResponse(event, time, {
     ...badRequestError,
-    field: {
-      errors: zodError.errors,
+    errors: {
+      field: zodError.errors,
     }
   })
 
@@ -30,15 +31,15 @@ export default defineEventHandler(async (event) => {
 
   if (error) return useReturnResponse(event, time, {
     ...unauthorizedError,
-    field: {
-      errors: {
+    errors: {
+      field: {
         email: ["Onbekende combinatie"],
         wachtwoord: ["Onbekende combinatie"]
       }
     }
   })
 
-  const session: any = await serverSupabaseSession(event)
+  const session: Omit<Session, "user"> | null = await serverSupabaseSession(event)
   useSetCookies(event, session)
 
   return useReturnResponse(event, time, {

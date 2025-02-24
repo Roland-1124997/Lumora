@@ -42,12 +42,19 @@
 				<slot></slot>
 			</div>
 		</main>
-		<ModalBaselayer v-model="modal"> </ModalBaselayer>
+		<ModalBaselayer v-model="modal"> 
+			<FieldFormCreateGroup v-if="modal.type == 'Create'" 
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess" 
+				/>
+		</ModalBaselayer>
 	</div>
 </template>
 
 <script setup>
-
+	
 	const PWAInstalled = ref(false)
 	const { $pwa } = useNuxtApp();
 
@@ -70,10 +77,14 @@
 		modal.value = option;
 	}
 
+	const closeModal = () => (modal.value = false);
+
 	provide("modal", { modal, updatemodalValue});
 
 	provide("username", username.value);
 	provide("notifications", notificationCount.value);
+
+	
 
 </script>
 

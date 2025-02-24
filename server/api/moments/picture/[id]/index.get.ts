@@ -1,5 +1,6 @@
 import { serverSupabaseClient } from '#supabase/server'
 
+
 export default defineEventHandler(async (event) => {
     const time = Date.now();
     const { id } = getRouterParams(event)

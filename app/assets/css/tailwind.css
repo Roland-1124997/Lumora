@@ -27,6 +27,14 @@ body {
     @apply border-red-300 text-[#262626] bg-red-50 
 }
 
+.btn-Input-Error-without-bg {
+    @apply border-red-300 text-[#262626]
+}
+
+.btn-Input-Error-without-bg:focus {
+    @apply border-red-300 outline-none ring-1 ring-red-300;
+}
+
 .btn-Input-Error:focus {
     @apply border-red-300 outline-none ring-1 ring-red-300;
 }

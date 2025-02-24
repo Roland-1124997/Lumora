@@ -1,11 +1,8 @@
 <template>
 	<div>
-		<!-- <div class="sticky z-10 pt-2 pb-1 -mt-4 bg-white -top-3">
-            <h1 class="text-4xl font-bold tracking-tight">Notifications</h1>
-            <hr class="my-3 border-gray-200">
-        </div> -->
+		
 
-		<!-- <div class="space-y-2 mb-[8.40rem]">
+		<div class="space-y-2 mb-[12.40rem]">
 			<div v-for="notification in notifications" class="flex items-center justify-between p-4 border bg-gray-50 rounded-xl">
 				<div class="flex items-start space-x-3">
 					<div>
@@ -19,7 +16,7 @@
                     
 				</div>
 			</div>
-		</div> -->
+		</div>
 	</div>
 </template>
 

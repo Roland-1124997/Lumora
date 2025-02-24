@@ -46,7 +46,6 @@
 	});
 
 	const id = useRoute().query.id;
-	const name = useRoute().params.slug;
 
 	const List = ref([]);
 	const Page = ref(1);
@@ -56,18 +55,18 @@
 
 	const { getGroupData, getScrollData, setGroupData, updateGroupData, updateScrollData } = useGroupStore();
 
-	const group = getGroupData(name);
-	const scrollData = getScrollData(name);
+	const group =  getGroupData(id);
+	const scrollData = getScrollData(id);
 
 	if (!group) {
-		const data = await $fetch(`/api/moments/${id}?page=${Page.value}`);
-		totalPages.value = data.pagination.total;
-		List.value = data.data;
-
-		setGroupData(name, Page.value, totalPages.value, data.data);
-
+		await $fetch(`/api/moments/${id}?page=${Page.value}`)
+			.then((data) => {
+				totalPages.value = data.pagination.total;
+				List.value = data.data;
+				setGroupData(id, Page.value, totalPages.value, data.data);
+			})
+			.catch(() => {});
 	} else {
-		console.log(group);
 		totalPages.value = group.pagination.total;
 		List.value = group.data;
 		Page.value = group.pagination.page;
@@ -95,32 +94,40 @@
 		}
 	});
 
-	useInfiniteScroll(containerProps.ref, async () => {
-		if (Page.value >= totalPages.value || loading.value) return;
-		loading.value = true;
+	useInfiniteScroll(
+		containerProps.ref,
+		async () => {
+			if (Page.value >= totalPages.value || loading.value) return;
 
-		Page.value += 1;
-		const data = await $fetch(`/api/moments/${id}?page=${Page.value}`);
+			loading.value = true;
+			Page.value += 1;
 
-		setTimeout(() => {
-			loading.value = false;
-			List.value.push(...data.data);
-			totalPages.value = data.pagination.total;
-			updateGroupData(name, Page.value, totalPages.value, List.value);
-		}, 750);
+			await $fetch(`/api/moments/${id}?page=${Page.value}`)
+				.then((data) => {
+					List.value.push(...data.data);
+					totalPages.value = data.pagination.total;
+					updateGroupData(id, Page.value, totalPages.value, List.value);
+				})
+				.catch(() => {})
+				.finally(() => {
+					setTimeout(() => loading.value = false, 250)
+				});
 		},
 		{ direction: "bottom", distance: 20 }
 	);
 
 	watch(scrollPercentage, (percentage) => {
-		updateScrollData(name, percentage, scrollPixels.value);
+		updateScrollData(id, percentage, scrollPixels.value);
 	});
 
-	const { modal, updatemodalValue } = inject("modal");
+	const { updatemodalValue } = inject("modal");
 	const createFunction = (name) => {
 		updatemodalValue({
 			open: true,
 			type: name,
+			execution: async (callback) => {
+				callback()
+			},
 		});
 	};
 </script>

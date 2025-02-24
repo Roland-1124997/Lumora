@@ -1,4 +1,4 @@
-import { serverSupabaseClient, serverSupabaseUser, serverSupabaseSession } from "#supabase/server";
+import { serverSupabaseClient, serverSupabaseSession } from "#supabase/server";
 
 export default defineEventHandler( async (event) => {
     const time = Date.now();
@@ -14,10 +14,12 @@ export default defineEventHandler( async (event) => {
 
     if (error) return useReturnResponse(event, time, {
         ...badRequestError,
-        errors: error.message,
+        errors: {
+            auth: error,
+        }
     })
 
-    const session: any = await serverSupabaseSession(event)
+    const session: Omit<Session, "user"> | null = await serverSupabaseSession(event)
     useSetCookies(event, session)
 
     return useReturnResponse(event, time, {

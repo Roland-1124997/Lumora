@@ -1,6 +1,7 @@
 
+export const useMakePagination = (itemsPerPage: number = 16, query: query) => {
 
-export const useMakePagination = (itemsPerPage: number = 16, page: number) => {
+    const page = query.page ? parseInt(query.page) : 1
 
     const start = (page - 1) * itemsPerPage;
     const end = start + itemsPerPage - 1;

@@ -32,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+
 	useHead({
 		htmlAttrs: {
 			lang: "nl",
@@ -80,19 +81,20 @@
 		if (searchTerm.value) navigateTo(`/moments?search=${searchTerm.value}`);
 		else navigateTo(`/moments`);
 
-		await $fetch(`/api/moments?search=${searchTerm.value}`).then((data: any) => {
-			List.value = [];
-			List.value = data.data;
-			totalPages.value = data.pagination.total;
-		}).catch(() => List.value = [])
-		
-		.finally(() => {
-			setTimeout(() => {
-				loading.value = false;
-				searchLoading.value = false;
-			}, 1000);
-		});
+		await $fetch(`/api/moments?search=${searchTerm.value}`)
+			.then((data: any) => {
+				List.value = [];
+				List.value = data.data;
+				totalPages.value = data.pagination.total;
+			})
+			.catch(() => (List.value = []))
 
+			.finally(() => {
+				setTimeout(() => {
+					loading.value = false;
+					searchLoading.value = false;
+				}, 1000);
+			});
 	});
 
 	const { containerProps, wrapperProps } = useVirtualList(List, {
@@ -106,26 +108,45 @@
 		containerProps.ref,
 		async () => {
 			if (Page.value >= totalPages.value || loading.value) return;
+
 			loading.value = true;
-
 			Page.value += 1;
-			const data: any = await $fetch(`/api/moments?page=${Page.value}&search=${searchTerm.value}`);
 
-			setTimeout(() => {
-				loading.value = false;
-				List.value.push(...data.data);
-				totalPages.value = data.pagination.total;
-				scrollPercentage.value = scrollPercentage.value / 2;
-			}, 1000);
+			await $fetch(`/api/moments?page=${Page.value}&search=${searchTerm.value}`)
+				.then((data: any) => {
+					setTimeout(() => {
+						List.value.push(...data.data);
+						totalPages.value = data.pagination.total;
+						scrollPercentage.value = scrollPercentage.value / 2;
+					}, 500);
+				})
+				.catch(() => {})
+				.finally(() => (loading.value = false));
 		},
 		{ direction: "bottom", distance: 20 }
 	);
 
-	const { modal, updatemodalValue }: any = inject("modal");
-	const createFunction = (name: string) => {
+
+	const handleSuccess = async ({ response }: SuccessResponse) => {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		navigateTo(response.meta.redirect);
+	};
+
+	const handleError = async ({ error, actions }: ErrorResponse) => {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		if (error.data.errors.field) actions.setErrors(error.data.errors.field);
+
+	};
+
+	const { updatemodalValue }: any = inject("modal");
+	const createFunction = (type: string) => {
 		updatemodalValue({
 			open: true,
-			type: name,
+			type: type,
+			name: "New group",
+			requestUrl: "/api/moments", 
+			onSuccess: handleSuccess,
+			onError: handleError,
 		});
 	};
 </script>

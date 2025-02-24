@@ -5,9 +5,9 @@
 				<div tabindex="0" class="mx-6 outline-none md:mb-0 rounded-xl" ref="modal">
 					<Transition name="modalDelay">
 						<div ref="modalDelay" v-if="DelayStatus">
-							<div class="w-screen h-[73vh] md:h-[60vh] p-5 bg-white md:max-w-[60vw] rounded-2xl">
+							<div class="w-screen h-fit p-5 bg-white md:max-w-[45vw] rounded-2xl">
 								<div class="flex items-center justify-between mb-2">
-									<h1 class="text-3xl font-bold">{{ modalStatus.type }}</h1>
+									<h1 class="text-3xl font-bold">{{ modalStatus.name }}</h1>
 									<button @click="closeModal">
 										<Icon name="pajamas:close-xs" size="2em"></Icon>
 									</button>
