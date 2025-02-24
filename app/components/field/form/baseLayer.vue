@@ -1,7 +1,7 @@
 <template>
 	<Form class="w-full space-y-6" :validation-schema="schema" v-slot="{ meta, errors }: any" @submit="handleSubmit">
 		<slot :errors="errors"></slot>
-		<button class="flex items-center justify-center w-full h-12 text-base font-semibold text-white bg-black border rounded-xl hover:bg-black">
+		<button class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-black/80 rounded-xl hover:bg-black">
 			<UtilsLoader :loading :label :numberCount="3" />
 		</button>
 	</Form>

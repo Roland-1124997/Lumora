@@ -10,13 +10,23 @@
 			</button>
 		</div>
 		<hr class="mb-2" />
-		<section @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-auto">
+
+		<section v-if="List" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-auto">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 mb-32 lg:grid-cols-4">
 				<div class="last:pb-16" v-for="(image, index) in List" :key="index">
 					<LazyCardImage :image="image" />
 				</div>
 			</div>
 		</section>
+
+		<section v-else class="h-[80vh] overflow-y-auto">
+			<div class="grid w-full grid-cols-2 gap-3 mb-[4.3rem] lg:grid-cols-4">
+				<div class="animate-pulse" v-for="i in 16">
+					<LazyCardImageSkeleton/>
+				</div>
+			</div>
+		</section>
+
 		<UtilsButtonScroller :totalPages :loading :scrollPercentage :scrollToTop="() => scrollToTop('smooth')" :scrollToBottom="() => scrollToBottom('smooth')" :Page />
 	</div>
 </template>
@@ -47,7 +57,7 @@
 
 	const id = useRoute().query.id;
 
-	const List = ref([]);
+	const List = ref();
 	const Page = ref(1);
 
 	const totalPages = ref(1);
@@ -55,7 +65,7 @@
 
 	const { getGroupData, getScrollData, setGroupData, updateGroupData, updateScrollData } = useGroupStore();
 
-	const group =  getGroupData(id);
+	const group = getGroupData(id);
 	const scrollData = getScrollData(id);
 
 	if (!group) {
@@ -110,7 +120,7 @@
 				})
 				.catch(() => {})
 				.finally(() => {
-					setTimeout(() => loading.value = false, 250)
+					setTimeout(() => (loading.value = false), 250);
 				});
 		},
 		{ direction: "bottom", distance: 20 }
@@ -120,14 +130,25 @@
 		updateScrollData(id, percentage, scrollPixels.value);
 	});
 
+	const handleSuccess = async ({ response }) => {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		navigateTo(response.meta.redirect);
+	};
+
+	const handleError = async ({ error, actions }) => {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		if (error.data.errors.field) actions.setErrors(error.data.errors.field);
+	};
+
 	const { updatemodalValue } = inject("modal");
-	const createFunction = (name) => {
+	const createFunction = (type) => {
 		updatemodalValue({
 			open: true,
-			type: name,
-			execution: async (callback) => {
-				callback()
-			},
+			type: type,
+			name: type == "Settings" ? type : "New image",
+			requestUrl: `/api/moments/${id}`,
+			onSuccess: handleSuccess,
+			onError: handleError,
 		});
 	};
 </script>

@@ -10,7 +10,7 @@
 			<div class="flex gap-2">
 				<input v-bind="field" :id="name" :placeholder :type="showPassword ? 'text' : 'password'" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
 
-				<button v-if="enableToggle" type="button" @click="togglePassword" class="z-20 flex items-center justify-center bg-[#817a70] hover:bg-[#6e675d] p-1 border w-11 rounded-xl group">
+				<button v-if="enableToggle" type="button" @click="togglePassword" class="z-20 flex items-center justify-center p-1 border bg-black/80 hover:bg-black w-11 rounded-xl group">
 					<icon :name="showPassword ? 'ri:eye-off-fill' : 'ri:eye-fill'" size="1.2rem" class="bg-white opacity-80 group-hover:opacity-100"></icon>
 				</button>
 			</div>
