@@ -18,7 +18,7 @@
 
 		<div class="py-2">
 			<p class="text-sm text-gray-500">
-				By <span class="font-semibold">{{ image.author_id }}</span>
+				By <span class="font-semibold">{{ image.author }}</span>
 			</p>
 			<p class="text-sm text-gray-500">{{ useTimeAgo(image.created_at).value }}</p>
 		</div>

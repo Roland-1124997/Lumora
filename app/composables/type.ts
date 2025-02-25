@@ -3,7 +3,8 @@ export interface SuccessResponse {
         meta: {
             code: number;
             message: string;
-            redirect: string;
+            redirect?: string;
+            refresh?: boolean
         },
         details: {
             duration: string;

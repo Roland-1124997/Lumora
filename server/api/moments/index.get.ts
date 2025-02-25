@@ -1,12 +1,13 @@
-import { serverSupabaseClient } from "#supabase/server";
+import { serverSupabaseClient, serverSupabaseServiceRole } from "#supabase/server";
 
 export default defineEventHandler(async (event) => {
 	const time = Date.now();
 	const query: query = getQuery(event);
 
 	const client = await serverSupabaseClient(event);
+	const server = serverSupabaseServiceRole(event)
 	const { error: sessionError } = await useSessionExists(event, client, time);
-	if (sessionError) return sessionError;
+	if (sessionError) return useReturnResponse(event, time, unauthorizedError)
 
 	const currentSearch = query.search ? query.search.toLowerCase() : "";
 	const { items, page, start, end } = useMakePagination(8, query);
@@ -17,10 +18,14 @@ export default defineEventHandler(async (event) => {
 	if (error) return useReturnResponse(event, time, internalServerError);
 	if (count === 0) return useReturnResponse(event, time, notFoundError);
 
-
-	data.forEach((group: group) => {
-		group.thumbnail = client.storage.from("images").getPublicUrl(group.thumbnail).data.publicUrl
-	})
+	const updated = await Promise.all(data.map(async (group: group) => {
+		const { data: userData } = await server.auth.admin.getUserById(group.last_photo_posted_by);
+		return {
+			...group,
+			thumbnail: client.storage.from("images").getPublicUrl(group.thumbnail).data.publicUrl,
+			last_photo_posted_by: userData.user?.user_metadata.name
+		};
+	}));
 
 	return useReturnResponse(event, time, {
 		meta: {
@@ -31,6 +36,6 @@ export default defineEventHandler(async (event) => {
 			page,
 			total: Math.ceil((count ?? 1) / items),
 		},
-		data,
+		data: updated
 	});
 });

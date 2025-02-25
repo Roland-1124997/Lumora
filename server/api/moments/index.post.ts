@@ -23,13 +23,12 @@ export default defineEventHandler(async (event) => {
 
 	const client: SupabaseClient = await serverSupabaseClient(event);
 	const { error: sessionError } = await useSessionExists(event, client, time);
-	if (sessionError) return sessionError;
+	if (sessionError) return useReturnResponse(event, time, unauthorizedError);
 
 	const user = await serverSupabaseUser(event);
 	if (!user) return useReturnResponse(event, time, internalServerError);
 	
 	const request = await useReadMultipartFormData(event);
-
 	const { error: zodError } = await schema.safeParseAsync(request);
 
 	if (zodError) return useReturnResponse(event, time, {

@@ -2,7 +2,7 @@
 	<div class="">
 		<div class="flex items-center gap-2 mb-3 -mt-4">
 			<input type="text" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
-			<button @click="createFunction('Upload')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+			<button @click="createFunction('images')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 			</button>
 			<button @click="createFunction('Settings')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
@@ -11,7 +11,7 @@
 		</div>
 		<hr class="mb-2" />
 
-		<section v-if="List" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-auto">
+		<section v-if="List && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-auto">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 mb-32 lg:grid-cols-4">
 				<div class="last:pb-16" v-for="(image, index) in List" :key="index">
 					<LazyCardImage :image="image" />
@@ -22,7 +22,7 @@
 		<section v-else class="h-[80vh] overflow-y-auto">
 			<div class="grid w-full grid-cols-2 gap-3 mb-[4.3rem] lg:grid-cols-4">
 				<div class="animate-pulse" v-for="i in 16">
-					<LazyCardImageSkeleton/>
+					<LazyCardImageSkeleton />
 				</div>
 			</div>
 		</section>
@@ -52,24 +52,26 @@
 	});
 
 	definePageMeta({
-		middleware: "unauthorized",
+		middleware: ["unauthorized", "allowed"],
 	});
 
 	const id = useRoute().query.id;
-
+	const slug = useRoute().params.slug
+	
 	const List = ref();
 	const Page = ref(1);
 
 	const totalPages = ref(1);
 	const loading = ref(false);
+	const reload = ref(false);
 
-	const { getGroupData, getScrollData, setGroupData, updateGroupData, updateScrollData } = useGroupStore();
+	const { getGroupData, getScrollData, setGroupData, updateGroupData, updateScrollData, removeData } = useGroupStore();
 
 	const group = getGroupData(id);
 	const scrollData = getScrollData(id);
 
 	if (!group) {
-		await $fetch(`/api/moments/${id}?page=${Page.value}`)
+		await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`)
 			.then((data) => {
 				totalPages.value = data.pagination.total;
 				List.value = data.data;
@@ -112,7 +114,7 @@
 			loading.value = true;
 			Page.value += 1;
 
-			await $fetch(`/api/moments/${id}?page=${Page.value}`)
+			await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`)
 				.then((data) => {
 					List.value.push(...data.data);
 					totalPages.value = data.pagination.total;
@@ -132,7 +134,24 @@
 
 	const handleSuccess = async ({ response }) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		navigateTo(response.meta.redirect);
+		if (response.meta.redirect) navigateTo(response.meta.redirect);
+		if (response.meta.refresh) reloadData();
+	};
+
+	const reloadData = () => {
+		reload.value = true;
+		removeData(id)
+		setTimeout(async () => {
+			await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`)
+				.then((data) => {
+					totalPages.value = data.pagination.total;
+					List.value = data.data;
+					setGroupData(id, 1, totalPages.value, List.value);
+					reload.value = false;
+					scrollToTop("smooth");
+				})
+				.catch(() => {});
+		}, 2000);
 	};
 
 	const handleError = async ({ error, actions }) => {

@@ -3,7 +3,7 @@
 		<header :class=" PWAInstalled ? 'top-11 md:top-0': 'top-0'" class="fixed z-50 w-full bg-white ">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<div class="flex items-center justify-center gap-2">
-					<icon v-if="!$route.name.includes('index')" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="$router.back()"></icon>
+					<icon v-if="!$route?.name?.includes('index')" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="$router.back()"></icon>
 					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
 						<span v-if="$route.path == '/'">Lumora</span>
 						<span v-else-if="$route.params.slug">{{ $route.params.slug.replaceAll("-", " ") }}</span>
@@ -49,6 +49,12 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess" 
 				/>
+			<FieldFormCreateImage v-if="modal.type == 'images'" 
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess" 
+				/>
 		</ModalBaselayer>
 	</div>
 </template>
@@ -65,7 +71,26 @@
 	const store = useSessionsStore();
 	const { data: user, error } = await store.getSession();
 
-	const notificationCount = ref(10);
+	const notifications = ref([
+		{ id: 1, title: "Nieuwe Reactie", message: "Je hebt een nieuwe reactie op je post.", time: "2 uur geleden" },
+		{ id: 2, title: "Nieuwe Volger", message: "Je hebt een nieuwe volger.", time: "3 uur geleden" },
+		{ id: 3, title: "Bericht Gelezen", message: "Je bericht is gelezen door de ontvanger.", time: "4 uur geleden" },
+		{ id: 4, title: "Nieuwe Like", message: "Je post is geliked door iemand.", time: "5 uur geleden" },
+		{ id: 5, title: "Nieuwe Reactie", message: "Je hebt een nieuwe reactie op je post.", time: "6 uur geleden" },
+		{ id: 6, title: "Nieuwe Volger", message: "Je hebt een nieuwe volger.", time: "7 uur geleden" },
+		{ id: 7, title: "Bericht Gelezen", message: "Je bericht is gelezen door de ontvanger.", time: "8 uur geleden" },
+		{ id: 8, title: "Nieuwe Like", message: "Je post is geliked door iemand.", time: "9 uur geleden" },
+		{ id: 9, title: "Nieuwe Reactie", message: "Je hebt een nieuwe reactie op je post.", time: "10 uur geleden" },
+		{ id: 10, title: "Nieuwe Volger", message: "Je hebt een nieuwe volger.", time: "11 uur geleden" },
+		{ id: 11, title: "Bericht Gelezen", message: "Je bericht is gelezen door de ontvanger.", time: "12 uur geleden" },
+		{ id: 12, title: "Nieuwe Like", message: "Je post is geliked door iemand.", time: "13 uur geleden" },
+		{ id: 13, title: "Nieuwe Reactie", message: "Je hebt een nieuwe reactie op je post.", time: "14 uur geleden" },
+		{ id: 14, title: "Nieuwe Volger", message: "Je hebt een nieuwe volger.", time: "15 uur geleden" },
+		{ id: 15, title: "Bericht Gelezen", message: "Je bericht is gelezen door de ontvanger.", time: "16 uur geleden" },
+		{ id: 16, title: "Nieuwe Like", message: "Je post is geliked door iemand.", time: "17 uur geleden" },
+	]);
+	
+	const notificationCount = ref(notifications.value.length);
 	const username = ref(user.name);
 
 	const modal = ref({
@@ -77,15 +102,21 @@
 		modal.value = option;
 	}
 
+	function updateNotification(options) {
+        notifications.value = notifications.value.filter(notification => notification.id !== options.notification.id);
+        notificationCount.value = notifications.value.length;
+    }
+
+	function updateUsername(name) {
+		username.value = name
+	}
+
 	const closeModal = () => (modal.value = false);
-
-	provide("modal", { modal, updatemodalValue});
-
-	provide("username", username.value);
-	provide("notifications", notificationCount.value);
-
 	
-
+	provide("notifications", { notifications, notificationCount, updateNotification});
+	provide("username", {username, updateUsername});
+	provide("modal", { modal, updatemodalValue});
+	
 </script>
 
 <style scoped>

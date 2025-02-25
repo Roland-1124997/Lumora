@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
 
     if (error) {
         const { data, error } = await useRefreshSession(client, currentSession);
-
         if (!data.session || error) return useReturnResponse(event, time, unauthorizedError);
 
         useSetCookies(event, data.session);

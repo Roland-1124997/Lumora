@@ -36,7 +36,7 @@
 	const id = useRoute().params.id;
 	const image = ref({});
 
-	const data = await $fetch(`/api/moments/picture/${id}`) //await $fetch(`https://picsum.photos/id/${id}/info`);
+	const data = await $fetch(`/api/moments/picture/${id}`)
 
 	image.value = data.data[0];
 </script>

@@ -14,6 +14,13 @@ export const notFoundError = {
     },
 }
 
+export const forbiddenError = {
+    meta: {
+        code: 403,
+        message: "Forbidden",
+    },
+}
+
 export const unauthorizedError = {
     meta: {
         code: 401,

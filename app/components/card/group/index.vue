@@ -11,8 +11,8 @@
 					<p class="text-sm text-gray-500">{{ useTimeAgo(group.last_active).value }}</p>
 				</div>
 				<p class="text-sm text-gray-500">
-					<span v-if="group.lastPhotoPostedBy">Laatste foto gepost door: {{ group.lastPhotoPostedBy }}</span>
-					<span>Nog een activiteit, kom later terug</span>
+					<span v-if="group.last_photo_posted_by">Laatste foto gepost door: {{ group.last_photo_posted_by }}</span>
+					<span v-else>Nog een activiteit, kom later terug</span>
 				</p>
 			</div>
 		</NuxtLink>

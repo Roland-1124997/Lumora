@@ -1,7 +1,7 @@
 <template>
 	<Form class="w-full space-y-6" :validation-schema="schema" v-slot="{ meta, errors }: any" @submit="handleSubmit">
 		<slot :errors="errors"></slot>
-		<button class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-black/80 rounded-xl hover:bg-black">
+		<button :disabled="loading" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-black/80 rounded-xl hover:bg-black">
 			<UtilsLoader :loading :label :numberCount="3" />
 		</button>
 	</Form>
@@ -30,14 +30,14 @@
 			remember.value = values.remember ? values.email : undefined;
 		}
 
-		if (values.thumbnail) {
+		if (values.thumbnail || values.images) {
 			const formData = new FormData();
 
 			for (const key in values) {
-				if (key === "afbeeldingen") {
-					values[key]?.forEach((file: any, index: number) => {
+				if (key === "images") {
+					values[key].forEach((file: File, index: number) => {
 						const blob = new Blob([file], { type: file.type });
-						formData.append(`file:afbeeldingen[${index}]`, blob, file.name);
+						formData.append(`file:images[${index}]`, blob, file.name);
 					});
 				} else if (key === "thumbnail") {
 					const blob = new Blob([values[key]], { type: values[key]?.type });
