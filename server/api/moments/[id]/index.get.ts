@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 	const { error: errorGroup } = await client.from("groups").select("*").eq("id", id).eq("name", query.slug.replaceAll('-', ' ')).single() 
 	if (errorGroup) return useReturnResponse(event, time, forbiddenError);
 
-    const { items, page, start, end } = useMakePagination(16, query);
+    const { items, page, start, end } = useMakePagination(12, query);
     const { count, data, error } = await client.from("posts").select("*", { count: "exact" }).eq("group_id", id).range(start, end).order("created_at", { ascending: false });
 
     if (error) return useReturnResponse(event, time, internalServerError);

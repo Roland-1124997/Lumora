@@ -2,6 +2,9 @@
 	<div class="">
 		<div class="flex items-center gap-2 mb-3 -mt-4">
 			<input type="text" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
+			<button :disabled="reload" @click="reloadList()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+				<icon :class="reload ? 'animate-spin' : ''" name="ri:reset-left-line" size="1.4em" />
+			</button>
 			<button @click="createFunction('images')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 			</button>
@@ -21,7 +24,7 @@
 
 		<section v-else class="h-[80vh] overflow-y-auto">
 			<div class="grid w-full grid-cols-2 gap-3 mb-[4.3rem] lg:grid-cols-4">
-				<div class="animate-pulse" v-for="i in 16">
+				<div class="" v-for="i in 16">
 					<LazyCardImageSkeleton />
 				</div>
 			</div>
@@ -56,8 +59,8 @@
 	});
 
 	const id = useRoute().query.id;
-	const slug = useRoute().params.slug
-	
+	const slug = useRoute().params.slug;
+
 	const List = ref();
 	const Page = ref(1);
 
@@ -71,13 +74,15 @@
 	const scrollData = getScrollData(id);
 
 	if (!group) {
-		await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`)
-			.then((data) => {
-				totalPages.value = data.pagination.total;
-				List.value = data.data;
-				setGroupData(id, Page.value, totalPages.value, data.data);
-			})
-			.catch(() => {});
+		setTimeout(async () => {
+			await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`)
+				.then((data) => {
+					totalPages.value = data.pagination.total;
+					List.value = data.data;
+					setGroupData(id, Page.value, totalPages.value, data.data);
+				})
+				.catch(() => {});
+		}, 5000);
 	} else {
 		totalPages.value = group.pagination.total;
 		List.value = group.data;
@@ -135,20 +140,19 @@
 	const handleSuccess = async ({ response }) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (response.meta.redirect) navigateTo(response.meta.redirect);
-		if (response.meta.refresh) reloadData();
+		if (response.meta.refresh) reloadList();
 	};
 
-	const reloadData = () => {
+	const reloadList = () => {
 		reload.value = true;
-		removeData(id)
+		removeData(id);
 		setTimeout(async () => {
-			await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`)
+			await $fetch(`/api/moments/${id}?slug=${slug}&page=1`)
 				.then((data) => {
 					totalPages.value = data.pagination.total;
 					List.value = data.data;
 					setGroupData(id, 1, totalPages.value, List.value);
 					reload.value = false;
-					scrollToTop("smooth");
 				})
 				.catch(() => {});
 		}, 2000);

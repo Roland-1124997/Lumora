@@ -2,7 +2,7 @@
 	<div class="">
 		<section class="">
 			<div class="grid w-full grid-cols-2 gap-3 mb-32 h-fit lg:grid-cols-4">
-				<div class="last:pb-16" v-for="i in 16">
+				<div class="last:pb-16" v-for="i in 12">
 					<LazyCardImageSkeleton/>
 				</div>
 			</div>

@@ -39,9 +39,10 @@
 	watch(targetIsVisible, (value) => {
 		if (value) {
 			setTimeout(() => {
-				const imageLoad = new Image();
-				imageLoad.src = image.url;
-				imageLoad.onload = () => (loaded.value = true);
+				loaded.value = true
+				// const imageLoad = new Image();
+				// imageLoad.src = image.url;
+				// imageLoad.onload = () => (loaded.value = true);
 			}, 500);
 		}
 	});
