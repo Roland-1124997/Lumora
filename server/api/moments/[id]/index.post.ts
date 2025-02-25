@@ -1,4 +1,4 @@
-import { serverSupabaseClient, serverSupabaseUser } from "#supabase/server";
+import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from "#supabase/server";
 import * as zod from "zod";
 import sharp from "sharp";
 import crypto from "crypto";
@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
     const { id } = getRouterParams(event);
 
 	const client: SupabaseClient = await serverSupabaseClient(event);
+	const server: SupabaseClient = serverSupabaseServiceRole(event)
     const { error: sessionError } = await useSessionExists(event, client, time);
 	if (sessionError) return useReturnResponse(event, time, unauthorizedError);;
 
@@ -61,6 +62,13 @@ export default defineEventHandler(async (event) => {
 		if (error) return useReturnResponse(event, time, internalServerError);
 		
 	})
+
+	const { error } = await server.from("groups").update({
+		last_active: new Date(Date.now() + (process.env.time ? parseInt(process.env.time) : 0)).toISOString(),
+		last_photo_posted_by: user.id
+	}).eq("id", id)
+
+	if (error) return useReturnResponse(event, time, internalServerError)
 
 	return useReturnResponse(event, time, {
 		meta: {

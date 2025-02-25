@@ -15,7 +15,8 @@ interface scrollState {
 }
 
 const saveToStorage = (STORAGE_KEY: string, state: any) => {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if(state) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    else sessionStorage.removeItem(STORAGE_KEY)
 };
 
 export const useGroupStore = defineStore('group', () => {
