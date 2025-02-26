@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
 		const imageId = crypto.randomUUID();
 		let buffer: Buffer = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data);
 
-		await sharp(buffer).rotate().webp({ quality: 5 }).toBuffer().then((data) => buffer = data)
+		await sharp(buffer).rotate().webp({ quality: 10 }).toBuffer().then((data) => buffer = data)
 		
 		const { error: storageError } = await client.storage.from('images')
 			.upload(`${id}/${user.id}/${imageId}.webp`, buffer, {
