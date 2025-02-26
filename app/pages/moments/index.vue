@@ -66,6 +66,10 @@
 	const searchTerm = ref(`${query.search || ""}`);
 	const searchLoading = ref(false);
 
+	/*
+	************************************************************************************
+	*/
+
 	const { data, error }: any = await useFetch(`/api/moments?search=${searchTerm.value}`);
 
 	if (!error.value) {
@@ -97,16 +101,14 @@
 			});
 	});
 
-	const { containerProps, wrapperProps } = useVirtualList(List, {
-		itemHeight: 0,
-		overscan: 10,
-	});
+	/*
+	************************************************************************************
+	*/
 
+	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
 	const { scrollPercentage, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
 
-	useInfiniteScroll(
-		containerProps.ref,
-		async () => {
+	useInfiniteScroll(containerProps.ref, async () => {
 			if (Page.value >= totalPages.value || loading.value) return;
 
 			loading.value = true;
@@ -126,16 +128,18 @@
 		{ direction: "bottom", distance: 20 }
 	);
 
+	/*
+	************************************************************************************
+	*/
 
-	const handleSuccess = async ({ response }: SuccessResponse) => {
+	const handleSuccess = async ({ response }: SuccessResponse,) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		navigateTo(response.meta.redirect);
+		if (response.meta.redirect) navigateTo(response.meta.redirect);
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (error.data.errors.field) actions.setErrors(error.data.errors.field);
-
 	};
 
 	const { updatemodalValue }: any = inject("modal");

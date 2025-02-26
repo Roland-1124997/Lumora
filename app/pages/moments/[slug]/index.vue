@@ -2,8 +2,8 @@
 	<div class="">
 		<div class="flex items-center gap-2 mb-3 -mt-4">
 			<input type="text" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
-			<button :disabled="reload" @click="reloadList()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
-				<icon :class="reload ? 'animate-spin' : ''" name="ri:reset-left-line" size="1.4em" />
+			<button :disabled="reload" @click="handleReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+				<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 			</button>
 			<button @click="createFunction('images')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
@@ -13,7 +13,7 @@
 			</button>
 		</div>
 		<hr class="mb-2" />
-
+		
 		<section v-if="List && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-auto">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 mb-32 lg:grid-cols-4">
 				<div class="last:pb-16" v-for="(image, index) in List" :key="index">
@@ -24,7 +24,7 @@
 
 		<section v-else class="h-[80vh] overflow-y-auto">
 			<div class="grid w-full grid-cols-2 gap-3 mb-[4.3rem] lg:grid-cols-4">
-				<div class="" v-for="i in 16">
+				<div class="" v-for="i in 12">
 					<LazyCardImageSkeleton />
 				</div>
 			</div>
@@ -55,107 +55,105 @@
 	});
 
 	definePageMeta({
-		middleware: ["unauthorized", "allowed"],
+		middleware: "unauthorized",
 	});
 
-	const id = useRoute().query.id;
-	const slug = useRoute().params.slug;
+	/*
+	************************************************************************************
+	*/
 
-	const List = ref();
+	const slug = useRoute().params.slug;
+	const id = useRoute().query.id;
+	
+	const totalPages = ref(1);
 	const Page = ref(1);
 
-	const totalPages = ref(1);
-	const loading = ref(false);
-	const reload = ref(false);
+	const List = ref();
+	
+	/*
+	************************************************************************************
+	*/
 
 	const { getGroupData, getScrollData, setGroupData, updateGroupData, updateScrollData, removeData } = useGroupStore();
 
-	const group = getGroupData(id);
-	const scrollData = getScrollData(id);
+	const useFetchData = async (options, load, timer = 250) => {
 
-	if (!group) {
-		setTimeout(async () => {
-			await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`)
-				.then((data) => {
-					totalPages.value = data.pagination.total;
-					List.value = data.data;
-					setGroupData(id, Page.value, totalPages.value, data.data);
-				})
-				.catch(() => {});
-		}, 5000);
-	} else {
-		totalPages.value = group.pagination.total;
-		List.value = group.data;
-		Page.value = group.pagination.page;
+		load.value = true
+		if(options.reload) Page.value = 1
+		if(options.update) Page.value += 1;
+
+		await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`).then((response) => {
+			totalPages.value = response.pagination.total;
+			
+			if(options.reload) List.value = response.data;
+			if(options.set) List.value = response.data;
+			if(options.update) List.value.push(...response.data);
+			
+			if(options.reload) removeData(id)
+			if(options.set || options.reload) setGroupData(id, Page.value, totalPages.value, List.value);
+			if(options.update) updateGroupData(id, Page.value, totalPages.value, List.value);
+			
+		})
+		.catch(async (error) => { if(error.data.meta.code == 403) return navigateTo("/moments") })
+		.finally(() => setTimeout(() => load.value = false, timer));
 	}
 
-	const { containerProps, wrapperProps } = useVirtualList(List, {
-		itemHeight: 0,
-		overscan: 10,
-	});
+	const useDisplayStorageData = (state) => {
+		totalPages.value = state.pagination.total;
+		List.value = state.data;
+		Page.value = state.pagination.page;
+	}
 
+	const loading = ref(false);
+	const group = getGroupData(id);
+	if (!group) await useFetchData({ set: true }, loading)
+	else useDisplayStorageData(group)
+	
+	/*
+	************************************************************************************
+	*/
+
+	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
 	const { scrollPercentage, scrollPixels, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
 
-	onMounted(() => {
-		if (scrollData) {
-			scrollPercentage.value = scrollData.percentage;
-			scrollPixels.value = scrollData.pixels;
+	const useScrollToPosition = (state, behavior = "auto") => {
+		if (state) {
+			scrollPercentage.value = state.percentage;
+			scrollPixels.value = state.pixels;
 
 			const container = containerProps.ref.value;
-			const scrollPosition = (scrollPixels.value / 100) * scrollData.percentage;
+			const scrollPosition = (scrollPixels.value / 100) * state.percentage;
 
 			container.scrollTo({
 				top: scrollPosition,
-				behavior: "auto",
+				behavior: behavior,
 			});
 		}
-	});
-
-	useInfiniteScroll(
-		containerProps.ref,
-		async () => {
-			if (Page.value >= totalPages.value || loading.value) return;
-
-			loading.value = true;
-			Page.value += 1;
-
-			await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`)
-				.then((data) => {
-					List.value.push(...data.data);
-					totalPages.value = data.pagination.total;
-					updateGroupData(id, Page.value, totalPages.value, List.value);
-				})
-				.catch(() => {})
-				.finally(() => {
-					setTimeout(() => (loading.value = false), 250);
-				});
-		},
-		{ direction: "bottom", distance: 20 }
-	);
+	}
+	
+	const scrollData = getScrollData(id);
+	onMounted(() => useScrollToPosition(scrollData));
+	
+	useInfiniteScroll(containerProps.ref, async () => {
+		if (Page.value >= totalPages.value || loading.value) return;
+		await useFetchData({ update: true }, loading)
+	}, { direction: "bottom", distance: 20 });
 
 	watch(scrollPercentage, (percentage) => {
 		updateScrollData(id, percentage, scrollPixels.value);
 	});
 
+	/*
+	************************************************************************************
+	*/
+
+	const reload = ref(false);
+	const handleReload = async () => await useFetchData({ reload: true }, reload, 2000);
+	
 	const handleSuccess = async ({ response }) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (response.meta.redirect) navigateTo(response.meta.redirect);
-		if (response.meta.refresh) reloadList();
-	};
-
-	const reloadList = () => {
-		reload.value = true;
-		removeData(id);
-		setTimeout(async () => {
-			await $fetch(`/api/moments/${id}?slug=${slug}&page=1`)
-				.then((data) => {
-					totalPages.value = data.pagination.total;
-					List.value = data.data;
-					setGroupData(id, 1, totalPages.value, List.value);
-					reload.value = false;
-				})
-				.catch(() => {});
-		}, 2000);
+		if (response.meta.refresh) await handleReload()
 	};
 
 	const handleError = async ({ error, actions }) => {

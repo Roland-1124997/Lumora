@@ -4,7 +4,7 @@
 			<LazyNuxtImg :src="image.url" :alt="image.author_id" class="z-20 object-cover w-full h-full" />
 		</div>
 		<div class="p-2 border rounded-xl bg-gray-50">
-			{{ image }}
+			<!-- {{ image }} -->
 		</div>
 	</div>
 </template>

@@ -55,7 +55,7 @@
 	);
 
 	const handleSuccess = async ({ response }: SuccessResponse) => {
-		navigateTo(response.meta.redirect);
+		if (response.meta.redirect) navigateTo(response.meta.redirect);
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {

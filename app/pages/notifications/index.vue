@@ -45,12 +45,12 @@
 <style scoped>
     .fade-enter-active,
     .fade-leave-active {
-        transition: all 1s ease;
+        transition: all 0.5s ease;
     }
 
     .fade-enter-from,
     .fade-leave-to {
         opacity: 0;
-		transform: translateX(12em);
+		/* transform: translateX(12em); */
     }
 </style>

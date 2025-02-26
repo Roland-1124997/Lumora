@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
 	const imageId = crypto.randomUUID();
 	let buffer: Buffer = Buffer.isBuffer(request.files[0].data) ? request.files[0].data : Buffer.from(request.files[0].data);
 
-	await sharp(buffer).rotate().webp({ quality: 10 }).toBuffer().then((data) => buffer = data)
+	await sharp(buffer).rotate().webp({ quality: 5 }).toBuffer().then((data) => buffer = data)
 
 	const { data, error } = await client.from("groups").insert({
 		description: request.description,
