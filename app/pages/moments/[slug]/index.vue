@@ -2,7 +2,7 @@
 	<div class="">
 		<div class="flex items-center gap-2 mb-3 -mt-4">
 			<input type="text" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
-			<button :disabled="reload" @click="handleReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+			<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 			</button>
 			<button @click="createFunction('images')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
@@ -13,10 +13,10 @@
 			</button>
 		</div>
 		<hr class="mb-2" />
-		
+
 		<section v-if="List && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-auto">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 mb-32 lg:grid-cols-4">
-				<div class="last:pb-16" v-for="(image, index) in List" :key="index">
+				<div class="last:pb-16 md:last:pb-8" v-for="(image, index) in List" :key="index">
 					<LazyCardImage :image="image" />
 				</div>
 			</div>
@@ -74,7 +74,7 @@
 	************************************************************************************
 	*/
 
-	const { getGroupData, getScrollData, setGroupData, updateGroupData, updateScrollData, removeData } = useGroupStore();
+	const { setGroupData, setItemToStart, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
 
 	const useFetchData = async (options, load, timer = 250) => {
 
@@ -85,14 +85,22 @@
 		await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`).then((response) => {
 			totalPages.value = response.pagination.total;
 			
-			if(options.reload) List.value = response.data;
-			if(options.set) List.value = response.data;
-			if(options.update) List.value.push(...response.data);
+			if(options.set) {
+				List.value = response.data;
+				setGroupData(id, Page.value, totalPages.value, List.value);
+			}
 			
-			if(options.reload) removeData(id)
-			if(options.set || options.reload) setGroupData(id, Page.value, totalPages.value, List.value);
-			if(options.update) updateGroupData(id, Page.value, totalPages.value, List.value);
+			if(options.update){ 
+				List.value.push(...response.data);
+				updateGroupData(id, Page.value, totalPages.value, List.value);
+			}
 			
+			if(options.reload) {
+				removeData(id)
+				List.value = response.data;
+				setTimeout(() => setGroupData(id, Page.value, totalPages.value, List.value), 3000)
+			}
+
 		})
 		.catch(async (error) => { if(error.data.meta.code == 403) return navigateTo("/moments") })
 		.finally(() => setTimeout(() => load.value = false, timer));
@@ -148,12 +156,18 @@
 	*/
 
 	const reload = ref(false);
-	const handleReload = async () => await useFetchData({ reload: true }, reload, 2000);
+	const handleManualReload = async () => await useFetchData({ reload: true }, reload, 2000);
+
+	const handleReload = async (response) => {
+		reload.value = true
+		setItemToStart(id, response.data)
+		setTimeout(() => reload.value = false, 2000)
+	};
 	
 	const handleSuccess = async ({ response }) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (response.meta.redirect) navigateTo(response.meta.redirect);
-		if (response.meta.refresh) await handleReload()
+		if (response.meta.refresh) handleReload(response)
 	};
 
 	const handleError = async ({ error, actions }) => {

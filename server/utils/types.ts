@@ -50,5 +50,5 @@ export interface response {
         page: number,
         total: number
     },
-    data?: Record<string, unknown> | group[] | post[] | never[] 
+    data?: Record<string, any> | group[] | post[] | never[] 
 }

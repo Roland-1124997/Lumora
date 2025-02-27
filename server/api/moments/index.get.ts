@@ -18,12 +18,17 @@ export default defineEventHandler(async (event) => {
 	if (error) return useReturnResponse(event, time, internalServerError);
 	if (count === 0) return useReturnResponse(event, time, notFoundError);
 
-	const updated = await Promise.all(data.map(async (group: group) => {
+	const updated = await Promise.all(data.map(async (group: any) => {
 		const { data: userData } = await server.auth.admin.getUserById(group.last_photo_posted_by);
 		return {
-			...group,
 			thumbnail: client.storage.from("images").getPublicUrl(group.thumbnail).data.publicUrl,
-			last_photo_posted_by: userData.user?.user_metadata.name
+			meta: {
+				id: group.id,
+				name: group.name.replaceAll(' ', '-'),
+				description: group.description,
+				last_active: group.last_active,
+				last_photo_posted_by: userData.user?.user_metadata.name,
+			},
 		};
 	}));
 

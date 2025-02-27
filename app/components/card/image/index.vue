@@ -8,8 +8,8 @@
 				</button>
 			</div>
 
-			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/picture/${image.id}`">
-				<LazyNuxtImg :src="image.url" :alt="image.author_id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
+			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/picture/${image.meta.id}`">
+				<LazyNuxtImg :src="image.url" :alt="image.author.id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
 			</NuxtLink>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
@@ -18,9 +18,9 @@
 
 		<div class="py-2">
 			<p class="text-sm text-gray-500">
-				By <span class="font-semibold">{{ image.author }}</span>
+				By <span class="font-semibold">{{ image.author.name }}</span>
 			</p>
-			<p class="text-sm text-gray-500">{{ useTimeAgo(image.created_at).value }}</p>
+			<p class="text-sm text-gray-500">{{ useTimeAgo(image.meta.created_at).value }}</p>
 		</div>
 	</div>
 </template>
@@ -36,24 +36,32 @@
 		image: { type: Object, required: true },
 	});
 
+	
+
+	hearts.value = image.likes.count
+	liked.value =  image.likes.liked
+		
+
 	watch(targetIsVisible, (value) => {
 		if (value) {
 			setTimeout(() => {
 				loaded.value = true
-				// const imageLoad = new Image();
-				// imageLoad.src = image.url;
-				// imageLoad.onload = () => (loaded.value = true);
 			}, 500);
 		}
 	});
 
-	const likeImage = () => {
-		if (liked.value) {
-			hearts.value -= 1;
-			liked.value = false;
-			return;
-		}
-		liked.value = true;
-		hearts.value += 1;
+	const { updateItemByMetaId } = useGroupStore();
+
+
+	const likeImage = async () => {
+		
+		await $fetch(`/api/moments/picture/${image.meta.id}`, { method: "PATCH" }).then((response: any) => {
+			hearts.value = response.data.likes.count
+			liked.value = response.data.likes.liked
+
+			updateItemByMetaId(image.group.id, image.meta.id, {
+				likes: { count: hearts.value, liked: liked.value }
+			});
+		})
 	};
 </script>

@@ -39,12 +39,13 @@ export default defineEventHandler(async (event) => {
 		}
 	})
 
-	request.files.forEach(async (file: FormDataItem) => {
+	let post: any = {}
+	for (const file of request.files) {
 		const imageId = crypto.randomUUID();
 		let buffer: Buffer = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data);
 
-		await sharp(buffer).rotate().webp({ quality: 10 }).toBuffer().then((data) => buffer = data)
-		
+		await sharp(buffer).rotate().webp({ quality: 10 }).toBuffer().then((data) => buffer = data);
+
 		const { error: storageError } = await client.storage.from('images')
 			.upload(`${id}/${user.id}/${imageId}.webp`, buffer, {
 				contentType: "image/webp",
@@ -53,29 +54,50 @@ export default defineEventHandler(async (event) => {
 			});
 
 		if (storageError) return useReturnResponse(event, time, internalServerError);
-		
-		const { error } = await client.from("posts").insert({
+
+		const { data, error } = await client.from("posts").insert({
 			url: `${id}/${user.id}/${imageId}.webp`,
 			group_id: id
-		})
+		}).select().single();
 
 		if (error) return useReturnResponse(event, time, internalServerError);
-		
-	})
+		post = data; 
+	}
 
-	const { error } = await server.from("groups").update({
+	const { error: errorGroup } = await server.from("groups").update({
 		last_active: new Date(Date.now() + (process.env.time ? parseInt(process.env.time) : 0)).toISOString(),
 		last_photo_posted_by: user.id
 	}).eq("id", id)
 
-	if (error) return useReturnResponse(event, time, internalServerError)
+	if (errorGroup) return useReturnResponse(event, time, internalServerError)
 
+	const { data, error } = await server.auth.admin.getUserById(post.author_id);
+	if (error) return useReturnResponse(event, time, internalServerError)
+	
 	return useReturnResponse(event, time, {
 		meta: {
 			code: 200,
 			message: "Data received",
 			refresh: true
 		},
+		data: {
+			url: client.storage.from("images").getPublicUrl(post.url).data.publicUrl,
+			meta: {
+				id: post.id,
+				created_at: post.created_at,
+			},
+			likes: {
+				count: post.likes,
+				liked: false
+			},
+			author: {
+				id: post.author_id,
+				name: data.user?.user_metadata.name
+			},
+			group: {
+				id: post.group_id
+			}
+		}
 	});
 	
 });

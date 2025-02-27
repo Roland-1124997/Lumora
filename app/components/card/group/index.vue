@@ -1,17 +1,17 @@
 <template>
 	<div ref="target" class="h-16 pb-2 border-b">
-		<NuxtLink :to="`/moments/${group.name.replaceAll(' ', '-')}?id=${group.id}`" class="flex items-center space-x-3">
+		<NuxtLink :to="`/moments/${group.meta.name}?id=${group.meta.id}`" class="flex items-center space-x-3">
 			<div class="flex items-center justify-center w-12 h-12 overflow-hidden bg-gray-200 rounded-full">
 				<LazyNuxtImg v-if="loaded && targetIsVisible" :src="group.thumbnail" alt="image" class="object-cover w-full h-full" />
 				<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1.4em" />
 			</div>
 			<div class="flex-1 pl-3 border-l">
 				<div class="flex justify-between">
-					<h3 class="text-lg font-semibold">{{ group.name }}</h3>
-					<p class="text-sm text-gray-500">{{ useTimeAgo(group.last_active).value }}</p>
+					<h3 class="text-lg font-semibold">{{ group.meta.name }}</h3>
+					<p class="text-sm text-gray-500">{{ useTimeAgo(group.meta.last_active).value }}</p>
 				</div>
 				<p class="text-sm text-gray-500">
-					<span v-if="group.last_photo_posted_by">Laatste foto gepost door: {{ group.last_photo_posted_by }}</span>
+					<span v-if="group.meta.last_photo_posted_by">Laatste foto gepost door: {{ group.meta.last_photo_posted_by }}</span>
 					<span v-else>Nog een activiteit, kom later terug</span>
 				</p>
 			</div>
