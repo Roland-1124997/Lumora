@@ -19,7 +19,7 @@ const schema = zod.object({
 export default defineEventHandler(async (event) => {
 	const time = Date.now();
 
-    const { id } = getRouterParams(event);
+	const { group_id } = getRouterParams(event);
 
 	const client: SupabaseClient = await serverSupabaseClient(event);
 	const server: SupabaseClient = serverSupabaseServiceRole(event)
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 		await sharp(buffer).rotate().webp({ quality: 10 }).toBuffer().then((data) => buffer = data);
 
 		const { error: storageError } = await client.storage.from('images')
-			.upload(`${id}/${user.id}/${imageId}.webp`, buffer, {
+			.upload(`${group_id}/${user.id}/${imageId}.webp`, buffer, {
 				contentType: "image/webp",
 				cacheControl: '3600',
 				upsert: true,
@@ -56,8 +56,8 @@ export default defineEventHandler(async (event) => {
 		if (storageError) return useReturnResponse(event, time, internalServerError);
 
 		const { data, error } = await client.from("posts").insert({
-			url: `${id}/${user.id}/${imageId}.webp`,
-			group_id: id
+			url: `${group_id}/${user.id}/${imageId}.webp`,
+			group_id: group_id
 		}).select().single()
 
 		if (error) return useReturnResponse(event, time, internalServerError);
@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
 	const { error: errorGroup } = await server.from("groups").update({
 		last_active: new Date(Date.now() + (process.env.time ? parseInt(process.env.time) : 0)).toISOString(),
 		last_photo_posted_by: user.id
-	}).eq("id", id)
+	}).eq("id", group_id)
 
 	if (errorGroup) return useReturnResponse(event, time, internalServerError)
 

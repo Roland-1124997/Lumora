@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
 		meta: {
 			code: 200,
 			message: "Data received",
-			redirect: `/moments/${data.name.replace(" ","-")}?id=${data.id}`,
+			redirect: `/moments/${data.id}`,
 		},
 	});
 });

@@ -1,5 +1,6 @@
 <template>
 	<div>
+		<section></section>
 	</div>
 </template>
 
@@ -24,8 +25,8 @@
 	});
 
 	definePageMeta({
-		middleware: "redirect",
-		layout: false,
+		middleware: "unauthorized",
 	});
 
+	const username = inject("username");
 </script>

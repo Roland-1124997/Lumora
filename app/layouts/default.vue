@@ -3,10 +3,10 @@
 		<header :class=" PWAInstalled ? 'top-11 md:top-0': 'top-0'" class="fixed z-50 w-full bg-white ">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<div class="flex items-center justify-center gap-2">
-					<icon v-if="!$route?.name?.includes('index')" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="$router.back()"></icon>
+					<icon v-if="$route.path != '/home'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="$route.name.includes('-group_id') ? $router.push('/moments') : $router.back()"></icon>
 					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
-						<span v-if="$route.path == '/'">Lumora</span>
-						<span v-else-if="$route.params.slug">{{ $route.params.slug.replaceAll("-", " ") }}</span>
+						<span v-if="$route.path == '/home'">Lumora</span>
+						<span v-else-if="$route.name.includes('-group_id')">{{ group }}</span>
 						<span v-else>{{ $route.name.charAt(0).toUpperCase() + $route.name.slice(1) }} </span>
 					</h1>
 				</div>
@@ -16,9 +16,9 @@
 				</div>
 			</div>
 
-			<nav v-if="$route.params.slug == null" class="container max-w-5xl mx-auto border-b">
+			<nav v-if="!$route.name.includes('-group_id')" class="container max-w-5xl mx-auto border-b">
 				<div class="flex items-center w-full h-10 gap-2 p-1 px-2 bg-gray-100 cursor-pointer md:rounded-lg justify-evenly">
-					<NuxtLink to="/" class="flex items-center justify-center h-full gap-2 px-2 py-1 rounded-lg w-fit">
+					<NuxtLink to="/home" class="flex items-center justify-center h-full gap-2 px-2 py-1 rounded-lg w-fit">
 						<icon name="mdi:home" size="1.2rem"></icon>
 					</NuxtLink>
 					<span class="text-sm text-gray-400">|</span>
@@ -37,7 +37,7 @@
 			</nav>
 		</header>
 
-		<main :class="$route.params.slug == null ? 'mt-28' : 'mt-[4.5rem]'" class="fixed w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over overflow-y-aut sm:px-6 lg:px-24">
+		<main :class="!$route.name.includes('-group_id') ? 'mt-28' : 'mt-[4.5rem]'" class="fixed w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over sm:px-6 lg:px-24">
 			<div class="container max-w-5xl mx-auto mt-4">
 				<slot></slot>
 			</div>
@@ -90,6 +90,7 @@
 		{ id: 16, title: "Nieuwe Like", message: "Je post is geliked door iemand.", time: "17 uur geleden" },
 	]);
 	
+	const group = ref()
 	const notificationCount = ref(notifications.value.length);
 	const username = ref(user.name);
 
@@ -98,7 +99,11 @@
 		type: "",
 	});
 
-	function updatemodalValue(option) {
+	function updateGroupValue(option) {
+		group.value = option
+	}
+
+	function updateModalValue(option) {
 		modal.value = option;
 	}
 
@@ -115,7 +120,9 @@
 	
 	provide("notifications", { notifications, notificationCount, updateNotification});
 	provide("username", {username, updateUsername});
-	provide("modal", { modal, updatemodalValue});
+	provide("modal", { modal, updateModalValue});
+	provide("group", { group, updateGroupValue })
+	provide("PWA", { PWAInstalled })
 	
 </script>
 

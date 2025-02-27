@@ -1,7 +1,7 @@
 <template>
 	<div class="">
 		<div class="flex items-center gap-2 mb-3 -mt-4">
-			<input type="text" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
+			<input :disabled="!List || reload" type="text" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
 			<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 			</button>
@@ -13,10 +13,9 @@
 			</button>
 		</div>
 		<hr class="mb-2" />
-
-		<section v-if="List && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-auto">
-			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 mb-32 lg:grid-cols-4">
-				<div class="last:pb-16 md:last:pb-8" v-for="(image, index) in List" :key="index">
+		<section v-if="List && !reload" @scroll="updateScrollPercentage" v-bind="containerProps"  class=" h-[80vh] overflow-y-scroll ">
+			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
+				<div :class="PWAInstalled ? 'last:mb-16 md:last:mb-8' : 'last:mb-4 md:last:mb-8'" v-for="(image, index) in List" :key="index">
 					<LazyCardImage :image="image" />
 				</div>
 			</div>
@@ -59,67 +58,76 @@
 	});
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
-	const slug = useRoute().params.slug;
-	const id = useRoute().query.id;
-	
+	const { PWAInstalled } = inject("PWA")
+	const group_id = useRoute().params.group_id;
+
 	const totalPages = ref(1);
 	const Page = ref(1);
 
-	const List = ref();
-	
-	/*
-	************************************************************************************
-	*/
+	const List = ref(null);
+	const name = ref()
 
+	/*
+	 ************************************************************************************
+	 */
+
+	const { updateGroupValue } = inject("group");
 	const { setGroupData, setItemToStart, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
 
 	const useFetchData = async (options, load, timer = 250) => {
+		load.value = true;
+		if (options.reload) Page.value = 1;
+		if (options.update) Page.value += 1;
 
-		load.value = true
-		if(options.reload) Page.value = 1
-		if(options.update) Page.value += 1;
-
-		await $fetch(`/api/moments/${id}?slug=${slug}&page=${Page.value}`).then((response) => {
+		await $fetch(`/api/moments/${group_id}?page=${Page.value}`).then((response) => {
 			totalPages.value = response.pagination.total;
+			name.value = response.meta.name
+
+			updateGroupValue(name.value)
 			
-			if(options.set) {
+			if (options.set) {
 				List.value = response.data;
-				setGroupData(id, Page.value, totalPages.value, List.value);
-			}
-			
-			if(options.update){ 
-				List.value.push(...response.data);
-				updateGroupData(id, Page.value, totalPages.value, List.value);
-			}
-			
-			if(options.reload) {
-				removeData(id)
-				List.value = response.data;
-				setTimeout(() => setGroupData(id, Page.value, totalPages.value, List.value), 3000)
+				setGroupData(group_id, name.value, Page.value, totalPages.value, List.value);
 			}
 
+			if (options.update) {
+				List.value.push(...response.data);
+				updateGroupData(group_id, name.value, Page.value, totalPages.value, List.value);
+			}
+
+			if (options.reload) {
+				List.value = response.data;
+				removeData(group_id);
+				setTimeout(() => setGroupData(group_id, name.value,  Page.value, totalPages.value, List.value), 3000);
+			}
 		})
-		.catch(async (error) => { if(error.data.meta.code == 403) return navigateTo("/moments") })
-		.finally(() => setTimeout(() => load.value = false, timer));
-	}
+		.catch(async (error) => {
+			updateGroupValue(error.data.meta.name)
+			if(error.data.meta.code == 403) removeData(group_id);
+			if (error.data.meta.code == 403) return navigateTo("/moments");
+		}).finally(() => setTimeout(() => (load.value = false), timer));
+	};
 
 	const useDisplayStorageData = (state) => {
 		totalPages.value = state.pagination.total;
 		List.value = state.data;
 		Page.value = state.pagination.page;
-	}
+		name.value = state.group.name
+
+		updateGroupValue(name.value)
+	};
 
 	const loading = ref(false);
-	const group = getGroupData(id);
-	if (!group) await useFetchData({ set: true }, loading)
-	else useDisplayStorageData(group)
-	
+	const group = getGroupData(group_id);
+	if (!group) await useFetchData({ set: true }, loading);
+	else useDisplayStorageData(group);
+
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
 	const { scrollPercentage, scrollPixels, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
@@ -137,37 +145,39 @@
 				behavior: behavior,
 			});
 		}
-	}
-	
-	const scrollData = getScrollData(id);
+	};
+
+	const scrollData = getScrollData(group_id);
 	onMounted(() => useScrollToPosition(scrollData));
-	
+
 	useInfiniteScroll(containerProps.ref, async () => {
 		if (Page.value >= totalPages.value || loading.value) return;
-		await useFetchData({ update: true }, loading)
-	}, { direction: "bottom", distance: 20 });
+		await useFetchData({ update: true }, loading);
+	},{ direction: "bottom", distance: 20 });
 
-	watch(scrollPercentage, (percentage) => {
-		updateScrollData(id, percentage, scrollPixels.value);
-	});
+	watch(scrollPercentage, (percentage) => updateScrollData(group_id, percentage, scrollPixels.value));
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const reload = ref(false);
 	const handleManualReload = async () => await useFetchData({ reload: true }, reload, 2000);
 
 	const handleReload = async (response) => {
-		reload.value = true
-		setItemToStart(id, response.data)
-		setTimeout(() => reload.value = false, 2000)
+
+		if(List.value !== null) {
+			reload.value = true;
+			setItemToStart(group_id, response.data);
+			setTimeout(() => (reload.value = false), 2000);
+		} else await useFetchData({ reload: true }, reload, 2000);
+
 	};
-	
+
 	const handleSuccess = async ({ response }) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (response.meta.redirect) navigateTo(response.meta.redirect);
-		if (response.meta.refresh) handleReload(response)
+		if (response.meta.refresh) handleReload(response);
 	};
 
 	const handleError = async ({ error, actions }) => {
@@ -175,13 +185,13 @@
 		if (error.data.errors.field) actions.setErrors(error.data.errors.field);
 	};
 
-	const { updatemodalValue } = inject("modal");
+	const { updateModalValue } = inject("modal");
 	const createFunction = (type) => {
-		updatemodalValue({
+		updateModalValue({
 			open: true,
 			type: type,
 			name: type == "Settings" ? type : "New image",
-			requestUrl: `/api/moments/${id}`,
+			requestUrl: `/api/moments/${group_id}`,
 			onSuccess: handleSuccess,
 			onError: handleError,
 		});

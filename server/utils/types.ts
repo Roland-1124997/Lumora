@@ -30,6 +30,8 @@ export interface FormDataItem {
 }
 export interface response {
     meta: {
+        id?: string, 
+        name?: string,
         code: number,
         message: string,
         redirect?: string,
@@ -50,5 +52,6 @@ export interface response {
         page: number,
         total: number
     },
+    info?: Record<string, any>,
     data?: Record<string, any> | group[] | post[] | never[] 
 }

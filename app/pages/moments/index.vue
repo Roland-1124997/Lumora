@@ -56,6 +56,10 @@
 		middleware: "unauthorized",
 	});
 
+	/*
+	************************************************************************************
+	*/
+
 	const List: any = ref([]);
 	const loading = ref(false);
 
@@ -142,9 +146,9 @@
 		if (error.data.errors.field) actions.setErrors(error.data.errors.field);
 	};
 
-	const { updatemodalValue }: any = inject("modal");
+	const { updateModalValue }: any = inject("modal");
 	const createFunction = (type: string) => {
-		updatemodalValue({
+		updateModalValue({
 			open: true,
 			type: type,
 			name: "New group",

@@ -3,7 +3,7 @@ import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } f
 
 export default defineEventHandler(async (event) => {
     const time = Date.now();
-    const { id } = getRouterParams(event)
+    const { image_id } = getRouterParams(event)
 
     const client = await serverSupabaseClient(event);
     const server: SupabaseClient = serverSupabaseServiceRole(event);
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const user = await serverSupabaseUser(event);
     if (!user) return useReturnResponse(event, time, internalServerError);
 
-    const { data, error } : any= await server.rpc('toggle_like', { liked_post_id: id, liked_user_id: user.id }).single()
+    const { data, error }: any = await server.rpc('toggle_like', { liked_post_id: image_id, liked_user_id: user.id }).single()
     if (error) return useReturnResponse(event, time, internalServerError);
 
     return useReturnResponse(event, time, {

@@ -1,7 +1,9 @@
 
 
 interface GroupState {
-
+    group: {
+        name: string
+    },
     pagination: {
         page: number;
         total: number;
@@ -15,7 +17,7 @@ interface scrollState {
 }
 
 
-const saveToStorage = (STORAGE_KEY: string, state: any) => {
+const saveToStorage = (STORAGE_KEY: string, state: any = null) => {
     if(state) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     else sessionStorage.removeItem(STORAGE_KEY)
 };
@@ -50,9 +52,9 @@ export const useGroupStore = defineStore('group', () => {
         return scrollState.get(name)
     };
 
-    const setGroupData = (name: string, page: number, total: number, data: object[]) => {
+    const setGroupData = (name: string, group: string, page: number, total: number, data: object[]) => {
         if (state.has(name)) return;
-        state.set(name, { pagination: { page, total }, data });
+        state.set(name, { group: { name: group }, pagination: { page, total }, data });
         saveToStorage(`${name}_List`, state.get(name));
     };
 
@@ -60,8 +62,23 @@ export const useGroupStore = defineStore('group', () => {
         const groupState = state.get(name);
         if (!groupState) return;
 
-        const items = Array.isArray(newItem) ? newItem : [newItem]; 
+        const items = Array.isArray(newItem) ? newItem : [newItem];
         groupState.data.unshift(...items); 
+
+        const maxItems = groupState.pagination.page * 12;  
+        const totalItems = groupState.data.length;       
+
+        if (totalItems > maxItems) {
+            groupState.data.splice(maxItems); 
+        }
+
+        if (totalItems > groupState.pagination.total * 12) {
+            groupState.pagination.total = Math.ceil(totalItems / 12);
+        }
+
+        if (groupState.pagination.page > groupState.pagination.total) {
+            groupState.pagination.page = groupState.pagination.total;
+        }
 
         saveToStorage(`${name}_List`, state.set(name, groupState).get(name));
     };
@@ -71,9 +88,9 @@ export const useGroupStore = defineStore('group', () => {
         saveToStorage(`${name}_Scroll`, scrollState.get(name));
     }
 
-    const updateGroupData = (name: string, page: number, total: number, data: object[]) => {
+    const updateGroupData = (name: string, group: string, page: number, total: number, data: object[]) => {
         if (!state.has(name)) return;
-        state.set(name, { pagination: { page, total }, data });
+        state.set(name, { group: { name: group }, pagination: { page, total }, data });
         saveToStorage(`${name}_List`, state.get(name));
     };
 
@@ -84,12 +101,16 @@ export const useGroupStore = defineStore('group', () => {
         modifyItemByMetaId(state, name, metaId, 'remove');
 
     
+    const removeData = (name: string, options: any = null) => {
 
-    const removeData = (name: string) => {
         state.delete(name);
-        scrollState.delete(name);
-        saveToStorage(`${name}_List`, null);
-        saveToStorage(`${name}_Scroll`, null);
+        saveToStorage(`${name}_List`);
+
+        if(!options?.partial) {
+            scrollState.delete(name);
+            saveToStorage(`${name}_Scroll`);
+        } 
+
     }
 
     return {

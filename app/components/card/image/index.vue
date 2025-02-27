@@ -8,7 +8,7 @@
 				</button>
 			</div>
 
-			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/picture/${image.meta.id}`">
+			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/${image.meta.id}`">
 				<LazyNuxtImg :src="image.url" :alt="image.author.id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
 			</NuxtLink>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
@@ -38,6 +38,8 @@
 
 	
 
+	
+	
 	hearts.value = image.likes.count
 	liked.value =  image.likes.liked
 		
@@ -54,12 +56,14 @@
 
 
 	const likeImage = async () => {
-		
-		await $fetch(`/api/moments/picture/${image.meta.id}`, { method: "PATCH" }).then((response: any) => {
+
+		const group_id = useRoute().params.group_id
+
+		await $fetch(`/api/moments/${group_id}/${image.meta.id}`, { method: "PATCH" }).then((response: any) => {
 			hearts.value = response.data.likes.count
 			liked.value = response.data.likes.liked
 
-			updateItemByMetaId(image.group.id, image.meta.id, {
+			updateItemByMetaId(group_id, image.meta.id, {
 				likes: { count: hearts.value, liked: liked.value }
 			});
 		})

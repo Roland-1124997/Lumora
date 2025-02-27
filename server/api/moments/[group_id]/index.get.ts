@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
     const time = Date.now();
     const query: query = getQuery(event);
 
-    const { id } = getRouterParams(event);
+	const { group_id } = getRouterParams(event);
     
     const client = await serverSupabaseClient(event);
     const server = serverSupabaseServiceRole(event)
@@ -15,16 +15,23 @@ export default defineEventHandler(async (event) => {
 	const user = await serverSupabaseUser(event);
 	if (!user) return useReturnResponse(event, time, internalServerError);
 
-
-	const { error: errorGroup } = await client.from("groups").select("*").eq("id", id).eq("name", query.slug.replaceAll('-', ' ')).single() 
+	const { data: groupData, error: errorGroup }: any = await client.from("groups").select("*").eq("id", group_id).single() 
 	if (errorGroup) return useReturnResponse(event, time, forbiddenError);
 
+	const customError = {
+		meta: {
+			id: group_id,
+			name: groupData.name.replaceAll(" ", "-"),
+			code: 404,
+			message: "Not Found",
+		},
+	}
 
     const { items, page, start, end } = useMakePagination(12, query);
-    const { count, data, error } = await client.from("posts").select("*", { count: "exact" }).eq("group_id", id).range(start, end).order("created_at", { ascending: false });
+	const { count, data, error } = await client.from("posts").select("*", { count: "exact" }).eq("group_id", group_id).range(start, end).order("created_at", { ascending: false });
 
     if (error) return useReturnResponse(event, time, internalServerError);
-    if (count === 0) return useReturnResponse(event, time, notFoundError);
+	if (count === 0) return useReturnResponse(event, time, customError);
 
 	const updated = await Promise.all(data.map(async (posts: any) => {
 		const { data: userData } = await server.auth.admin.getUserById(posts.author_id);
@@ -45,14 +52,14 @@ export default defineEventHandler(async (event) => {
 				id: posts.author_id,
 				name: userData.user?.user_metadata.name
 			},
-			group: {
-				id: posts.group_id
-			}
 		};
 	}));
 
+
 	return useReturnResponse(event, time, {
 		meta: {
+			id: group_id,
+			name: groupData.name.replaceAll(" ", "-"),
 			code: 200,
 			message: "Data received",
 		},
@@ -61,5 +68,6 @@ export default defineEventHandler(async (event) => {
 			total: Math.ceil((count ?? 1) / items),
 		},
 		data: updated
+
 	});
 });

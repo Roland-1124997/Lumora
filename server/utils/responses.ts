@@ -35,7 +35,7 @@ export const badRequestError = {
     },
 }
 
-export const useReturnResponse = (event: H3Event, startTime: number, data: response) => { setResponseStatus(event, data.meta.code)
+export const useReturnResponse = (event: H3Event, startTime: number, data: response|any) => { setResponseStatus(event, data.meta.code)
     return {
         ...data,
         details: {
