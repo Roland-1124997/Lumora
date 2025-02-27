@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
             },
             group: {
                 id: posts.group_id,
-                name: groupData.name.replaceAll(" ", "-"),
+                name: groupData.name,
             },
             permision: {
                 delete: permissions?.can_delete_messages_all || permissions?.user_id === posts.author_id 

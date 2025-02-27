@@ -3,7 +3,7 @@
 		<header :class=" PWAInstalled ? 'top-11 md:top-0': 'top-0'" class="fixed z-50 w-full bg-white ">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<div class="flex items-center justify-center gap-2">
-					<icon v-if="$route.path != '/home'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="$route.name.includes('-group_id') ? $router.push('/moments') : $router.back()"></icon>
+					<icon v-if="$route.path != '/home'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="$route.name.includes('-group_id') && !$route.name.includes('-image_id') ? $router.push('/moments') : $router.back()"></icon>
 					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
 						<span v-if="$route.path == '/home'">Lumora</span>
 						<span v-else-if="$route.name.includes('-group_id')">{{ group }}</span>

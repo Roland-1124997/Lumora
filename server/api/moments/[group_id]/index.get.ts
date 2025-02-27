@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 	const customError = {
 		meta: {
 			id: group_id,
-			name: groupData.name.replaceAll(" ", "-"),
+			name: groupData.name,
 			code: 404,
 			message: "Not Found",
 		},
@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
 	return useReturnResponse(event, time, {
 		meta: {
 			id: group_id,
-			name: groupData.name.replaceAll(" ", "-"),
+			name: groupData.name,
 			code: 200,
 			message: "Data received",
 		},

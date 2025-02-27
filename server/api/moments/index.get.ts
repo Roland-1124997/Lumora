@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 			thumbnail: client.storage.from("images").getPublicUrl(group.thumbnail).data.publicUrl,
 			meta: {
 				id: group.id,
-				name: group.name.replaceAll(' ', '-'),
+				name: group.name,
 				description: group.description,
 				last_active: group.last_active,
 				last_photo_posted_by: userData.user?.user_metadata.name,
