@@ -56,14 +56,15 @@ export const useGroupStore = defineStore('group', () => {
         saveToStorage(`${name}_List`, state.get(name));
     };
 
-    const setItemToStart = (name: string, newItem: object) => {
+    const setItemToStart = (name: string, newItem: object | object[]) => {
         const groupState = state.get(name);
         if (!groupState) return;
 
-        groupState.data.unshift(newItem);
+        const items = Array.isArray(newItem) ? newItem : [newItem]; 
+        groupState.data.unshift(...items); 
+
         saveToStorage(`${name}_List`, state.set(name, groupState).get(name));
     };
-
 
     const updateScrollData = (name: string, percentage: number, pixels: number) => {
         scrollState.set(name, { percentage, pixels });

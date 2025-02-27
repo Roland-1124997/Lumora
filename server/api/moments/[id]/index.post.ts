@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
 		}
 	})
 
-	let post: any = {}
+	let post: any = []
 	for (const file of request.files) {
 		const imageId = crypto.randomUUID();
 		let buffer: Buffer = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data);
@@ -58,10 +58,10 @@ export default defineEventHandler(async (event) => {
 		const { data, error } = await client.from("posts").insert({
 			url: `${id}/${user.id}/${imageId}.webp`,
 			group_id: id
-		}).select().single();
+		}).select().single()
 
 		if (error) return useReturnResponse(event, time, internalServerError);
-		post = data; 
+		post.push(data); 
 	}
 
 	const { error: errorGroup } = await server.from("groups").update({
@@ -71,33 +71,34 @@ export default defineEventHandler(async (event) => {
 
 	if (errorGroup) return useReturnResponse(event, time, internalServerError)
 
-	const { data, error } = await server.auth.admin.getUserById(post.author_id);
-	if (error) return useReturnResponse(event, time, internalServerError)
-	
+	const updated = await Promise.all(post.map(async (posts: any) => {
+		return {
+			url: client.storage.from("images").getPublicUrl(posts.url).data.publicUrl,
+			meta: {
+				id: posts.id,
+				created_at: posts.created_at,
+			},
+			likes: {
+				count: posts.likes,
+				liked: false
+			},
+			author: {
+				id: posts.author_id,
+				name: user.user_metadata.name
+			},
+			group: {
+				id: posts.group_id
+			}
+		};
+	}));
+
 	return useReturnResponse(event, time, {
 		meta: {
 			code: 200,
 			message: "Data received",
 			refresh: true
 		},
-		data: {
-			url: client.storage.from("images").getPublicUrl(post.url).data.publicUrl,
-			meta: {
-				id: post.id,
-				created_at: post.created_at,
-			},
-			likes: {
-				count: post.likes,
-				liked: false
-			},
-			author: {
-				id: post.author_id,
-				name: data.user?.user_metadata.name
-			},
-			group: {
-				id: post.group_id
-			}
-		}
+		data: updated
 	});
 	
 });
