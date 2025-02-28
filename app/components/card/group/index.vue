@@ -26,7 +26,6 @@
 
 	const { group } = defineProps({
 		group: { type: Object, required: true },
-		
 	});
 
 	watch(targetIsVisible, (value) => {

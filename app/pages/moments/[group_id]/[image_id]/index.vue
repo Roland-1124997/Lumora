@@ -47,7 +47,15 @@
 	await $fetch(`/api/moments/${group_id}/${image_id}`).then((response) => {
 		details.value = response.data[0];
 		updateGroupValue(details.value.group.name);
-	}).catch(() => navigateTo(`/moments/${group_id}`));
+	}).catch((error) => {
+
+		throw createError({
+            statusCode: error.data.meta.code,
+            message: error.data.meta.message,
+            fatal: true,
+        })
+
+	});
 
 	/*
 	 ************************************************************************************
@@ -69,7 +77,7 @@
 
 			while (page.value <= group.pagination.page) {
 				await $fetch(`/api/moments/${group_id}?page=${page.value}`).then((response) => {
-					
+
 					total.value = response.pagination.total;
 					name.value = response.meta.name
 
@@ -83,13 +91,12 @@
 					}
 				});
 
+				
 				if (page.value < total.value) page.value++; 
 				else break; 
 				
 			}
-		}).catch((error) => {
-			if(error.data.meta.code == 404) removeData(group_id);
-		})
+		}).catch(() => {})
 		.finally(() => setTimeout(() => navigateTo(`/moments/${group_id}`), 500));
 	};
 

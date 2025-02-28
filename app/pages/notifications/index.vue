@@ -39,7 +39,7 @@
         middleware: "unauthorized",
     });
 
-    const { notifications, updateNotification} = inject("notifications");
+    const { data: notifications, updateNotification} = inject("notifications");
 </script>
 
 <style scoped>

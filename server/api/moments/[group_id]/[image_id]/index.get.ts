@@ -15,11 +15,11 @@ export default defineEventHandler(async (event) => {
     if (!user) return useReturnResponse(event, time, internalServerError);
 
     const { data: groupData, error: errorGroup }: any = await client.from("groups").select("*").eq("id", group_id).single()
-    if (errorGroup) return useReturnResponse(event, time, forbiddenError);
+    if (errorGroup) return useReturnResponse(event, time, notFoundError);
 
     const { count, data, error } = await client.from('posts').select('*', { count: 'exact' }).eq('id', image_id)
     if (error) return useReturnResponse(event, time, internalServerError);
-    if (count === 0) return useReturnResponse(event, time, forbiddenError);
+    if (count === 0) return useReturnResponse(event, time, notFoundError);
 
     const updated = await Promise.all(data.map(async (posts: any) => {
         const { data: userData } = await server.auth.admin.getUserById(posts.author_id);

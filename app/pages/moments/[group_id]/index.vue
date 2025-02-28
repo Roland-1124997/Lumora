@@ -5,15 +5,15 @@
 			<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 			</button>
-			<button @click="createFunction('images')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+			<button @click="createUploadFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 			</button>
-			<button @click="createFunction('Settings')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+			<NuxtLink :to="`/moments/${group_id}/settings`" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:settings-3-fill" size="1.4em" />
-			</button>
+			</NuxtLink>
 		</div>
 		<hr class="mb-2" />
-		<section v-if="List && !reload" @scroll="updateScrollPercentage" v-bind="containerProps"  class=" h-[80vh] overflow-y-scroll ">
+		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps"  class=" h-[80vh] overflow-y-scroll ">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
 				<div :class="PWAInstalled ? 'last:mb-16 md:last:mb-8' : 'last:mb-4 md:last:mb-8'" v-for="(image, index) in List" :key="index">
 					<LazyCardImage :image="image" />
@@ -67,7 +67,7 @@
 	const totalPages = ref(1);
 	const Page = ref(1);
 
-	const List = ref(null);
+	const List = ref([]);
 	const name = ref()
 
 	/*
@@ -105,9 +105,16 @@
 			}
 		})
 		.catch(async (error) => {
+			
 			updateGroupValue(error.data.meta.name)
-			if(error.data.meta.code == 403) removeData(group_id);
-			if (error.data.meta.code == 403) return navigateTo("/moments");
+			if(error.data.meta.code == 404) {
+				removeData(group_id);
+				throw createError({
+					statusCode: error.data.meta.code,
+					message: error.data.meta.message,
+					fatal: true,
+				})
+			}
 		}).finally(() => setTimeout(() => (load.value = false), timer));
 	};
 
@@ -115,8 +122,8 @@
 		totalPages.value = state.pagination.total;
 		List.value = state.data;
 		Page.value = state.pagination.page;
-		name.value = state.group.name
-
+		name.value = state.group.name;
+		
 		updateGroupValue(name.value)
 	};
 
@@ -166,7 +173,7 @@
 
 	const handleReload = async (response) => {
 
-		if(List.value !== null) {
+		if(List.value.length >= 1) {
 			reload.value = true;
 			setItemToStart(group_id, response.data);
 			setTimeout(() => (reload.value = false), 2000);
@@ -186,14 +193,20 @@
 	};
 
 	const { updateModalValue } = inject("modal");
-	const createFunction = (type) => {
+	
+	const createUploadFunction = () => {
 		updateModalValue({
 			open: true,
-			type: type,
-			name: type == "Settings" ? type : "New image",
+			type: 'images',
+			name: "New image",
 			requestUrl: `/api/moments/${group_id}`,
 			onSuccess: handleSuccess,
 			onError: handleError,
 		});
 	};
+
+	/*
+	 ************************************************************************************
+	 */
+
 </script>

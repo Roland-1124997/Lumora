@@ -53,7 +53,7 @@ export const useGroupStore = defineStore('group', () => {
     };
 
     const setGroupData = (name: string, group: string, page: number, total: number, data: object[]) => {
-        if (state.has(name)) return;
+        if (state.has(name) || data.length == 0) return;
         state.set(name, { group: { name: group }, pagination: { page, total }, data });
         saveToStorage(`${name}_List`, state.get(name));
     };
@@ -90,7 +90,7 @@ export const useGroupStore = defineStore('group', () => {
 
     const updateGroupData = (name: string, group: string, page: number, total: number, data: object[]) => {
         if (!state.has(name)) return;
-        state.set(name, { group: { name: group }, pagination: { page, total }, data });
+        state.set(name, { group: { name: group, }, pagination: { page, total }, data });
         saveToStorage(`${name}_List`, state.get(name));
     };
 
