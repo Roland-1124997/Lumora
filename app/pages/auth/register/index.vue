@@ -54,13 +54,13 @@
         })
 	);
 
-	const handleSuccess = async ({ response }: SuccessResponse) => {
-		if (response.meta.redirect) navigateTo(response.meta.redirect);
+	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
+		if (response.status.redirect) navigateTo(response.status.redirect);
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (error.data.errors.field) actions.setErrors(error.data.errors.field);
+		if(error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 	};
 
 	

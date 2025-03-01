@@ -71,14 +71,14 @@
 	});
 
 	const store = useSessionsStore();
-	const { data: user, error } = await store.getSession();
+	const { data: user } = await store.getSession();
+	const username = ref(user.name);
 
 	const { getData, removeData } = useNotificationStore()
 	const { data, count } = getData()
 
 	const group = ref()
-	const username = ref(user.name);
-
+	
 	const modal = ref({
 		open: false,
 		type: "",

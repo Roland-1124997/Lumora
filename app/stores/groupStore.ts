@@ -26,7 +26,7 @@ const modifyItemByMetaId = (state: Map<string, GroupState>, name: string, metaId
     const groupState = state.get(name);
     if (!groupState) return;
 
-    const index = groupState.data.findIndex((item: Record<string, any>) => item.meta.id === metaId);
+    const index = groupState.data.findIndex((item: Record<string, any>) => item.id === metaId);
     if (index < 0) return;
 
     if (action === 'update') groupState.data[index] = { ...groupState.data[index], ...updatedFields };

@@ -13,9 +13,9 @@
 </template>
 
 <script setup lang="ts">
-	const handleGoogleSuccess = async (response: SuccessResponse) => {
+	const handleGoogleSuccess = async (response: any) => {
 		await $fetch("/api/auth/google/identity", { method: "POST", body: response }).then((response) => {
-			navigateTo(response.meta.redirect);
+			navigateTo(response.status.redirect);
 		});
 	};
 </script>

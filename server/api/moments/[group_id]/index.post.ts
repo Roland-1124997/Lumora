@@ -17,25 +17,26 @@ const schema = zod.object({
 });
 
 export default defineEventHandler(async (event) => {
-	const time = Date.now();
-
+	
 	const { group_id } = getRouterParams(event);
 
 	const client: SupabaseClient = await serverSupabaseClient(event);
 	const server: SupabaseClient = serverSupabaseServiceRole(event)
-    const { error: sessionError } = await useSessionExists(event, client, time);
-	if (sessionError) return useReturnResponse(event, time, unauthorizedError);;
+    
+	const { error: sessionError } = await useSessionExists(event, client);
+	if (sessionError) return useReturnResponse(event, unauthorizedError);;
 
 	const user = await serverSupabaseUser(event);
-	if (!user) return useReturnResponse(event, time, internalServerError);
+	if (!user) return useReturnResponse(event, internalServerError);
 
 	const request = await useReadMultipartFormData(event);
 
 	const { error: zodError } = await schema.safeParseAsync(request);
-	if (zodError) return useReturnResponse(event, time, {
+	if (zodError) return useReturnResponse(event, {
 		...badRequestError,
-		errors: {
-			field: zodError.errors,
+		error: {
+			type: "fields",
+			details: zodError.errors
 		}
 	})
 
@@ -53,14 +54,14 @@ export default defineEventHandler(async (event) => {
 				upsert: true,
 			});
 
-		if (storageError) return useReturnResponse(event, time, internalServerError);
+		if (storageError) return useReturnResponse(event, internalServerError);
 
 		const { data, error } = await client.from("posts").insert({
 			url: `${group_id}/${user.id}/${imageId}.webp`,
 			group_id: group_id
 		}).select().single()
 
-		if (error) return useReturnResponse(event, time, internalServerError);
+		if (error) return useReturnResponse(event, internalServerError);
 		post.push(data); 
 	}
 
@@ -69,34 +70,36 @@ export default defineEventHandler(async (event) => {
 		last_photo_posted_by: user.id
 	}).eq("id", group_id)
 
-	if (errorGroup) return useReturnResponse(event, time, internalServerError)
+	if (errorGroup) return useReturnResponse(event, internalServerError)
 
 	const updated = await Promise.all(post.map(async (posts: any) => {
 		return {
-			url: client.storage.from("images").getPublicUrl(posts.url).data.publicUrl,
-			meta: {
-				id: posts.id,
-				created_at: posts.created_at,
+			id: posts.id,
+			created_at: posts.created_at,
+			media: {
+				type: "image",
+				url: client.storage.from("images").getPublicUrl(posts.url).data.publicUrl,
 			},
 			likes: {
 				count: posts.likes,
-				liked: false
 			},
+			has_liked: false,
 			author: {
-				id: posts.author_id,
-				name: user.user_metadata.name
-			},
-			group: {
-				id: posts.group_id
+				name: user.user_metadata.name,
+				is_owner: posts.author_id == user.id,
 			}
 		};
 	}));
 
-	return useReturnResponse(event, time, {
+	return useReturnResponse(event, {
+		status: {
+			success: true,
+			refresh: true,
+			message: "Ok",
+			code: 200
+		},
 		meta: {
-			code: 200,
-			message: "Data received",
-			refresh: true
+			id: post[0].group_id,
 		},
 		data: updated
 	});

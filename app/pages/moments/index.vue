@@ -10,8 +10,8 @@
 
 		<section v-if="List.length >= 1 && !searchLoading" @scroll="updateScrollPercentage" v-bind="containerProps" class="overflow-y-auto h-[80vh]">
 			<div v-bind="wrapperProps" class="flex flex-col w-full gap-3">
-				<div :id="`${index}`" class="last:pb-[9.6rem]" v-for="(group, index) in List" :key="index">
-					<CardGroup :group="group" />
+				<div :id="`${index}`" class="last:pb-[9.6rem]" v-for="(content, index) in List" :key="index">
+					<LazyCardGroup :content />
 				</div>
 			</div>
 			<UtilsButtonScroller :totalPages="totalPages" :loading="loading" :scrollPercentage="scrollPercentage" :scrollToTop="() => scrollToTop('smooth')" :scrollToBottom="() => scrollToBottom('smooth')" :Page="Page" />
@@ -136,14 +136,15 @@
 	************************************************************************************
 	*/
 
-	const handleSuccess = async ({ response }: SuccessResponse,) => {
+	const handleSuccess = async ({ response }: SuccessResponse<Group>) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (response.meta.redirect) navigateTo(response.meta.redirect);
+		if (response.status.redirect) navigateTo(response.status.redirect);
+		
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (error.data.errors.field) actions.setErrors(error.data.errors.field);
+		if(error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 	};
 
 	const { updateModalValue }: any = inject("modal");

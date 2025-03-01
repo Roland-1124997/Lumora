@@ -73,9 +73,9 @@
 
 	const { getData } = useNotificationStore()
 	
-	await $fetch("/api/sessions").then((data) => {
+	await $fetch("/api/sessions").then((response) => {
 		count.value = getData().count.value
-		userValue.value = data.user.name
+		userValue.value = response.data.name
 	}).catch(() => (errorValue.value = true));
 
 	const handleError = (to) => {

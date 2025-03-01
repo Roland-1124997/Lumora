@@ -37,7 +37,7 @@
 	const logout = () => {
 		$fetch("/api/auth/logout", { method: "POST" }).then((response) => {
 			store.clearSession();
-			navigateTo(response.meta.redirect);
+			navigateTo(response.status.redirect);
 		});
 	};
 </script>

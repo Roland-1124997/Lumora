@@ -16,19 +16,15 @@ export const useSetSessionData = (user: User|null) => {
     return user ? {
         id: user.id as string,
         name: user.user_metadata.name as string,
-        email: {
-            verified: user.user_metadata.email_verified as boolean,
-        },
     } : null;
 }
 
-export const useSessionExists = async (event: H3Event, client: SupabaseClient, time: number) => {
+export const useSessionExists = async (event: H3Event, client: SupabaseClient) => {
 
     const currentSession = useGetCookies(event);
     const { data, error } = await useGetSession(client, currentSession);
 
-    if (error) return { data, errror: useReturnResponse(event, time, unauthorizedError) };
-    return { data, error };
+    return { data: data.user, error };
 }
 
 

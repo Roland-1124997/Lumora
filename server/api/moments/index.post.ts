@@ -19,22 +19,20 @@ const schema = zod.object({
 });
 
 export default defineEventHandler(async (event) => {
-	const time = Date.now();
-
-	const client: SupabaseClient = await serverSupabaseClient(event);
-	const { error: sessionError } = await useSessionExists(event, client, time);
-	if (sessionError) return useReturnResponse(event, time, unauthorizedError);
-
-	const user = await serverSupabaseUser(event);
-	if (!user) return useReturnResponse(event, time, internalServerError);
 	
+	const client: SupabaseClient = await serverSupabaseClient(event);
+	
+	const { data: user, error: sessionError }: Record<string, any> = await useSessionExists(event, client);
+	if (sessionError) return useReturnResponse(event, unauthorizedError);
+
 	const request = await useReadMultipartFormData(event);
 	const { error: zodError } = await schema.safeParseAsync(request);
 
-	if (zodError) return useReturnResponse(event, time, {
+	if (zodError) return useReturnResponse(event, {
 		...badRequestError,
-		errors: {
-			field: zodError.errors,
+		error: {
+			type: "fields",
+			details: zodError.errors
 		}
 	})
 
@@ -48,7 +46,7 @@ export default defineEventHandler(async (event) => {
 		name: request.name
 	}).select("*").single();
 
-	if (error) return useReturnResponse(event, time, internalServerError);
+	if (error) return useReturnResponse(event, internalServerError);
 
 	const { error: storageError } = await client.storage.from('images')
 		.upload(`${data.id}/${user.id}/${imageId}.webp`, buffer, {
@@ -57,19 +55,20 @@ export default defineEventHandler(async (event) => {
 			upsert: true,
 		});
 
-	if (storageError) return useReturnResponse(event, time, internalServerError);
+	if (storageError) return useReturnResponse(event, internalServerError);
 
 	const { error: updateError } = await client.from("groups").update({
 		thumbnail: `${data.id}/${user.id}/${imageId}.webp`,
 	}).eq('id', data.id)
 
-	if (updateError) return useReturnResponse(event, time, internalServerError);
+	if (updateError) return useReturnResponse(event, internalServerError);
 	
-	return useReturnResponse(event, time, {
-		meta: {
-			code: 200,
-			message: "Data received",
+	return useReturnResponse(event, {
+		status: {
+			success: true,
 			redirect: `/moments/${data.id}`,
-		},
+			message: "Ok",
+			code: 200
+		}
 	});
 });

@@ -11,15 +11,15 @@ const schema = zod.object({
 export default defineEventHandler(async (event) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const time = Date.now();
   const request = await readBody(event)
 
   const { error: zodError } = await schema.safeParseAsync(request);
 
-  if (zodError) return useReturnResponse(event, time, {
+  if (zodError) return useReturnResponse(event, {
     ...badRequestError,
-    errors: {
-      field: zodError.errors,
+    error: {
+      type: "fields",
+      details: zodError.errors
     }
   })
 
@@ -29,10 +29,11 @@ export default defineEventHandler(async (event) => {
     email: request.email, password: request.wachtwoord
   })
 
-  if (error) return useReturnResponse(event, time, {
+  if (error) return useReturnResponse(event, {
     ...unauthorizedError,
-    errors: {
-      field: {
+    error: {
+      type: "fields",
+      details: {
         email: ["Onbekende combinatie"],
         wachtwoord: ["Onbekende combinatie"]
       }
@@ -42,11 +43,12 @@ export default defineEventHandler(async (event) => {
   const session: Omit<Session, "user"> | null = await serverSupabaseSession(event)
   useSetCookies(event, session)
 
-  return useReturnResponse(event, time, {
-    meta: {
-      code: 200,
-      message: "OK",
+  return useReturnResponse(event, {
+    status: {
+      success: true,
       redirect: "/",
-    },
+      message: "Ok",
+      code: 200
+    }
   })
 })

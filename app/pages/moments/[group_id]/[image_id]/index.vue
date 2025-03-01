@@ -1,11 +1,11 @@
 <template>
 	<div>
-		<div v-if="details?.url" class="pb-20">
+		<div v-if="content?.media?.url" class="pb-20">
 			<div class="w-full h-[53vh] overflow-hidden bg-gray-200 md:h-[70vh] rounded-xl mb-4">
-				<LazyNuxtImg :src="details?.url" :alt="details?.author?.id" class="z-20 object-cover w-full h-full" />
+				<LazyNuxtImg :src="content?.media?.url" :alt="content?.author?.id" class="z-20 object-cover w-full h-full" />
 			</div>
-			<div class="p-2 border rounded-xl bg-gray-50">
-				<button v-if="details?.permision?.delete" @click="deleteData" class="flex items-center justify-center p-2 px-4 text-white bg-black border border-black rounded-xl w-fit">delete</button>
+			<div v-if="content?.permision?.delete"  class="p-2 border rounded-xl bg-gray-50">
+				<button @click="deleteData" class="flex items-center justify-center p-2 px-4 text-white bg-black border border-black rounded-xl w-fit">delete</button>
 			</div>
 		</div>
 	</div>
@@ -42,16 +42,16 @@
 	const { updateGroupValue } = inject("group");
 	const group_id = useRoute().params.group_id;
 	const image_id = useRoute().params.image_id;
-	const details = ref();
+	const content = ref();
 
 	await $fetch(`/api/moments/${group_id}/${image_id}`).then((response) => {
-		details.value = response.data[0];
-		updateGroupValue(details.value.group.name);
+		content.value = response.data;
+		updateGroupValue(response.meta.name);
 	}).catch((error) => {
 
 		throw createError({
-            statusCode: error.data.meta.code,
-            message: error.data.meta.message,
+            statusCode: error.data.status.code,
+            message: error.data.status.message,
             fatal: true,
         })
 

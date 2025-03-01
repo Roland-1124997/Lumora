@@ -8,8 +8,8 @@
 				</button>
 			</div>
 
-			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/${image.meta.id}`">
-				<LazyNuxtImg :src="image.url" :alt="image.author.id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
+			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/${content.id}`">
+				<LazyNuxtImg :src="content.media.url" :alt="content.author.id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
 			</NuxtLink>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
@@ -18,9 +18,9 @@
 
 		<div class="py-2">
 			<p class="text-sm text-gray-500">
-				By <span class="font-semibold">{{ image.author.name }}</span>
+				By <span class="font-semibold">{{ content.author.name }}</span>
 			</p>
-			<p class="text-sm text-gray-500">{{ useTimeAgo(image.meta.created_at).value }}</p>
+			<p class="text-sm text-gray-500">{{ useTimeAgo(content.created_at).value }}</p>
 		</div>
 	</div>
 </template>
@@ -32,16 +32,13 @@
 	const liked = ref(false);
 	const loaded = ref(false);
 
-	const { image } = defineProps({
-		image: { type: Object, required: true },
+	const { content } = defineProps({
+		content: { type: Object, required: true },
 	});
 
 	
-
-	
-	
-	hearts.value = image.likes.count
-	liked.value =  image.likes.liked
+	hearts.value = content.likes.count
+	liked.value = content.has_liked
 		
 
 	watch(targetIsVisible, (value) => {
@@ -57,13 +54,13 @@
 
 	const likeImage = async () => {
 
-		const group_id = useRoute().params.group_id
+		const group_id: any = useRoute().params.group_id
 
-		await $fetch(`/api/moments/${group_id}/${image.meta.id}`, { method: "PATCH" }).then((response: any) => {
+		await $fetch(`/api/moments/${group_id}/${content.id}`, { method: "PATCH" }).then((response: any) => {
 			hearts.value = response.data.likes.count
-			liked.value = response.data.likes.liked
+			liked.value = response.data.has_liked
 
-			updateItemByMetaId(group_id, image.meta.id, {
+			updateItemByMetaId(group_id, content.id, {
 				likes: { count: hearts.value, liked: liked.value }
 			});
 		})
