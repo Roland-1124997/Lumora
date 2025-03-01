@@ -19,9 +19,6 @@ export const useSessionsStore = defineStore("session", () => {
 
         await $fetch('/api/sessions').then((response: any) => {
             session.value = { data: response.data, error: null }
-
-            console.log(response)
-
         }).catch(error => {
             session.value = { data: null, error }
         })

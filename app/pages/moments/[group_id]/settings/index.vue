@@ -31,7 +31,7 @@
 		await $fetch(`/api/moments/${group_id}`, { method: "DELETE"}).then((response: ApiResponse<null>) => {
 			if(response.status.redirect) navigateTo(response.status.redirect)
 		}).catch((error)=> {
-			console.log(error)
+			
 		})
 		
 	}

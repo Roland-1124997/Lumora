@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
 	if (sessionError) return useReturnResponse(event, unauthorizedError);;
 
 	const { error } = await client.from("groups").delete().eq("id", group_id)
-	console.log(error)
 
 	if(error) return useReturnResponse(event, internalServerError)
 
