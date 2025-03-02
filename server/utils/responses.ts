@@ -117,7 +117,7 @@ export const useFormatGroupPosts = async (server: SupabaseClient, client: Supaba
             },
             media: {
                 type: "image",
-                url: client.storage.from("images").getPublicUrl(posts.media.url).data.publicUrl,
+                url: `/attachments/${posts.media.url}`//client.storage.from("images").getPublicUrl(posts.media.url).data.publicUrl,
             },
         };
     }));

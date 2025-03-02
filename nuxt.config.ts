@@ -24,13 +24,29 @@ export default defineNuxtConfig({
     "@vee-validate/nuxt",
     "@pinia/nuxt",
     "@nuxtjs/supabase",
-    "nuxt-scheduler"
+    "nuxt-scheduler",
   ],
 
   runtimeConfig: {
     ServerUrl: process.env.SERVER_URL,
     public: {
       googleClientId: process.env.GOOGLE_CLIENT_ID,
+    },
+    rateLimit: {
+      routes: {
+        '/api/moments/*': {
+          maxRequests: 50,
+          intervalSeconds: 20,
+        },
+        '/api/auth/*': {
+          maxRequests: 5,
+          intervalSeconds: 60,
+        },
+        '/api/sessions/': {
+          maxRequests: 100,
+          intervalSeconds: 60,
+        }
+      }
     }
   },
 

@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 			last_photo_posted_by: userData.user?.user_metadata.name,
 			media: {
 				type: "image",
-				url: client.storage.from("images").getPublicUrl(group.thumbnail).data.publicUrl,
+				url: `/attachments/${group.thumbnail}`//client.storage.from("images").getPublicUrl(group.thumbnail).data.publicUrl,
 			}
 		};
 	}));

@@ -2,14 +2,14 @@
 	<div ref="target" class="border-b">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 md:h-52 rounded-xl">
 			<div class="relative z-40 flex items-center justify-between p-2">
-				<button @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
+				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
 					<icon :class="liked ? ' bg-red-600' : ''" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.1em" />
 					<span class="text-xs font-medium">{{ hearts }}</span>
 				</button>
 			</div>
 
 			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/${content.id}`">
-				<LazyNuxtImg :src="content.media.url" :alt="content.author.id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
+				<img :src="content.media.url" :alt="content.author.id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
 			</NuxtLink>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
@@ -36,7 +36,6 @@
 		content: { type: Object, required: true },
 	});
 
-	
 	hearts.value = content.likes.count
 	liked.value = content.has_liked
 		
@@ -56,7 +55,7 @@
 
 		const group_id: any = useRoute().params.group_id
 
-		await $fetch(`/api/moments/${group_id}/${content.id}`, { method: "PATCH" }).then((response: any) => {
+		await $fetch<any>(`/api/moments/${group_id}/${content.id}`, { method: "PATCH" }).then((response: any) => {
 			hearts.value = response.data.likes.count
 			liked.value = response.data.has_liked
 

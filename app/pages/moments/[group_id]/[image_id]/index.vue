@@ -2,7 +2,7 @@
 	<div>
 		<div v-if="content?.media?.url" class="pb-20">
 			<div class="w-full h-[53vh] overflow-hidden bg-gray-200 md:h-[70vh] rounded-xl mb-4">
-				<LazyNuxtImg :src="content?.media?.url" :alt="content?.author?.id" class="z-20 object-cover w-full h-full" />
+				<img :src="content?.media?.url" :alt="content?.author?.id" class="z-20 object-cover w-full h-full" />
 			</div>
 			<div v-if="content?.permision?.delete"  class="p-2 border rounded-xl bg-gray-50">
 				<button @click="deleteData" class="flex items-center justify-center p-2 px-4 text-white bg-black border border-black rounded-xl w-fit">delete</button>

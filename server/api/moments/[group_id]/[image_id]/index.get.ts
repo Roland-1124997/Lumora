@@ -4,6 +4,7 @@ import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } f
 export default defineEventHandler(async (event) => {
    
     const { group_id, image_id } = getRouterParams(event)
+    const host = getRequestHost(event)
 
     const client = await serverSupabaseClient(event);
     const server = serverSupabaseServiceRole(event);
@@ -41,7 +42,7 @@ export default defineEventHandler(async (event) => {
             },
             media: {
                 type: "image",
-                url: client.storage.from("images").getPublicUrl(posts.url).data.publicUrl,
+                url: `/attachments/${posts.url}` //client.storage.from("images").getPublicUrl(posts.url).data.publicUrl,
             },
         };
     }));

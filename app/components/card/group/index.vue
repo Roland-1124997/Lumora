@@ -2,7 +2,7 @@
 	<div ref="target" class="h-16 pb-2 border-b">
 		<NuxtLink :to="`/moments/${content.id}`" class="flex items-center space-x-3">
 			<div class="flex items-center justify-center w-12 h-12 overflow-hidden bg-gray-200 rounded-full">
-				<LazyNuxtImg v-if="loaded && targetIsVisible" :src="content.media.url" alt="image" class="object-cover w-full h-full" />
+				<img v-if="loaded && targetIsVisible" :src="content.media.url" alt="image" class="object-cover w-full h-full" />
 				<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1.4em" />
 			</div>
 			<div class="flex-1 pl-3 border-l">
