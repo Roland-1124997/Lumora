@@ -12,7 +12,7 @@
 				<ClientOnly>
 					<div v-if="!errorValue" class="flex items-center gap-2">
 						<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name: userValue }" />
-						<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count }" />
+						<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 					</div>
 					<div v-else class="flex items-center gap-2">
 						<UtilsButton to="/auth" iconName="ri:lock-fill" :options="{ name: 'Login', always: true }" />
@@ -69,12 +69,12 @@
 
 	const userValue = ref();
 	const errorValue = ref(false);
-	const count = ref()
 
-	const { getData } = useNotificationStore()
+	const notificationStore = useNotificationStore();
+	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
+
 	
 	await $fetch("/api/sessions").then((response) => {
-		count.value = getData().count.value
 		userValue.value = response.data.name
 	}).catch(() => (errorValue.value = true));
 

@@ -38,8 +38,7 @@
 
 	hearts.value = content.likes.count
 	liked.value = content.has_liked
-		
-
+	
 	watch(targetIsVisible, (value) => {
 		if (value) {
 			setTimeout(() => {
@@ -50,7 +49,6 @@
 
 	const { updateItemByMetaId } = useGroupStore();
 
-
 	const likeImage = async () => {
 
 		const group_id: any = useRoute().params.group_id
@@ -60,7 +58,8 @@
 			liked.value = response.data.has_liked
 
 			updateItemByMetaId(group_id, content.id, {
-				likes: { count: hearts.value, liked: liked.value }
+				has_liked: liked.value,
+				likes: { count:hearts.value }
 			});
 		})
 	};

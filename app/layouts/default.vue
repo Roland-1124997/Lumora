@@ -13,7 +13,7 @@
 				</div>
 				<div class="flex items-center gap-2">
 					<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name: username }" />
-					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count }" />
+					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 				</div>
 			</div>
 
@@ -74,8 +74,9 @@
 	const { data: user } = await store.getSession();
 	const username = ref(user.name);
 
-	const { getData, removeData } = useNotificationStore()
-	const { data, count } = getData()
+	const notificationStore = useNotificationStore();
+	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
+
 
 	const group = ref()
 	
@@ -100,17 +101,12 @@
 		modal.value = option;
 	}
 
-	function updateNotification(options) {
-		removeData(options)
-    }
-
 	function updateUsername(name) {
 		username.value = name
 	}
 
 	const closeModal = () => (modal.value = false);
 	
-	provide("notifications", { data, updateNotification});
 	provide("username", {username, updateUsername});
 	provide("modal", { modal, updateModalValue});
 	provide("group", { group, updateGroupValue })

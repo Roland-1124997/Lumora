@@ -52,11 +52,7 @@ export default defineNuxtConfig({
 
   supabase: {
     redirect: false,
-    clientOptions: {
-      auth: {
-        flowType: 'pkce',
-      },
-    },
+    cookiePrefix: "sb-storage-token",
     cookieOptions: {
       maxAge: 60 * 60 * 8,
       sameSite: 'lax',

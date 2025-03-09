@@ -1,5 +1,4 @@
 import * as zod from "zod";
-import { serverSupabaseClient, serverSupabaseSession } from "#supabase/server";
 import type { Session } from "@supabase/supabase-js";
 
 const schema = zod.object({

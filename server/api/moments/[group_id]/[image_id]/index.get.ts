@@ -1,10 +1,6 @@
-import { serverSupabaseClient, serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
-
-
 export default defineEventHandler(async (event) => {
-   
+
     const { group_id, image_id } = getRouterParams(event)
-    const host = getRequestHost(event)
 
     const client = await serverSupabaseClient(event);
     const server = serverSupabaseServiceRole(event);
@@ -25,11 +21,25 @@ export default defineEventHandler(async (event) => {
     const updated = await Promise.all(data.map(async (posts: any) => {
         const { data: userData } = await server.auth.admin.getUserById(posts.author_id);
         const { data: permissions }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+        const { data: liked } = await client.from("liked_posts").select("id").eq("post_id", posts.id).eq("user_id", user.id).single()
+
+        const { data: morePosts, } = await client .from("posts") .select("*").eq("author_id", posts.author_id)
+            .neq("id", posts.id).order("created_at", { ascending: true }) .limit(3); 
+
+        const more = await Promise.all(morePosts.map((more_posts: any) => {
+            return {
+                id: more_posts.id,
+                media: {
+                    type: "image",
+                    url: `/attachments/${more_posts.url}`
+                },
+            }
+        }))
 
         return {
-
             id: posts.id,
             created_at: posts.created_at,
+            has_liked: liked ? true : false,
             author: {
                 name: userData.user?.user_metadata.name,
                 is_owner: posts.author_id == user.id,
@@ -42,8 +52,9 @@ export default defineEventHandler(async (event) => {
             },
             media: {
                 type: "image",
-                url: `/attachments/${posts.url}` //client.storage.from("images").getPublicUrl(posts.url).data.publicUrl,
+                url: `/attachments/${posts.url}`
             },
+            more_from_author: more
         };
     }));
 

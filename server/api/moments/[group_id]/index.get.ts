@@ -1,5 +1,3 @@
-import { serverSupabaseClient, serverSupabaseServiceRole } from "#supabase/server";
-
 export default defineEventHandler(async (event) => {
 	const query: query = getQuery(event);
 
