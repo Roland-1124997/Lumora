@@ -16,17 +16,21 @@ export default defineEventHandler(async (event) => {
 	if (error) return useReturnResponse(event, internalServerError);
 	if (count === 0) return useReturnResponse(event, notFoundError);
 
+	const { data: users} = await server.auth.admin.listUsers();
+
 	const updated = await Promise.all(data.map(async (group: any) => {
-		const { data: userData } = await server.auth.admin.getUserById(group.last_photo_posted_by);
+
+		const author: any = users.users.find((user) => user.id === group.last_photo_posted_by);
+
 		return {
 			id: group.id,
 			name: group.name,
 			description: group.description,
 			last_active: group.last_active,
-			last_photo_posted_by: userData.user?.user_metadata.name,
+			last_photo_posted_by: author.user_metadata.name,
 			media: {
 				type: "image",
-				url: `/attachments/${group.thumbnail}`//client.storage.from("images").getPublicUrl(group.thumbnail).data.publicUrl,
+				url: `/attachments/${group.thumbnail}`
 			}
 		};
 	}));

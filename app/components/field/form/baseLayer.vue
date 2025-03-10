@@ -25,6 +25,8 @@
 	const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
 		loading.value = true;
 
+		if(method == "DELETE") await new Promise((resolve) => setTimeout(resolve, 2000));
+
 		if (values.remember) {
 			const remember = useLocalStorage("user-email", undefined) as Ref<string | undefined>;
 			remember.value = values.remember ? values.email : undefined;

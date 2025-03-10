@@ -38,7 +38,7 @@
 			<div class="flex flex-col items-center justify-center w-full h-full gap-5">
 				<icon class="text-gray-500" name="ri:notification-2-line" size="5em" />
 				<h1 class="text-lg font-bold text-center text-balance">Je bent up to date!</h1>
-				<p class="-mt-6 text-center text-balance ">Er zijn geen ongelezen berichten</p>
+				<p class="-mt-5 text-center text-balance ">Er zijn geen ongelezen berichten</p>
 			</div>
 			
 		</section>

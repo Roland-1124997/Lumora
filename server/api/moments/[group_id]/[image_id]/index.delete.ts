@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-    
+
     const { image_id } = getRouterParams(event)
 
     const client = await serverSupabaseClient(event);
@@ -9,7 +9,6 @@ export default defineEventHandler(async (event) => {
     const { error } = await client.from('posts').delete().eq('id', image_id)
     if (error) return useReturnResponse(event, internalServerError);
 
-
     return useReturnResponse(event, {
         status: {
             success: true,
@@ -17,4 +16,5 @@ export default defineEventHandler(async (event) => {
             code: 200
         }
     });
+
 });

@@ -106,18 +106,20 @@ export const badRequestError = {
 
 export const useFormatGroupPosts = async (server: SupabaseClient, client: SupabaseClient, media: Record<string, any>) => {
 
+    const { data } = await server.auth.admin.listUsers();
+
     return await Promise.all(media.posts.map(async (posts: any) => {
-        const { data } = await server.auth.admin.getUserById(posts.author.id);
+        const author: any = data.users.find((user) => user.id === posts.author.id);
 
         return {
             ...posts,
             author: {
-                name: data.user?.user_metadata.name,
+                name: author.user_metadata.name,
                 is_owner: posts.author.is_owner
             },
             media: {
                 type: "image",
-                url: `/attachments/${posts.media.url}`//client.storage.from("images").getPublicUrl(posts.media.url).data.publicUrl,
+                url: `/attachments/${posts.media.url}`
             },
         };
     }));

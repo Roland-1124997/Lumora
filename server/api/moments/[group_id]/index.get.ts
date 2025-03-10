@@ -12,10 +12,7 @@ export default defineEventHandler(async (event) => {
 	const { items, page } = useMakePagination(12, query);
 
 	const { data: media, error }: any = await client.rpc("get_group_with_posts", {
-		group_id_param: group_id,
-		limit_param: items,
-		page_param: page,
-		user_id_param: user.id
+		group_id_param: group_id, limit_param: items, page_param: page, user_id_param: user.id
 	}).single()
 
 	if (error && error.details.includes("0 rows")) return useReturnResponse(event, notFoundError)

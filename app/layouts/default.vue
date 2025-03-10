@@ -2,15 +2,15 @@
 	<div class="min-h-screen">
 		<header :class=" PWAInstalled ? 'top-11 md:top-0': 'top-0'" class="fixed z-50 w-full bg-white ">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
-				<div class="flex items-center justify-center gap-2">
-					<icon v-if="$route.path !== '/home'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem" @click="handleBack"></icon>
+				<button @click="$route.path !== '/home' ? handleBack() : ''" class="flex items-center justify-center gap-2">
+					<icon v-if="$route.path !== '/home'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>
 					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
 						<span v-if="$route.path == '/home'">Lumora</span>
 						<span v-else-if="$route.name?.includes('-group_id-settings')">Settings</span>
 						<span v-else-if="$route.name?.includes('-group_id')">{{ group }}</span>
 						<span v-else>{{ $route.name?.charAt(0).toUpperCase() + $route.name?.slice(1) }} </span>
 					</h1>
-				</div>
+				</button>
 				<div class="flex items-center gap-2">
 					<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name: username }" />
 					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
@@ -57,6 +57,14 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess" 
 				/>
+			<FieldFormDeleteConfirm v-if="modal.type == 'negative'"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess"  
+			/>
+			
+		
 		</ModalBaselayer>
 	</div>
 </template>

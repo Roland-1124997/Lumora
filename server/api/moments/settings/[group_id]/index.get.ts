@@ -9,14 +9,12 @@ export default defineEventHandler(async (event) => {
     const { data, error } = await client.from("groups").select("*").eq("id", group_id).single()
     if (error) return useReturnResponse(event, notFoundError);
     
-    
     return useReturnResponse(event, {
         status: {
             success: true,
             message: "Data received",
             code: 200
         },
-        
         data: {
             id: data.id,
             name: data.name,
@@ -27,7 +25,7 @@ export default defineEventHandler(async (event) => {
             },
             media: {
                 type: "image",
-                url: client.storage.from("images").getPublicUrl(data.thumbnail).data.publicUrl,
+                url: `/attachments/${data.thumbnail}`
             }
         }
     });
