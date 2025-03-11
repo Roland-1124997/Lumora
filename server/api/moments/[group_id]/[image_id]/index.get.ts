@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
         target_created_at: data.created_at,
         target_group_id: group_id,
         target_author_id: data.author_id,
-        limit_posts: 3,
+        limit_posts: 6,
     });
 
     const author: any = users.users.find((user) => user.id === data.author_id);
