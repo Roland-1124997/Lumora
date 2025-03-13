@@ -47,7 +47,7 @@
 					<p class="mb-2 -mt-4">Explore more posts from this author</p>
 
 					<div :class="paneRight <= 38.5 ? 'grid-cols-2' : 'grid-cols-3'" class="grid gap-2 mt-4">
-						<div v-for="content in content.more_from_author" class="flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
+						<div v-for="content in content.related" class="flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
 							<NuxtLink v-if="loaded" :to="`/moments/${group_id}/${content.post_data.id}`">
 								<img :src="content.post_data?.media?.url" class="object-cover w-full h-full aspect-square" />
 							</NuxtLink>
@@ -56,7 +56,7 @@
 							</div>
 						</div>
 
-						<div v-for="content in 6 - content.more_from_author.length" class="flex items-center justify-center flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
+						<div v-for="content in 6 - content.related.length" class="flex items-center justify-center flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
 							<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
 						</div>
 					</div>
@@ -115,18 +115,10 @@
 		editableDiv.value.focus();
 	};
 
-
 	const comment = ref()
 	const handleSumbitComments = () => {
 		comment.value = null
 	}
-
-	
-
-
-
-
-
 
 	/*
 	 ************************************************************************************

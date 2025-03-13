@@ -17,12 +17,7 @@ const schema = zod.object({
 	).nonempty("Dit is een verplicht veld") 
 });
 
-export default defineEventHandler(async (event) => {
-	
-	const client: SupabaseClient = await serverSupabaseClient(event);
-	
-	const { data: user, error: sessionError }: Record<string, any> = await useSessionExists(event, client);
-	if (sessionError) return useReturnResponse(event, unauthorizedError);
+export default defineSupabaseEventHandler(async (event, user, client) => {
 
 	const request = await useReadMultipartFormData(event);
 	const { error: zodError } = await schema.safeParseAsync(request);
@@ -48,16 +43,14 @@ export default defineEventHandler(async (event) => {
 	if (error) return useReturnResponse(event, internalServerError);
 
 	const { error: storageError } = await client.storage.from('images')
-		.upload(`${data.id}/${user.id}/${imageId}.webp`, buffer, {
-			contentType: "image/webp",
-			cacheControl: '3600',
-			upsert: true,
+		.upload(`${data.id}/${user?.id}/${imageId}.webp`, buffer, {
+			contentType: "image/webp", cacheControl: '3600', upsert: true,
 		});
 
 	if (storageError) return useReturnResponse(event, internalServerError);
 
 	const { error: updateError } = await client.from("groups").update({
-		thumbnail: `${data.id}/${user.id}/${imageId}.webp`,
+		thumbnail: `${data.id}/${user?.id}/${imageId}.webp`
 	}).eq('id', data.id)
 
 	if (updateError) return useReturnResponse(event, internalServerError);
@@ -70,4 +63,4 @@ export default defineEventHandler(async (event) => {
 			code: 200
 		}
 	});
-});
+})

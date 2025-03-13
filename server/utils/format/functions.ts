@@ -1,0 +1,84 @@
+export const useFormatListGroup = async (server: SupabaseClient, data: Record<string, any>) => {
+
+    const { data: users } = await useListUsers(server)
+
+    return await Promise.all(data.map(async (data: Record<string, any>) => {
+        const author = users.users.find((user: User) => user.id === data.last_photo_posted_by);
+
+        return {
+            id: data.id,
+            name: data.name,
+            description: data.description,
+            last_active: data.last_active,
+            last_photo_posted_by: author?.user_metadata?.name,
+            media: {
+                type: "image",
+                url: `/attachments/${data.thumbnail}`
+            }
+        };
+    }));
+}
+
+export const useFormatGroup = async (server: SupabaseClient,data: Record<string, any>, user?: User) => {
+
+    const { data: users } = await useListUsers(server);
+
+    return await Promise.all(
+        data.map(async (data: Record<string, any>) => {
+
+            const author: User | undefined = user ? undefined : users.users.find((user: User) => user.id === data.author.id);
+            const isOwner = user ? data.author_id == user.id : data.author.is_owner;
+            const authorName = user ? user.user_metadata.name : author?.user_metadata.name || null;
+
+            return {
+                id: data.id,
+                created_at: data.created_at,
+                has_liked: data.has_liked || false,
+                author: {
+                    name: authorName,
+                    is_owner: isOwner,
+                },
+                likes: {
+                    count: data.likes.count,
+                },
+                media: {
+                    type: "image",
+                    url: `/attachments/${data.media?.url || data.url}`,
+                },
+            };
+        })
+    );
+};
+
+export const useFormatMediaData = async (server: SupabaseClient, client: SupabaseClient, data: Record<string, any>, related: Record<string, any>, group_id: string, user: User | null) => {
+
+    const { data: users } = await useListUsers(server);
+
+    const { data: permissions }: any = await client.from("members").select("*").eq("user_id", user?.id).eq("group_id", group_id).single()
+    const { data: liked } = await client.from("liked_posts").select("id").eq("post_id", data.id).eq("user_id", user?.id).single()
+
+    const author: any = users.users.find((user) => user.id === data.author_id);
+
+    return {
+        id: data.id,
+        created_at: data.created_at,
+        has_liked: liked ? true : false,
+        author: {
+            name: author.user_metadata.name,
+            is_owner: data.author_id == user?.id,
+        },
+        permision: {
+            delete: permissions?.can_delete_messages_all || permissions?.user_id === data.author_id
+        },
+        likes: {
+            count: data.likes,
+        },
+        media: {
+            type: "image",
+            url: `/attachments/${data.url}`
+        },
+        related
+    }
+}
+
+const useListUsers = async (server: SupabaseClient) => await server.auth.admin.listUsers();

@@ -1,10 +1,10 @@
 export const rateLimits = new Map<string, { count: number; timestamp: number }>();
 const routesConfig: any = useRuntimeConfig().rateLimit.routes;
 
-
 const getRateLimitForRoute = (path: string) => {
     if (!path.endsWith('/')) path += '/'; 
-    for (const route in routesConfig) {
+
+    for (let route in routesConfig) {
         if (path === route) return routesConfig[route];
 
         if (route.endsWith('*')) {
@@ -14,7 +14,6 @@ const getRateLimitForRoute = (path: string) => {
     }
     return null;  
 }
-
 
 export const cleanupRateLimitForKey = (key: string): void => {
     const now = Date.now();
@@ -32,7 +31,6 @@ export const cleanupRateLimitForKey = (key: string): void => {
         if (secondsUntilReset <= 0) rateLimits.delete(key);
     }
 }
-
 
 export const checkRateLimit = (event: H3Event): boolean => {
 

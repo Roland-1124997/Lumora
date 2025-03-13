@@ -1,11 +1,6 @@
-export default defineEventHandler(async (event) => {
+export default defineSupabaseEventHandler(async (event, user, client, server) => {
     
     const { group_id } = getRouterParams(event);
-    const client: SupabaseClient = await serverSupabaseClient(event);
-    
-    const { data: user, error: sessionError }: Record<string, any> = await useSessionExists(event, client);
-    if (sessionError) return useReturnResponse(event, unauthorizedError);
-
     const { data, error } = await client.from("groups").select("*").eq("id", group_id).single()
     if (error) return useReturnResponse(event, notFoundError);
     
@@ -21,7 +16,7 @@ export default defineEventHandler(async (event) => {
             description: data.description,
             last_active: data.last_active,
             permision: {
-                delete: data.owner_id == user.id
+                delete: data.owner_id == user?.id
             },
             media: {
                 type: "image",

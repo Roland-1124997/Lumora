@@ -1,5 +1,5 @@
 export const useGetCookies = (event: H3Event) => {
-    
+
     const accessToken = getCookie(event, "sb-access-token");
     const refreshToken = getCookie(event, "sb-refresh-token");
 
@@ -17,7 +17,7 @@ export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | n
     if (session) {
         setCookie(event, "sb-access-token", session.access_token, {
             maxAge: 60 * 5, // Cookie valid for 5 minutes
-            httpOnly: true, 
+            httpOnly: true,
         });
 
         setCookie(event, "sb-refresh-token", session.refresh_token, {

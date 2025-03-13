@@ -71,25 +71,6 @@ export default defineEventHandler(async (event) => {
 
 	if (errorGroup) return useReturnResponse(event, internalServerError)
 
-	const updated = await Promise.all(post.map(async (posts: any) => {
-		return {
-			id: posts.id,
-			created_at: posts.created_at,
-			media: {
-				type: "image",
-				url: client.storage.from("images").getPublicUrl(posts.url).data.publicUrl,
-			},
-			likes: {
-				count: posts.likes,
-			},
-			has_liked: false,
-			author: {
-				name: user.user_metadata.name,
-				is_owner: posts.author_id == user.id,
-			}
-		};
-	}));
-
 	return useReturnResponse(event, {
 		status: {
 			success: true,
@@ -99,8 +80,10 @@ export default defineEventHandler(async (event) => {
 		},
 		meta: {
 			id: post[0].group_id,
+			name: post[0].name,
+			description: post[0].description
 		},
-		data: updated
+		data: await useFormatGroup(server, post, user)
 	});
 	
 });
