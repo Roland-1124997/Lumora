@@ -17,7 +17,7 @@ export const useSessionsStore = defineStore("session", () => {
 
         if (session.value) return session.value
 
-        await $fetch('/api/sessions').then((response: any) => {
+        await $fetch('/api/user').then((response: any) => {
             session.value = { data: response.data, error: null }
         }).catch(error => {
             session.value = { data: null, error }

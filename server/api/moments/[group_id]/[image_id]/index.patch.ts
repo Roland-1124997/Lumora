@@ -1,9 +1,15 @@
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
-    
-    const { image_id } = getRouterParams(event)
 
-    const { data, error }: any = await server.rpc('toggle_like', { liked_post_id: image_id, liked_user_id: user?.id }).single()
+    if (!user) return useReturnResponse(event, unauthorizedError);
+
+    const { image_id } = getRouterParams(event)
+    const { data, error }: any = await server.rpc('toggle_like', { liked_post_id: image_id, liked_user_id: user.id }).single()
+    
     if (error) return useReturnResponse(event, internalServerError);
+
+    /*
+    ************************************************************************************
+    */
 
     return useReturnResponse(event, {
         status: {

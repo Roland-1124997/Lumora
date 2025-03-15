@@ -1,68 +1,41 @@
-import * as zod from "zod";
-import sharp from "sharp";
 import crypto from "crypto";
 
 const schema = zod.object({
-	files: zod.array(
-		zod.object({
-			name: zod.string(), 
-			filename: zod.string(), 
-			type: zod.string().regex(/^image\/(jpeg|png|)$/, "Alleen PNG of JPEG-bestanden zijn toegestaan"), 
-			data: zod.instanceof(Buffer).refine((buffer) => buffer.length <= 10 * 1024 * 1024, {
-				message: "Bestandsgrootte mag niet groter zijn dan 10MB", 
-			})
-		})
-	).nonempty("Dit is een verplicht veld").max(4, { message: "4 afbeeldingen maximaal" })
+	files: createFilesObject(zod).max(4, { message: "4 afbeeldingen maximaal" })
 });
 
-export default defineEventHandler(async (event) => {
-	
+export default defineSupabaseEventHandler(async (event, user, client, server) => {
+
+	if (!user) return useReturnResponse(event, unauthorizedError);
+
+	const { request, files, error } = await useValidateMultipartFormData(event, schema)
+	if (error) return useReturnResponse(event, error)
+
+	/*
+	************************************************************************************
+	*/
+
+	const posts: any = []
 	const { group_id } = getRouterParams(event);
 
-	const client: SupabaseClient = await serverSupabaseClient(event);
-	const server: SupabaseClient = serverSupabaseServiceRole(event)
-    
-	const { error: sessionError } = await useSessionExists(event, client);
-	if (sessionError) return useReturnResponse(event, unauthorizedError);;
-
-	const user = await serverSupabaseUser(event);
-	if (!user) return useReturnResponse(event, internalServerError);
-
-	const request = await useReadMultipartFormData(event);
-
-	const { error: zodError } = await schema.safeParseAsync(request);
-	if (zodError) return useReturnResponse(event, {
-		...badRequestError,
-		error: {
-			type: "fields",
-			details: zodError.errors
-		}
-	})
-
-	let post: any = []
-	for (const file of request.files) {
+	for (const file of files) {
 		const imageId = crypto.randomUUID();
-		let buffer: Buffer = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data);
+		const buffer = await processImage(file);
 
-		await sharp(buffer).rotate().webp({ quality: 10 }).toBuffer().then((data) => buffer = data);
-
-		const { error: storageError } = await client.storage.from('images')
-			.upload(`${group_id}/${user.id}/${imageId}.webp`, buffer, {
-				contentType: "image/webp",
-				cacheControl: '3600',
-				upsert: true,
-			});
-
+		const { data: image, error: storageError } = await uploadImage(client, group_id, user.id, imageId, buffer);
 		if (storageError) return useReturnResponse(event, internalServerError);
 
 		const { data, error } = await client.from("posts").insert({
-			url: `${group_id}/${user.id}/${imageId}.webp`,
-			group_id: group_id
-		}).select().single()
+			url: image.path, group_id: group_id
+		}).select().single();
 
 		if (error) return useReturnResponse(event, internalServerError);
-		post.push(data); 
+		posts.push(data);
 	}
+
+	/*
+	************************************************************************************
+	*/
 
 	const { error: errorGroup } = await server.from("groups").update({
 		last_active: new Date(Date.now() + (process.env.time ? parseInt(process.env.time) : 0)).toISOString(),
@@ -70,6 +43,10 @@ export default defineEventHandler(async (event) => {
 	}).eq("id", group_id)
 
 	if (errorGroup) return useReturnResponse(event, internalServerError)
+
+	/*
+	************************************************************************************
+	*/
 
 	return useReturnResponse(event, {
 		status: {
@@ -79,11 +56,12 @@ export default defineEventHandler(async (event) => {
 			code: 200
 		},
 		meta: {
-			id: post[0].group_id,
-			name: post[0].name,
-			description: post[0].description
+			id: posts[0].group_id,
+			name: posts[0].name,
+			description: posts[0].description
 		},
-		data: await useFormatGroup(server, post, user)
+		data: await useFormatGroup(server, posts, user)
 	});
 	
 });
+

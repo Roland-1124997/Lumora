@@ -205,7 +205,7 @@
 	const createDeleteFunction = () => {
 		updateModalValue({
 			open: true,
-			type: "negative",
+			type: "negative:post",
 			name: "Alert",
 			requestUrl: `/api/moments/${group_id}/${image_id}`,
 			onSuccess: handleSuccess,

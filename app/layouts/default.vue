@@ -57,11 +57,12 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess" 
 				/>
-			<FieldFormDeleteConfirm v-if="modal.type == 'negative'"
+			<FieldFormDeleteConfirm v-if="modal.type.includes('negative')"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
+				:type="modal.type"
 			/>
 			
 		

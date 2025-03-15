@@ -75,7 +75,7 @@
 	});
 
 	const router = useRouter();
-	const activeTab = ref(useRoute().query.tab || "all");
+	const activeTab = ref("all");
 
 	const notificationStore = useNotificationStore();
 	const readNotifications = computed(() => notificationStore.getAllNotifications);
@@ -85,7 +85,6 @@
 
 	const setActiveTab = async (tab) => {
 		activeTab.value = tab;
-		router.push({ query: { ...router.currentRoute.value.query, tab } });
 	};
 </script>
 

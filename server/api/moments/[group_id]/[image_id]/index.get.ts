@@ -1,14 +1,22 @@
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
 
+    if (!user) return useReturnResponse(event, unauthorizedError);
     const { group_id, image_id } = getRouterParams(event)
-
     const { data: groupData, error: errorGroup }: any = await client.from("groups").select("*").eq("id", group_id).single()
+    
     if (errorGroup) return useReturnResponse(event, notFoundError);
 
-    const { data, error } = await client.from('posts').select('*', { count: 'exact' }).eq('id', image_id).single()
+    /*
+    ************************************************************************************
+    */
 
+    const { data, error } = await client.from('posts').select('*', { count: 'exact' }).eq('id', image_id).single()
     if (error && error.details.includes("0 rows")) return useReturnResponse(event, notFoundError);
     if (error) return useReturnResponse(event, internalServerError);
+
+    /*
+    ************************************************************************************
+    */
 
     const { data: related }: any = await client.rpc("get_nearest_posts", {
         target_post_id: data.id,
@@ -17,6 +25,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         target_author_id: data.author_id,
         limit_posts: 6,
     });
+
+    /*
+    ************************************************************************************
+    */
 
     return useReturnResponse(event, {
         status: {

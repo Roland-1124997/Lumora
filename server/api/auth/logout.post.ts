@@ -1,10 +1,15 @@
-export default defineEventHandler( async (event) => {
+export default defineSupabaseEventHandler(async (event, user, client) => {
+
+    if (!user) return useReturnResponse(event, unauthorizedError);
     
-    const client = await serverSupabaseClient(event);
     const { error } = await useDeleteSession(client)
     if (error) return useReturnResponse(event, badRequestError)
-        
-    useDeleteCookies(event)
+
+    /*
+    ************************************************************************************
+    */
+
+    await useDeleteCookies(event)
 
     return useReturnResponse(event, {
         status: {

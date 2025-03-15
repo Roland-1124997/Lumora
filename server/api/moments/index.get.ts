@@ -1,8 +1,14 @@
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
 
+    if (!user) return useReturnResponse(event, unauthorizedError);
+
     const query: query = getQuery(event);
     const currentSearch = query.search ? query.search.toLowerCase() : "";
     const { items, page, start, end } = useMakePagination(8, query);
+
+    /*
+    ************************************************************************************
+    */
 
     const { count, data, error } = await client.from("groups")
         .select("*", { count: "exact" }).ilike("name", `${currentSearch}%`).range(start, end)
@@ -10,6 +16,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     if (error) return useReturnResponse(event, internalServerError);
     if (count === 0) return useReturnResponse(event, notFoundError);
+
+    /*
+    ************************************************************************************
+    */
 
     return useReturnResponse(event, {
         status: {

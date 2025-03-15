@@ -1,3 +1,4 @@
+
 export const useGetCookies = (event: H3Event) => {
 
     const accessToken = getCookie(event, "sb-access-token");
@@ -16,7 +17,7 @@ export const useGetCookies = (event: H3Event) => {
 export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | null) => {
     if (session) {
         setCookie(event, "sb-access-token", session.access_token, {
-            maxAge: 60 * 5, // Cookie valid for 5 minutes
+            maxAge: 60 * 15, // Cookie valid for 30 minutes
             httpOnly: true,
         });
 
@@ -24,10 +25,11 @@ export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | n
             maxAge: 60 * 60 * 24 * 7, // Cookie valid for 7 days
             httpOnly: true,
         });
+
     }
 }
 
-export const useDeleteCookies = (event: H3Event) => {
+export const useDeleteCookies = async (event: H3Event) => {
     deleteCookie(event, "sb-access-token");
     deleteCookie(event, "sb-refresh-token");
 }

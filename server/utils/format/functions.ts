@@ -19,7 +19,7 @@ export const useFormatListGroup = async (server: SupabaseClient, data: Record<st
     }));
 }
 
-export const useFormatGroup = async (server: SupabaseClient,data: Record<string, any>, user?: User) => {
+export const useFormatGroup = async (server: SupabaseClient, data: Record<string, any>, user?: User) => {
 
     const { data: users } = await useListUsers(server);
 
@@ -50,7 +50,7 @@ export const useFormatGroup = async (server: SupabaseClient,data: Record<string,
     );
 };
 
-export const useFormatMediaData = async (server: SupabaseClient, client: SupabaseClient, data: Record<string, any>, related: Record<string, any>, group_id: string, user: User | null) => {
+export const useFormatMediaData = async (server: SupabaseClient, client: SupabaseClient, data: Record<string, any>, related: Record<string, any>, group_id: string, user: User) => {
 
     const { data: users } = await useListUsers(server);
 
