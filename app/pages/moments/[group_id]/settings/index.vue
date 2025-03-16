@@ -19,43 +19,101 @@
 
 		<hr class="pb-3" />
 
-		<div class="p-4 border rounded-xl">
-			<h1 class="mb-3 font-bold">Group details</h1>
-			<hr class="mb-2" />
+		<div class="grid gap-4 md:grid-cols-2">
+			<div class="p-4 border rounded-xl">
+				<div>
+					<div class="flex items-center justify-between mb-3">
+						<h1 class="font-bold">Group details</h1>
 
-			<field name="name" v-slot="{ field, meta }: any">
-				<div class="space-y-2">
-					<label class="text-sm font-medium text-gray-700" for="name"> Group name
-						<transition name="fade">
-							<span v-if="meta.validated && !meta.valid" class="text-red-700 ">({{ meta.errors[0] || "Er is een probleem met dit veld" }})</span>
-						</transition>
-					</label>
-					
-					<div class="flex gap-2">
-						<input :disabled="!content?.permision?.delete" v-model="content.name" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
+						<button v-if="content?.permision?.delete" class="flex items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl w-fit">Save changes</button>
+					</div>
+
+					<hr class="mb-2" />
+
+					<field name="name" v-slot="{ field, meta }: any">
+						<div class="space-y-2">
+							<label class="text-sm font-medium text-gray-700" for="name">
+								Group name
+								<transition name="fade">
+									<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "Er is een probleem met dit veld" }})</span>
+								</transition>
+							</label>
+
+							<div class="flex gap-2">
+								<input :disabled="!content?.permision?.delete" v-model="name" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
+							</div>
+						</div>
+					</field>
+
+					<field name="description" v-slot="{ field, meta }: any">
+						<div class="mt-1 space-y-2">
+							<label class="text-sm font-medium text-gray-700" for="description">
+								Description
+								<transition name="fade">
+									<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "Er is een probleem met dit veld" }})</span>
+								</transition>
+							</label>
+							<div class="flex gap-2">
+								<textarea :disabled="!content?.permision?.delete" v-model="description" v-bind="field" placeholder="Describe what your group is about!" id="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none max-h-24 min-h-24 rounded-xl"></textarea>
+							</div>
+						</div>
+					</field>
+				</div>
+			</div>
+
+			<div class="p-4 border rounded-xl">
+				<h1 class="mb-3 font-bold">Additional options</h1>
+
+				<hr class="my-3" />
+
+				<div class="grid items-center gap-2">
+					<div class="flex items-center justify-between">
+						<p>Posts need to be reviewed</p>
+						<label class="cursor-pointer">
+							<input :disabled="!content?.permision?.delete" type="checkbox" v-model="isOff" class="sr-only" />
+							<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': isOff && content?.permision?.delete, 'bg-gray-300': !content?.permision?.delete, 'bg-gray-600': isOff && !content?.permision?.delete  }">
+								<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': isOff }"></div>
+							</div>
+						</label>
+					</div>
+
+					<div class="flex items-center justify-between">
+						<p>Anyone can create links</p>
+						<label class="cursor-pointer">
+							<input :disabled="!content?.permision?.delete" type="checkbox" v-model="isOn" class="sr-only" />
+							<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': isOn && content?.permision?.delete, 'bg-gray-300': !content?.permision?.delete, 'bg-gray-600': isOn && !content?.permision?.delete  }">
+								<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': isOn }"></div>
+							</div>
+						</label>
 					</div>
 				</div>
-			</field>
 
-			
-			<field name="description" v-slot="{ field, meta }: any">
-				<div class="mt-1 space-y-2 ">
-					<label class="text-sm font-medium text-gray-700" for="description">
-						Description 
-						<transition name="fade">
-							<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "Er is een probleem met dit veld" }})</span>
-						</transition>
-					</label>
-					<div class="flex gap-2">
-						<textarea :disabled="!content?.permision?.delete" v-model="content.description" v-bind="field" placeholder="Describe what your group is about!" id="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none max-h-36 min-h-36 rounded-xl"></textarea>
+				<h1 class="mt-4 mb-3 font-bold">Notifications</h1>
+
+				<hr class="mb-2" />
+
+				<div class="grid items-center gap-2">
+					<div class="flex items-center justify-between">
+						<p>Social interactions</p>
+						<label class="cursor-pointer">
+							<input :disabled="!content?.permision?.delete" type="checkbox" v-model="isOn" class="sr-only" />
+							<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': isOn && content?.permision?.delete, 'bg-gray-300': !content?.permision?.delete, 'bg-gray-600': isOn && !content?.permision?.delete  }">
+								<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': isOn }"></div>
+							</div>
+						</label>
+					</div>
+
+					<div class="flex items-center justify-between">
+						<p>News and updates</p>
+						<label class="cursor-pointer">
+							<input :disabled="!content?.permision?.delete" type="checkbox" v-model="isOn" class="sr-only" />
+							<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': isOn && content?.permision?.delete, 'bg-gray-300': !content?.permision?.delete, 'bg-gray-600': isOn && !content?.permision?.delete  }">
+								<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': isOn }"></div>
+							</div>
+						</label>
 					</div>
 				</div>
-			</field>
-
-			<button v-if="content?.permision?.delete" class="flex items-center justify-center gap-2 p-2 px-8 mt-2 text-sm text-white bg-black border border-black rounded-xl w-fit">
-				Edit
-			</button>
-			
+			</div>
 		</div>
 	</div>
 </template>
@@ -64,8 +122,10 @@
 	const group_id = useRoute().params.group_id;
 	const content = ref();
 
-	await $fetch(`/api/moments/settings/${group_id}`)
-		.then((response: ApiResponse<Group>) => (content.value = response.data))
+	const isOff = ref(true)
+	const isOn = ref(false);
+
+	await $fetch(`/api/moments/settings/${group_id}`).then((response: ApiResponse<Group>) => (content.value = response.data))
 		.catch((error) => {
 			throw createError({
 				statusCode: error.data.meta.code,
@@ -75,6 +135,8 @@
 		});
 
 	const activeTab = ref("General");
+	const name = ref(content.value.name)
+	const description = ref(content.value.description)
 
 	const setActiveTab = async (tab: string) => {
 		activeTab.value = tab;

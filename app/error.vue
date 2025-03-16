@@ -74,7 +74,7 @@
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
 
 	
-	await $fetch("/api/sessions").then((response) => {
+	await $fetch("/api/user").then((response) => {
 		userValue.value = response.data.name
 	}).catch(() => (errorValue.value = true));
 
