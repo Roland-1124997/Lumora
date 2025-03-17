@@ -21,10 +21,10 @@
 
 	const loading = ref(false);
 	
-	// // Handle form submission and validation using Vee-Validate
+	// Handle form submission and validation using Vee-Validate
 	const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
 		loading.value = true;
-
+		
 		if(method == "DELETE") await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		if (values.remember) {

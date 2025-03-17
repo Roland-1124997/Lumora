@@ -54,8 +54,8 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
 
     const { data: users } = await useListUsers(server);
 
-    const { data: permissions }: any = await client.from("members").select("*").eq("user_id", user?.id).eq("group_id", group_id).single()
-    const { data: liked } = await client.from("liked_posts").select("id").eq("post_id", data.id).eq("user_id", user?.id).single()
+    const { data: permissions }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+    const { data: liked } = await client.from("liked_posts").select("id").eq("post_id", data.id).eq("user_id", user.id).single()
 
     const author: any = users.users.find((user) => user.id === data.author_id);
 

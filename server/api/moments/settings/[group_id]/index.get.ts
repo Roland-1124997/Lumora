@@ -7,6 +7,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     if (error) return useReturnResponse(event, notFoundError);
 
+    const { data: permissions }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+
     /*
     ************************************************************************************
     */
@@ -42,7 +44,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             description: data.description,
             last_active: data.last_active,
             permision: {
-                delete: data.owner_id == user.id
+                delete: permissions?.can_delete_messages_all || permissions?.user_id === data.author_id,
+                edit: permissions?.can_edit_group
             },
             media: {
                 type: "image",

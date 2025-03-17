@@ -57,6 +57,12 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess" 
 				/>
+			<FieldFormCreateLinks v-if="modal.type == 'links'"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess" 
+			/>
 			<FieldFormDeleteConfirm v-if="modal.type.includes('negative')"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
