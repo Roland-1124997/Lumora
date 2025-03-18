@@ -51,7 +51,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             last_active: data.last_active,
             permision: {
                 change: data.owner_id === user.id,
-                delete: permissions?.can_delete_messages_all || permissions?.user_id === data.author_id,
+                delete: permissions?.can_delete_group || permissions?.user_id === data.author_id,
                 create: permissions?.can_edit_group || settings?.everyone_can_create_link || false,
                 edit: permissions?.can_edit_group
             },
