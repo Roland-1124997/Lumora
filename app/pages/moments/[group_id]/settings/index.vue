@@ -73,7 +73,7 @@
 						<div v-for="option in section.options" :key="option.key" class="flex items-center justify-between">
 							<p>{{ option.label }}</p>
 							<label class="cursor-pointer">
-								<input :disabled="!content?.permision?.edit" type="checkbox" v-model="option.value" class="sr-only" />
+								<input :disabled="!content?.permision?.change" type="checkbox" v-model="option.value" class="sr-only" />
 								<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': option.value && content?.permision?.edit, 'bg-gray-300 cursor-not-allowed': !content?.permision?.edit, 'bg-gray-600 cursor-not-allowed': option.value && !content?.permision?.edit }">
 									<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': option.value }"></div>
 								</div>
@@ -87,7 +87,7 @@
 				<div class="flex items-center justify-between mb-3">
 					<h1 class="font-bold">Invite links</h1>
 
-					<button @click="CreateLink" :disabled="loading" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
+					<button v-if="content?.permision?.create" @click="CreateLink" :disabled="loading" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
 						<span> Create link </span>
 					</button>
 				</div>
@@ -99,20 +99,26 @@
 						<tbody>
 							<tr v-for="link in inviteLinks" :key="link.id" class="transition-all border-b border-gray-100 hover:bg-gray-50">
 								<td class="p-3 text-left">
-									<span :class="isLinkExpired(link) || getRemainingUses(link) === 0 ? ' opacity-50' : ''" class="truncate max-w-[150px] font-bold">{{ link.code }}</span>
+									<span :class="isLinkExpired(link) || getRemainingUses(link) === 0 ? ' opacity-50' : ' underline'" class="truncate max-w-[150px] overflow-auto font-black">{{ link.code }}</span>
 								</td>
-								<td class="p-3 text-center text-gray-600">
-									<span v-if="isLinkExpired(link)" class="px-2 py-1 ml-2 text-xs font-semibold text-red-600 bg-red-100 rounded">Expired</span>
-									<span v-if="isLinkExpired(link) === null" class="px-2 py-1 ml-2 text-xs font-semibold text-gray-600 bg-gray-100 rounded">Unlimited</span>
-									<span v-else>{{ useTimeAgo(link.expiresAt).value }}</span>
+								<td class="p-3 text-center text-gray-800">
+									<div v-if="isLinkExpired(link) === null">
+										<Icon name="ri:infinity-line" size="1.3rem" />
+									</div>
+									<span v-else-if="isLinkExpired(link)" class="px-2 py-1 ml-2 text-xs font-semibold text-red-600 bg-red-100 rounded">Expired</span>
+
+									<span v-else>{{ useDateFormat(link.expiresAt, "MMM-DD HH:mm") }}</span>
 								</td>
 								<td class="p-3 font-semibold text-center text-gray-600">
-									<span v-if="getRemainingUses(link) === 0" class="px-2 py-1 ml-2 text-xs font-semibold text-red-600 bg-red-100 rounded">Used</span>
-									<span v-if="getRemainingUses(link) === 'unlimited'" class="px-2 py-1 ml-2 text-xs font-semibold text-gray-600 bg-gray-100 rounded">Unlimited</span>
+									<div v-if="getRemainingUses(link) === null">
+										<Icon name="ri:infinity-line" size="1.3rem" />
+									</div>
+									<span v-else-if="getRemainingUses(link) === 0" class="px-2 py-1 ml-2 text-xs font-semibold text-red-600 bg-red-100 rounded">Used</span>
+
 									<span v-else>{{ getRemainingUses(link) }}</span>
 								</td>
-								<td v-if="content?.permision?.delete" class="flex justify-center gap-2 p-3 text-center">
-									<button @click="handleDeleteInviteLink(link.id)" class="text-red-500 transition hover:text-red-700">
+								<td class="flex justify-center gap-2 p-3 text-center">
+									<button :class="!link?.permision?.delete ? ' opacity-50' : 'text-red-500 hover:text-red-700'" :disabled="!link?.permision?.delete" @click="handleDeleteInviteLink(link.id)" class="transition">
 										<Icon name="ri:delete-bin-2-line" size="1.3rem" />
 									</button>
 								</td>
@@ -145,25 +151,6 @@
 	 ************************************************************************************
 	 */
 
-	const inviteLinks: any = ref([]);
-
-	await $fetch(`/api/moments/invite/${group_id}`).then((response) => {
-		inviteLinks.value = response.data;
-	}).catch((error) => {});
-
-	const isLinkExpired = (link: any) => {
-
-		if (link.expiresAt === null || link.expiresAt === "unlimited") return link.expiresAt;
-		return new Date(link.expiresAt) < new Date();
-	};
-	const getRemainingUses = (link: any) => link.uses;
-
-	const handleDeleteInviteLink = async (id: any) => {
-		await $fetch(`/api/moments/invite/${group_id}/${id}`, { method: "delete"}).then((response) => {
-			inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== id);
-		}).catch((error) => {})
-	};
-
 	/*
 	 ************************************************************************************
 	 */
@@ -173,6 +160,32 @@
 
 	const activeTab = ref("General");
 	const setActiveTab = async (tab: string) => (activeTab.value = tab);
+
+	const inviteLinks: any = ref([]);
+
+	watch(activeTab, (tab) => {
+		if (tab === "Invite") {
+			$fetch(`/api/moments/invite/${group_id}`)
+				.then((response) => {
+					inviteLinks.value = response.data;
+				})
+				.catch((error) => {});
+		}
+	});
+
+	const isLinkExpired = (link: any) => {
+		if (link.expiresAt === null) return link.expiresAt;
+		return new Date(link.expiresAt) < new Date();
+	};
+	const getRemainingUses = (link: any) => link.uses;
+
+	const handleDeleteInviteLink = async (id: any) => {
+		await $fetch(`/api/moments/invite/${group_id}/${id}`, { method: "delete" })
+			.then((response) => {
+				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== id);
+			})
+			.catch((error) => {});
+	};
 
 	/*
 	 ************************************************************************************
@@ -235,7 +248,7 @@
 	};
 
 	const handleInviteError = async ({ error, actions }: ErrorResponse) => {
-		setTimeout(() => navigateTo(`/moments`), 500);
+		//setTimeout(() => navigateTo(`/moments`), 500);
 	};
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
@@ -243,7 +256,7 @@
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
-		setTimeout(() => navigateTo(`/moments`), 500);
+		//setTimeout(() => navigateTo(`/moments`), 500);
 	};
 
 	/*
@@ -262,9 +275,15 @@
 	const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
 		loading.value = true;
 
-		console.log(values);
-
 		await new Promise((resolve) => setTimeout(resolve, 2000));
+
+		values.configuration = {};
+
+		config.value.sections.forEach((section: any) => {
+			section.options.forEach((option: any) => {
+				values.configuration[option.key] = option.value;
+			});
+		});
 
 		await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
 			.then(async (response) => {

@@ -4,7 +4,7 @@ const schema = zod.object({
 	description: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
 });
 
-export default defineSupabaseEventHandler(async (event, user, client) => {
+export default defineSupabaseEventHandler(async (event, user, client, server) => {
 
 	if (!user) return useReturnResponse(event, unauthorizedError);
 	const { group_id } = getRouterParams(event);
@@ -19,6 +19,19 @@ export default defineSupabaseEventHandler(async (event, user, client) => {
 			details: zodError.errors
 		}
 	})
+
+	/*
+	************************************************************************************
+	*/
+
+	const { data, error: settingError }: any = await server.from("group_settings").update({
+		needs_review: request.configuration.reviewPosts,
+		everyone_can_create_link: request.configuration.createLinks,
+		auto_accept_new_members: request.configuration.autoAccept,
+		social_interactions: request.configuration.socialInteractions
+	}).eq("group_id", group_id)
+
+	if (settingError) return useReturnResponse(event, notFoundError)
 
 	/*
 	************************************************************************************

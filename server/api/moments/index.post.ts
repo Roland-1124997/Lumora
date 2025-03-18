@@ -22,6 +22,7 @@ export default defineSupabaseEventHandler(async (event, user, client) => {
 		name: request.name
 	}).select("*").single();
 
+	console.log(error)
 	if (error) return useReturnResponse(event, internalServerError);
 
 	/*

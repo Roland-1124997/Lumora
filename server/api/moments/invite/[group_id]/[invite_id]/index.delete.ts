@@ -6,7 +6,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	
 	const { invite_id } = getRouterParams(event);
 
-	const { error } = await server.from("invite_links").delete().eq("id", invite_id)
+	const { error } = await client.from("invite_links").delete().eq("id", invite_id)
 	if (error) return useReturnResponse(event, internalServerError)
 
 	/*
