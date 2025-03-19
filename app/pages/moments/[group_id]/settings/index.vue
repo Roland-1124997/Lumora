@@ -15,7 +15,7 @@
 				</button>
 			</div>
 			<button v-if="content?.permision?.delete" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Delete</button>
-			<button v-else class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Leave<span class="hidden md:flex">group</span></button>
+			<button v-else @click="leaveGroup" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Leave<span class="hidden md:flex">group</span></button>
 		</div>
 
 		<hr class="pb-3" />
@@ -99,7 +99,7 @@
 						<tbody>
 							<tr v-for="link in inviteLinks" :key="link.id" class="transition-all border-b border-gray-100 hover:bg-gray-50">
 								<td class="p-3 text-left">
-									<span :class="isLinkExpired(link) || getRemainingUses(link) === 0 ? ' opacity-50' : ' underline'" class="truncate max-w-[150px] overflow-auto font-black">{{ link.code }}</span>
+									<button @click="share(link)" :class="isLinkExpired(link) || getRemainingUses(link) === 0 ? ' opacity-50' : ' underline'" class="truncate max-w-[150px] overflow-auto font-black">{{ link.code }}</button>
 								</td>
 								<td class="p-3 text-center text-gray-800">
 									<div v-if="isLinkExpired(link) === null">
@@ -143,13 +143,39 @@
 
 	const config = ref();
 
-	const CreateLink = async () => {
-		createInviteFunction();
-	};
+	const CreateLink = async () => createInviteFunction();
 
 	/*
 	 ************************************************************************************
 	 */
+
+	const share = (link: any) => {
+        const dummy = document.createElement('input')
+        const text = `${window.location.host}/invitations/${link.id}?token=${link.code}`;
+        dummy.style.opacity = '0';
+        dummy.style.position = 'absolute';
+        dummy.style.top = '0';
+
+        document.body.appendChild(dummy);
+        dummy.value = text;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert('Link gekopieerd')
+        
+    };
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const leaveGroup = async () => {
+		await $fetch(`/api/moments/members/${group_id}`, { method: "delete" }).then((response: any) => {
+			if (response.status.redirect) navigateTo(response.status.redirect);
+		}).catch((error) => {
+			navigateTo('/moments');
+		});
+	}
 
 	/*
 	 ************************************************************************************
@@ -165,8 +191,8 @@
 
 	watch(activeTab, (tab) => {
 		if (tab === "Invite") {
-			$fetch(`/api/moments/invite/${group_id}`)
-				.then((response) => {
+			$fetch(`/api/moments/invitations/${group_id}`)
+				.then((response: any) => {
 					inviteLinks.value = response.data;
 				})
 				.catch((error) => {});
@@ -180,7 +206,7 @@
 	const getRemainingUses = (link: any) => link.uses;
 
 	const handleDeleteInviteLink = async (id: any) => {
-		await $fetch(`/api/moments/invite/${group_id}/${id}`, { method: "delete" })
+		await $fetch(`/api/moments/invitations/${group_id}/${id}`, { method: "delete" })
 			.then((response) => {
 				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== id);
 			})
@@ -210,9 +236,7 @@
 	 ************************************************************************************
 	 */
 
-	const deleteData = async () => {
-		createDeleteFunction();
-	};
+	const deleteData = async () => createDeleteFunction()
 
 	const { updateModalValue } = inject<any>("modal");
 
@@ -232,16 +256,16 @@
 			open: true,
 			type: "links",
 			name: "Generate",
-			requestUrl: `/api/moments/invite/${group_id}`,
+			requestUrl: `/api/moments/invitations/${group_id}`,
 			onSuccess: handleInviteSuccess,
 			onError: handleInviteError,
 		});
 	};
 
-	const handleInviteSuccess = async ({ response }: SuccessResponse<null>) => {
+	const handleInviteSuccess = async ({ response }: any) => {
 		if (response.status.refresh)
-			await $fetch(`/api/moments/invite/${group_id}`)
-				.then((response) => {
+			await $fetch(`/api/moments/invitations/${group_id}`)
+				.then((response: any) => {
 					inviteLinks.value = response.data;
 				})
 				.catch((error) => {});
@@ -286,7 +310,7 @@
 		});
 
 		await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
-			.then(async (response) => {
+			.then(async (response: any) => {
 				if (response.data.meta.refresh)
 					await $fetch(`/api/moments/settings/${group_id}`)
 						.then((response) => {

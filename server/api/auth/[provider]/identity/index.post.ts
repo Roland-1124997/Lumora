@@ -17,13 +17,16 @@ export default defineEventHandler( async (event) => {
         }
     })
 
+    const invite = getCookie(event, "invite_token")
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event)
+
+    deleteCookie(event, "invite_token")
     useSetCookies(event, session)
 
     return useReturnResponse(event, {
         status: {
             success: true,
-            redirect: "/",
+            redirect: invite || "/",
             message: "Ok",
             code: 200
         }

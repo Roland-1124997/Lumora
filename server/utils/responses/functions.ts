@@ -35,6 +35,14 @@ export const unauthorizedError = {
     }
 }
 
+export const ResourceGoneError = {
+    status: {
+        success: false,
+        message: "Gone",
+        code: 410
+    }
+}
+
 export const badRequestError = {
     status: {
         success: false,

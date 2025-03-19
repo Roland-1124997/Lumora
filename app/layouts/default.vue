@@ -8,6 +8,7 @@
 						<span v-if="$route.path == '/home'">Lumora</span>
 						<span v-else-if="$route.name?.includes('-group_id-settings')">Settings</span>
 						<span v-else-if="$route.name?.includes('-group_id')">{{ group }}</span>
+						<span v-else-if="$route.name?.includes('invite-id')">Invite</span>
 						<span v-else>{{ $route.name?.charAt(0).toUpperCase() + $route.name?.slice(1) }} </span>
 					</h1>
 				</button>

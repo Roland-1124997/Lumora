@@ -9,7 +9,7 @@
 			</div>
 
 			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/${content.id}`">
-				<img :src="content.media.url" :alt="content.author.id" class="object-cover w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
+				<img :src="content.media.url" :alt="content.author.id" class="object-cover aspect-square w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
 			</NuxtLink>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />

@@ -24,6 +24,17 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
+	const { error } = await client.from("groups").update({
+		description: request.description,
+		name: request.name
+	}).eq("id", group_id)
+	
+	if (error) return useReturnResponse(event, internalServerError);
+
+	/*
+	************************************************************************************
+	*/
+
 	const { data, error: settingError }: any = await server.from("group_settings").update({
 		needs_review: request.configuration.reviewPosts,
 		everyone_can_create_link: request.configuration.createLinks,
@@ -32,17 +43,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	}).eq("group_id", group_id)
 
 	if (settingError) return useReturnResponse(event, notFoundError)
-
-	/*
-	************************************************************************************
-	*/
-
-	const { error } = await client.from("groups").update({
-		description: request.description,
-		name: request.name
-	}).eq("id", group_id)
-	
-	if (error) return useReturnResponse(event, internalServerError);
 
 	/*
 	************************************************************************************
