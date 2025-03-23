@@ -73,13 +73,43 @@
 						<div v-for="option in section.options" :key="option.key" class="flex items-center justify-between">
 							<p>{{ option.label }}</p>
 							<label class="cursor-pointer">
-								<input :disabled="!content?.permision?.change" type="checkbox" v-model="option.value" class="sr-only" />
-								<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': option.value && content?.permision?.edit, 'bg-gray-300 cursor-not-allowed': !content?.permision?.edit, 'bg-gray-600 cursor-not-allowed': option.value && !content?.permision?.edit }">
+								<input :disabled="!content?.permision?.change || loading" type="checkbox" v-model="option.value" class="sr-only" />
+								<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': option.value && content?.permision?.edit && !loading, 'bg-gray-300 cursor-not-allowed': (!content?.permision?.edit || loading) && !option.value, 'bg-gray-600 cursor-not-allowed': option.value && (!content?.permision?.edit || loading), }">
 									<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': option.value }"></div>
 								</div>
 							</label>
 						</div>
 					</div>
+				</div>
+			</div>
+
+			<div v-if="activeTab == 'Members'" class="p-4 overflow-hidden border rounded-xl">
+				<div class="flex items-center justify-between mb-3">
+					<h1 class="font-bold">Members</h1>
+				</div>
+
+				<hr class="mb-3" />
+
+				<div class="overflow-x-auto h-[60vh] overflow-scroll">
+					<ul class="space-y-4">
+						<li v-for="member in memberList" :key="member.id" class="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50">
+							<img :src="member.avatar || '/profile.jpg'" alt="Avatar" class="w-12 h-12 rounded-full" />
+							<div>
+								<p class="font-bold">{{ member.name }}</p>
+								<ul class="text-sm text-gray-600">
+									<li>
+										Can Edit Group: <span :class="getPermissionClass(member.Permissions.can_edit_group)">{{ member.Permissions.can_edit_group }}</span>
+									</li>
+									<li>
+										Can Delete Group: <span :class="getPermissionClass(member.Permissions.can_delete_group)">{{ member.Permissions.can_delete_group }}</span>
+									</li>
+									<li>
+										Can Delete All Messages: <span :class="getPermissionClass(member.Permissions.can_delete_messages_all)">{{ member.Permissions.can_delete_messages_all }}</span>
+									</li>
+								</ul>
+							</div>
+						</li>
+					</ul>
 				</div>
 			</div>
 
@@ -145,37 +175,42 @@
 
 	const CreateLink = async () => createInviteFunction();
 
+	const getPermissionClass = (permission: any) => {
+		return permission ? "text-green-600 font-bold" : "text-red-600 font-bold";
+	};
+
 	/*
 	 ************************************************************************************
 	 */
 
 	const share = (link: any) => {
-        const dummy = document.createElement('input')
-        const text = `${window.location.host}/invitations/${link.id}?token=${link.code}`;
-        dummy.style.opacity = '0';
-        dummy.style.position = 'absolute';
-        dummy.style.top = '0';
+		const dummy = document.createElement("input");
+		const text = `${window.location.host}/invitations/${link.id}?token=${link.code}`;
+		dummy.style.opacity = "0";
+		dummy.style.position = "absolute";
+		dummy.style.top = "0";
 
-        document.body.appendChild(dummy);
-        dummy.value = text;
-        dummy.select();
-        document.execCommand('copy');
-        document.body.removeChild(dummy);
-        alert('Link gekopieerd')
-        
-    };
+		document.body.appendChild(dummy);
+		dummy.value = text;
+		dummy.select();
+		document.execCommand("copy");
+		document.body.removeChild(dummy);
+		alert("Link gekopieerd");
+	};
 
 	/*
 	 ************************************************************************************
 	 */
 
 	const leaveGroup = async () => {
-		await $fetch(`/api/moments/members/${group_id}`, { method: "delete" }).then((response: any) => {
-			if (response.status.redirect) navigateTo(response.status.redirect);
-		}).catch((error) => {
-			navigateTo('/moments');
-		});
-	}
+		await $fetch(`/api/moments/members/${group_id}`, { method: "delete" })
+			.then((response: any) => {
+				if (response.status.redirect) navigateTo(response.status.redirect);
+			})
+			.catch((error) => {
+				navigateTo("/moments");
+			});
+	};
 
 	/*
 	 ************************************************************************************
@@ -188,12 +223,21 @@
 	const setActiveTab = async (tab: string) => (activeTab.value = tab);
 
 	const inviteLinks: any = ref([]);
+	const memberList: any = ref([]);
 
 	watch(activeTab, (tab) => {
 		if (tab === "Invite") {
 			$fetch(`/api/moments/invitations/${group_id}`)
 				.then((response: any) => {
 					inviteLinks.value = response.data;
+				})
+				.catch((error) => {});
+		}
+
+		if (tab === "Members") {
+			$fetch(`/api/moments/members/${group_id}`)
+				.then((response: any) => {
+					memberList.value = response.data;
 				})
 				.catch((error) => {});
 		}
@@ -236,7 +280,7 @@
 	 ************************************************************************************
 	 */
 
-	const deleteData = async () => createDeleteFunction()
+	const deleteData = async () => createDeleteFunction();
 
 	const { updateModalValue } = inject<any>("modal");
 
@@ -271,17 +315,13 @@
 				.catch((error) => {});
 	};
 
-	const handleInviteError = async ({ error, actions }: ErrorResponse) => {
-		//setTimeout(() => navigateTo(`/moments`), 500);
-	};
+	const handleInviteError = async ({ error, actions }: ErrorResponse) => {};
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
 		if (response.status.redirect) setTimeout(() => navigateTo(response.status.redirect), 500);
 	};
 
-	const handleError = async ({ error, actions }: ErrorResponse) => {
-		//setTimeout(() => navigateTo(`/moments`), 500);
-	};
+	const handleError = async ({ error, actions }: ErrorResponse) => {};
 
 	/*
 	 ************************************************************************************

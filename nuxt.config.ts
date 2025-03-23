@@ -34,18 +34,47 @@ export default defineNuxtConfig({
     },
     rateLimit: {
       routes: {
-        '/api/moments/*': {
-          maxRequests: 50,
-          intervalSeconds: 20,
+        '/api/moments/invitations/*': {
+          methods: ['POST'],
+          maxRequests: 5,
+          intervalSeconds: 30,
+        },
+        '/api/moments/members/[group_id]': {
+          methods: ["GET"],
+          maxRequests: 30,
+          intervalSeconds: 30,
+        },
+        '/api/moments/invitations/[group_id]': {
+          methods: ["GET"],
+          maxRequests: 30,
+          intervalSeconds: 30,
+        },
+        '/api/moments/[group_id]': {
+          methods: ['POST'],
+          maxRequests: 5,
+          intervalSeconds: 30,
+        },
+        '/api/moments/[group_id]/[image_id]': {
+          methods: ["*"],
+          maxRequests: 15,
+          intervalSeconds: 30,
+        },
+        '/api/moments/': {
+          methods: ["POST"],
+          maxRequests: 2,
+          intervalSeconds: 30,
         },
         '/api/auth/*': {
-          maxRequests: 5,
+          methods: ["POST"],
+          maxRequests: 1,
           intervalSeconds: 60,
         },
-        '/api/sessions/': {
-          maxRequests: 100,
+        '/api/users/': {
+          methods: ['GET'], 
+          maxRequests: 120,
           intervalSeconds: 60,
-        }
+        },
+        
       }
     }
   },

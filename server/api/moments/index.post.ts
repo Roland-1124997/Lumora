@@ -16,13 +16,13 @@ export default defineSupabaseEventHandler(async (event, user, client) => {
 	/*
 	************************************************************************************
 	*/
+	console.log("request");
 
 	const { data, error } = await client.from("groups").insert({
 		description: request.description,
 		name: request.name
 	}).select("*").single();
 
-	console.log(error)
 	if (error) return useReturnResponse(event, internalServerError);
 
 	/*

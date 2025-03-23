@@ -8,7 +8,7 @@
 			<button @click="createUploadFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 			</button>
-			<NuxtLink :to="`/moments/${group_id}/settings`" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+			<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:settings-3-fill" size="1.4em" />
 			</NuxtLink>
 		</div>

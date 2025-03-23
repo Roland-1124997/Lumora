@@ -31,7 +31,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             page,
             total: Math.ceil((count ?? 1) / items),
         },
-        data: await useFormatListGroup(server, data)
+        data: await useFormatListGroup(server, data, user)
     });
 
 })

@@ -3,7 +3,7 @@
 		<splitpanes :horizontal="isMobile" class="w-full h-full" @resize="savePaneSize">
 			<pane :size="paneLeft" class="pl-3 -mt-4 border-l md:pr-3" min-size="50" max-size="70">
 				<div class="hidden w-full gap-2 mb-4 max-w-[35vw] md:flex">
-					<button :disabled="content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
+					<button v-if="!content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
 						<Icon :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 						{{ content.likes.count }}
 					</button>
@@ -21,11 +21,13 @@
 			<pane :size="paneRight" class="pl-3 overflow-hidden border-l mb-36 md:mb-auto">
 				<div class="md:h-[82.5vh] overflow-scroll">
 					<div class="flex w-full gap-2 mt-4 mb-2 md:hidden">
-						<button :disabled="content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
+						<button v-if="!content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
 							<Icon :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							{{ content.likes.count }}
 						</button>
-						<button v-if="content?.permision?.delete" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
+						
+
+						<button v-if="content?.permision?.can_delete_messages_all" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
 							<Icon name="ri:delete-bin-5-line" size="1.2rem" />
 						</button>
 
@@ -65,10 +67,10 @@
 
 					<h2 class="mb-3 text-xl font-semibold">Comments</h2>
 					<form @submit.prevent="handleSumbitComments()">
-						<div class="flex items-center justify-center gap-2 ">
+						<div class="flex items-center justify-center gap-2">
 							<textarea v-model="comment" placeholder="Leave an message" ref="editable" class="w-full resize-none p-4 bg-gray-100 rounded-xl outline-none appearance-none h-[3.5rem] focus:border focus:border-black"></textarea>
 							<button class="flex items-center justify-center p-[0.85rem] text-sm text-white bg-black/90 rounded-xl">
-								<Icon name="ri:send-plane-fill" size="1.5rem"/>
+								<Icon name="ri:send-plane-fill" size="1.5rem" />
 							</button>
 						</div>
 					</form>
@@ -115,10 +117,10 @@
 		editableDiv.value.focus();
 	};
 
-	const comment = ref()
+	const comment = ref();
 	const handleSumbitComments = () => {
-		comment.value = null
-	}
+		comment.value = null;
+	};
 
 	/*
 	 ************************************************************************************

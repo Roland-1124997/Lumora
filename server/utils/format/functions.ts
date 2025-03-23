@@ -1,16 +1,17 @@
-export const useFormatListGroup = async (server: SupabaseClient, data: Record<string, any>) => {
+export const useFormatListGroup = async (server: SupabaseClient, data: Record<string, any>, user: User) => {
 
     const { data: users } = await useListUsers(server)
 
     return await Promise.all(data.map(async (data: Record<string, any>) => {
         const author = users.users.find((user: User) => user.id === data.last_photo_posted_by);
+        const isOwner = data.last_photo_posted_by == user.id;
 
         return {
             id: data.id,
             name: data.name,
             description: data.description,
             last_active: data.last_active,
-            last_photo_posted_by: author?.user_metadata?.name,
+            last_photo_posted_by: isOwner ? 'You' : author?.user_metadata?.name,
             media: {
                 type: "image",
                 url: `/attachments/${data.thumbnail}`
@@ -35,7 +36,7 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
                 created_at: data.created_at,
                 has_liked: data.has_liked || false,
                 author: {
-                    name: authorName,
+                    name: isOwner ? 'You' : authorName,
                     is_owner: isOwner,
                 },
                 likes: {
@@ -68,7 +69,7 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
             is_owner: data.author_id == user?.id,
         },
         permision: {
-            delete: permissions?.can_delete_messages_all || permissions?.user_id === data.author_id
+            can_delete_messages_all: permissions?.can_delete_messages_all || permissions?.user_id === data.author_id
         },
         likes: {
             count: data.likes,
@@ -81,4 +82,4 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
     }
 }
 
-const useListUsers = async (server: SupabaseClient) => await server.auth.admin.listUsers();
+export const useListUsers = async (server: SupabaseClient) => await server.auth.admin.listUsers();

@@ -1,28 +1,31 @@
 export const rateLimits = new Map<string, { count: number; timestamp: number }>();
 const routesConfig: any = useRuntimeConfig().rateLimit.routes;
 
-const getRateLimitForRoute = (path: string) => {
-    if (!path.endsWith('/')) path += '/'; 
+const getRateLimitForRoute = (path: string, method: string) => {
+    if (!path.endsWith('/')) path += '/';
 
     for (let route in routesConfig) {
-        if (path === route) return routesConfig[route];
-
-        if (route.endsWith('*')) {
-            const baseRoute = route.slice(0, -1); 
-            if (path.startsWith(baseRoute)) return routesConfig[route];
+        const routeConfig = routesConfig[route];
+        const routePattern = new RegExp(`^${route.replace(/\[.*?\]/g, '[^/]+').replace(/\*/g, '.*').replace(/\/$/, '')}/?$`);
+        
+        if (routePattern.test(path)) {
+            if (routeConfig.methods.includes('*') || routeConfig.methods.includes(method)) {
+                return routeConfig;
+            }
         }
     }
-    return null;  
-}
+    return null;
+};
 
 export const cleanupRateLimitForKey = (key: string): void => {
     const now = Date.now();
 
-    const routeConfig = getRateLimitForRoute(key.split('-')[1]);
-    if (!routeConfig) return; 
+    const [ip, method, path] = key.split('-');
+    const routeConfig = getRateLimitForRoute(path, method);
+    if (!routeConfig) return;
 
     const { intervalSeconds } = routeConfig;
-    const windowMs = intervalSeconds * 1000; 
+    const windowMs = intervalSeconds * 1000;
 
     if (rateLimits.has(key)) {
         const data = rateLimits.get(key)!;
@@ -30,21 +33,23 @@ export const cleanupRateLimitForKey = (key: string): void => {
 
         if (secondsUntilReset <= 0) rateLimits.delete(key);
     }
-}
+};
 
 export const checkRateLimit = (event: H3Event): boolean => {
-
     const path = event.path.split("?")[0] || "/";
-    const routeConfig = getRateLimitForRoute(path);
+    const method = event.node.req.method || "GET"; 
+    const routeConfig = getRateLimitForRoute(path, method);
 
-    if (!routeConfig) return true; 
+    if (!routeConfig) {
+        return true; 
+    }
 
     const { maxRequests, intervalSeconds } = routeConfig;
-    const windowMs = intervalSeconds * 1000; 
+    const windowMs = intervalSeconds * 1000;
 
     const ip = getIP(event);
     const now = Date.now();
-    const key = `${ip}-${path}`;
+    const key = `${ip}-${method}-${path}`;
 
     cleanupRateLimitForKey(key);
 
@@ -54,7 +59,7 @@ export const checkRateLimit = (event: H3Event): boolean => {
         data.count = 1;
         data.timestamp = now;
     } else {
-        data.count += 1
+        data.count += 1;
     }
 
     const secondsUntilReset = Math.ceil((windowMs - (now - data.timestamp)) / 1000);
@@ -67,7 +72,7 @@ export const checkRateLimit = (event: H3Event): boolean => {
     rateLimits.set(key, data);
     setRateLimitHeaders(event, data.count, maxRequests, secondsUntilReset);
     return true;
-}
+};
 
 const setRateLimitHeaders = (event: any, current: number, limit: number, reset: number): void => {
     setHeader(event, 'x-ratelimit-current', current.toString());

@@ -2,7 +2,7 @@
 	<div ref="target" class="border-b">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 md:h-52 rounded-xl">
 			<div class="relative z-40 flex items-center justify-between p-2">
-				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
+				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] disabled:opacity-60 text-black bg-white border rounded-lg">
 					<icon :class="liked ? ' bg-red-600' : ''" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.1em" />
 					<span class="text-xs font-medium">{{ hearts }}</span>
 				</button>
@@ -18,7 +18,7 @@
 
 		<div class="py-2">
 			<p class="text-sm text-gray-500">
-				By <span class="font-semibold">{{ content.author.name }}</span>
+				<span class="font-semibold ">{{ content.author.name }}</span>
 			</p>
 			<p class="text-sm text-gray-500">{{ useTimeAgo(content.created_at).value }}</p>
 		</div>
