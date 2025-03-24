@@ -16,7 +16,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
         return {
             id: author.id,
-            name: author.user_metadata.name,
+            name: user.id == author.id ? 'You' : author.user_metadata.name,
             avatar: author.user_metadata.avatar_url,
             Permissions: {
                 can_edit_group: data.can_edit_group,

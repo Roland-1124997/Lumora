@@ -14,7 +14,7 @@
 					<span class="text-sm">Invites</span>
 				</button>
 			</div>
-			<button v-if="content?.permision?.delete" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Delete</button>
+			<button v-if="content.permision.delete" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Delete</button>
 			<button v-else @click="leaveGroup" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Leave<span class="hidden md:flex">group</span></button>
 		</div>
 
@@ -26,7 +26,7 @@
 					<div class="flex items-center justify-between mb-3">
 						<h1 class="font-bold">Group details</h1>
 
-						<button :disabled="loading" v-if="content?.permision?.edit" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
+						<button :disabled="loading" v-if="content.permision.edit" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
 							<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
 							<span v-else> Save changes </span>
 						</button>
@@ -44,7 +44,7 @@
 							</label>
 
 							<div class="flex gap-2">
-								<input :disabled="!content?.permision?.edit || loading" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" :value="name" type="text" ref="nameData" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
+								<input :disabled="!content.permision.edit || loading" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" :value="name" type="text" ref="nameData" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
 							</div>
 						</div>
 					</field>
@@ -58,7 +58,7 @@
 								</transition>
 							</label>
 							<div class="flex gap-2">
-								<textarea :disabled="!content?.permision?.edit || loading" v-bind="field" placeholder="Describe what your group is about!" id="description" :value="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none max-h-24 min-h-24 rounded-xl"></textarea>
+								<textarea :disabled="!content.permision.edit || loading" v-bind="field" placeholder="Describe what your group is about!" id="description" :value="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none max-h-24 min-h-24 rounded-xl"></textarea>
 							</div>
 						</div>
 					</field>
@@ -73,8 +73,8 @@
 						<div v-for="option in section.options" :key="option.key" class="flex items-center justify-between">
 							<p>{{ option.label }}</p>
 							<label class="cursor-pointer">
-								<input :disabled="!content?.permision?.change || loading" type="checkbox" v-model="option.value" class="sr-only" />
-								<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': option.value && content?.permision?.edit && !loading, 'bg-gray-300 cursor-not-allowed': (!content?.permision?.edit || loading) && !option.value, 'bg-gray-600 cursor-not-allowed': option.value && (!content?.permision?.edit || loading), }">
+								<input :disabled="!content.permision.change || loading" type="checkbox" v-model="option.value" class="sr-only" />
+								<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': option.value && content?.permision?.edit && !loading, 'bg-gray-300 cursor-not-allowed': (!content?.permision?.edit || loading) && !option.value, 'bg-gray-600 cursor-not-allowed': option.value && (!content?.permision?.edit || loading) }">
 									<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': option.value }"></div>
 								</div>
 							</label>
@@ -84,32 +84,42 @@
 			</div>
 
 			<div v-if="activeTab == 'Members'" class="p-4 overflow-hidden border rounded-xl">
-				<div class="flex items-center justify-between mb-3">
+				<div class="flex items-center justify-between mb-2">
 					<h1 class="font-bold">Members</h1>
 				</div>
 
-				<hr class="mb-3" />
+				<input type="text" :disabled="searchLoading" @input="debouncedSearch" v-model="searchTerm" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
 
-				<div class="overflow-x-auto h-[60vh] overflow-scroll">
-					<ul class="space-y-4">
-						<li v-for="member in memberList" :key="member.id" class="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50">
-							<img :src="member.avatar || '/profile.jpg'" alt="Avatar" class="w-12 h-12 rounded-full" />
-							<div>
-								<p class="font-bold">{{ member.name }}</p>
-								<ul class="text-sm text-gray-600">
-									<li>
-										Can Edit Group: <span :class="getPermissionClass(member.Permissions.can_edit_group)">{{ member.Permissions.can_edit_group }}</span>
-									</li>
-									<li>
-										Can Delete Group: <span :class="getPermissionClass(member.Permissions.can_delete_group)">{{ member.Permissions.can_delete_group }}</span>
-									</li>
-									<li>
-										Can Delete All Messages: <span :class="getPermissionClass(member.Permissions.can_delete_messages_all)">{{ member.Permissions.can_delete_messages_all }}</span>
-									</li>
-								</ul>
+				<hr class="mt-3 mb-3" />
+
+				<div class="overflow-x-auto -mt-2 h-[60vh] overflow-scroll">
+					<div class="">
+						<div v-for="member in memberList" :key="member.id" class="w-full gap-4 p-2 border-b border-gray-100 min-h-16 hover:bg-gray-50">
+							<div class="flex items-center gap-4">
+								<div class="w-full">
+									<div class="flex items-center justify-between w-full">
+										<div>
+											<h1 class="text-sm font-bold">{{ member.name }}</h1>
+											<p v-if="member.Permissions.can_delete_group" class="text-sm text-gray-500">Admin</p>
+											<p v-else-if="member.Permissions.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
+											<p v-else class="text-sm text-gray-500 text">Member</p>
+										</div>
+										<div v-if="member.name != 'You' && !member.Permissions.can_delete_group" class="flex items-center gap-2">
+											<button :class="!content.permision.change ? ' opacity-50' : ''" :disabled="!content.permision.change" class="flex items-center justify-center p-1">
+												<Icon name="ri:settings-2-line" size="1.3rem" />
+											</button>
+											<button @click="KickMember(member.id)" :class="!content.permision.edit ? ' opacity-50' : 'text-red-500 hover:text-red-700'" :disabled="!content.permision.edit" class="flex items-center justify-center p-1">
+												<Icon name="ri:delete-bin-2-line" size="1.3rem" />
+											</button>
+										</div>
+									</div>
+								</div>
 							</div>
-						</li>
-					</ul>
+						</div>
+						<div v-if="memberList.length === 0" class="flex justify-center w-full h-full p-4 text-gray-500 items">
+							<p class="text-sm">No members found</p>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -117,7 +127,7 @@
 				<div class="flex items-center justify-between mb-3">
 					<h1 class="font-bold">Invite links</h1>
 
-					<button v-if="content?.permision?.create" @click="CreateLink" :disabled="loading" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
+					<button v-if="content.permision.create" @click="CreateLink" :disabled="loading" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
 						<span> Create link </span>
 					</button>
 				</div>
@@ -148,7 +158,7 @@
 									<span v-else>{{ getRemainingUses(link) }}</span>
 								</td>
 								<td class="flex justify-center gap-2 p-3 text-center">
-									<button :class="!link?.permision?.delete ? ' opacity-50' : 'text-red-500 hover:text-red-700'" :disabled="!link?.permision?.delete" @click="handleDeleteInviteLink(link.id)" class="transition">
+									<button :class="!link.permision.delete ? ' opacity-50' : 'text-red-500 hover:text-red-700'" :disabled="!link.permision.delete" @click="handleDeleteInviteLink(link.id)" class="transition">
 										<Icon name="ri:delete-bin-2-line" size="1.3rem" />
 									</button>
 								</td>
@@ -216,11 +226,37 @@
 	 ************************************************************************************
 	 */
 
+	const searchTerm = ref("");
+	const searchLoading = ref(false);
+
+	const debouncedSearch = useDebounce(async () => {
+		searchLoading.value = true;
+		console.log(searchTerm.value);
+	});
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const KickMember = async (id: any) => {
+		await $fetch(`/api/moments/members/${group_id}/${id}`, { method: "delete" })
+			.then((response: any) => {
+				memberList.value = memberList.value.filter((member: any) => member.id !== id);
+			})
+			.catch((error) => {});
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
 	const { value: name }: any = useField<string>("name");
 	const { value: description }: any = useField<string>("description");
 
 	const activeTab = ref("General");
-	const setActiveTab = async (tab: string) => (activeTab.value = tab);
+	const setActiveTab = async (tab: string) => {
+		activeTab.value = tab;
+	};
 
 	const inviteLinks: any = ref([]);
 	const memberList: any = ref([]);

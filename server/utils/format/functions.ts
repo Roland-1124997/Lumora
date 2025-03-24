@@ -69,7 +69,7 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
             is_owner: data.author_id == user?.id,
         },
         permision: {
-            can_delete_messages_all: permissions?.can_delete_messages_all || permissions?.user_id === data.author_id
+            can_delete_message: permissions?.can_delete_messages_all || permissions?.user_id === data.author_id
         },
         likes: {
             count: data.likes,

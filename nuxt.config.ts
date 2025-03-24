@@ -66,7 +66,7 @@ export default defineNuxtConfig({
         },
         '/api/auth/*': {
           methods: ["POST"],
-          maxRequests: 1,
+          maxRequests: 6,
           intervalSeconds: 60,
         },
         '/api/users/': {

@@ -7,7 +7,7 @@
 						<Icon :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 						{{ content.likes.count }}
 					</button>
-					<button v-if="content?.permision?.delete" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
+					<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
 						<Icon name="ri:delete-bin-5-line" size="1.2rem" />
 					</button>
 					<a target="_parent" download :href="content?.media?.url" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-black rounded-xl">Download</a>
@@ -27,7 +27,7 @@
 						</button>
 						
 
-						<button v-if="content?.permision?.can_delete_messages_all" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
+						<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl">
 							<Icon name="ri:delete-bin-5-line" size="1.2rem" />
 						</button>
 
