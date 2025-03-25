@@ -25,10 +25,9 @@
     
 
     const stripHostFromUrl = (event: any) => {
-        const value = event.target.value; // Haal de waarde van het inputveld op
+        const value = event.target.value;
         const splits = value.split("/");
-        link.value = splits[2] || ""; // Zorg ervoor dat je geen fout krijgt als splits[2] undefined is
-        console.log(link.value);
+        link.value = splits[2] || ""; 
     };
     
 
