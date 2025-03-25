@@ -16,7 +16,6 @@ export default defineSupabaseEventHandler(async (event, user, client) => {
 	/*
 	************************************************************************************
 	*/
-	console.log("request");
 
 	const { data, error } = await client.from("groups").insert({
 		description: request.description,
