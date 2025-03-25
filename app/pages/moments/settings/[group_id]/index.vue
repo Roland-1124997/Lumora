@@ -181,13 +181,7 @@
 	import * as zod from "zod";
 
 	const group_id = useRoute().params.group_id;
-	const content = ref();
-
-	const config = ref();
-
-	const CreateLink = async () => createInviteFunction();
-
-
+	
 	/*
 	 ************************************************************************************
 	 */
@@ -210,8 +204,9 @@
 	/*
 	 ************************************************************************************
 	 */
-
+	const CreateLink = async () => createInviteFunction();
 	const leaveGroup = async () => createLeaveFunction()
+	const KickMember = async (id: string) => createKickFunction(id);
 		
 	/*
 	 ************************************************************************************
@@ -229,38 +224,27 @@
 	 ************************************************************************************
 	 */
 
-	const KickMember = async (id: string) => createKickFunction(id);
-		
+	const activeTab = ref("General");
+	const setActiveTab = async (tab: string) => activeTab.value = tab
+
 	/*
 	 ************************************************************************************
 	 */
-
-	const { value: name }: any = useField<string>("name");
-	const { value: description }: any = useField<string>("description");
-
-	const activeTab = ref("General");
-	const setActiveTab = async (tab: string) => {
-		activeTab.value = tab;
-	};
 
 	const inviteLinks: any = ref([]);
 	const memberList: any = ref([]);
 
 	watch(activeTab, async (tab) => {
 		if (tab === "Invite") {
-			await $fetch(`/api/moments/invitations/${group_id}`)
-				.then((response: any) => {
-					inviteLinks.value = response.data;
-				})
-				.catch((error) => {});
+			await $fetch(`/api/moments/invitations/${group_id}`).then((response: any) => {
+				inviteLinks.value = response.data;
+			}).catch((error) => {});
 		}
 
 		if (tab === "Members") {
-			await $fetch(`/api/moments/members/${group_id}`)
-				.then((response: any) => {
-					memberList.value = response.data;
-				})
-				.catch((error) => {});
+			await $fetch(`/api/moments/members/${group_id}`).then((response: any) => {
+				memberList.value = response.data;
+			}).catch((error) => {});
 		}
 	});
 
@@ -271,38 +255,38 @@
 	const getRemainingUses = (link: any) => link.uses;
 
 	const handleDeleteInviteLink = async (id: any) => {
-		await $fetch(`/api/moments/invitations/${group_id}/${id}`, { method: "delete" })
-			.then((response) => {
-				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== id);
-			})
-			.catch((error) => {});
+		await $fetch(`/api/moments/invitations/${group_id}/${id}`, { method: "delete" }).then((response) => {
+			inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== id);
+		}).catch((error) => {});
 	};
 
 	/*
 	 ************************************************************************************
 	 */
+	const content = ref();
+	const config = ref();
+	
+	const { value: name }: any = useField<string>("name");
+	const { value: description }: any = useField<string>("description");
 
-	await $fetch(`/api/moments/settings/${group_id}`)
-		.then((response: any) => {
-			content.value = response.data;
-			name.value = response.data.name;
-			config.value = response.data.configuration;
-			description.value = response.data.description;
-		})
-		.catch((error) => {
-			throw createError({
-				statusCode: error.data.meta.code,
-				message: error.data.meta.message,
-				fatal: true,
-			});
+	await $fetch(`/api/moments/settings/${group_id}`).then((response: any) => {
+		content.value = response.data;
+		name.value = response.data.name;
+		config.value = response.data.configuration;
+		description.value = response.data.description;
+	}).catch((error) => {
+		throw createError({
+			statusCode: error.data.meta.code,
+			message: error.data.meta.message,
+			fatal: true,
 		});
+	});
 
 	/*
 	 ************************************************************************************
 	 */
 
 	const deleteData = async () => createDeleteFunction();
-
 	const { updateModalValue } = inject<any>("modal");
 
 	const createDeleteFunction = () => {
@@ -316,6 +300,15 @@
 		});
 	};
 
+	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
+		if (response.status.redirect) setTimeout(() => navigateTo(response.status.redirect), 500);
+	};
+
+	const handleError = async ({ error, actions }: ErrorResponse) => {};
+
+	/*
+	 ************************************************************************************
+	 */
 	const createInviteFunction = () => {
 		updateModalValue({
 			open: true,
@@ -327,45 +320,28 @@
 		});
 	};
 
+	const handleInviteSuccess = async ({ response }: any) => {
+		if (response.status.refresh) await $fetch(`/api/moments/invitations/${group_id}`).then((response: any) => {
+			inviteLinks.value = response.data;
+		}).catch((error) => {});
+	};
+
+	const handleInviteError = async ({ error, actions }: ErrorResponse) => {};
+
+	/*
+	 ************************************************************************************
+	 */
+
 	const createLeaveFunction = () => {
 		updateModalValue({
 			open: true,
 			type: "Group:leave",
-			name: "Group",
+			name: "Alert",
 			requestUrl: `/api/moments/members/${group_id}`,
 			onSuccess: handleLeaveSuccess,
 			onError: handleLeaveError,
 		});
 	};
-
-	const createKickFunction = (id: string) => {
-		updateModalValue({
-			open: true,
-			type: "Group:kick",
-			name: "Group",
-			requestUrl: `/api/moments/members/${group_id}/${id}`,
-			onSuccess: handleKickSuccess,
-			onError: handleKickError,
-		});
-	};
-
-
-	const handleInviteSuccess = async ({ response }: any) => {
-		if (response.status.refresh)
-			await $fetch(`/api/moments/invitations/${group_id}`)
-				.then((response: any) => {
-					inviteLinks.value = response.data;
-				})
-				.catch((error) => {});
-	};
-
-	const handleInviteError = async ({ error, actions }: ErrorResponse) => {};
-
-	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		if (response.status.redirect) setTimeout(() => navigateTo(response.status.redirect), 500);
-	};
-
-	const handleError = async ({ error, actions }: ErrorResponse) => {};
 
 	const handleLeaveSuccess = async ({ response }: any) => {
 		if (response.status.redirect) navigateTo(response.status.redirect);
@@ -373,6 +349,20 @@
 
 	const handleLeaveError = async ({ error, actions }: ErrorResponse) => {};
 
+	/*
+	 ************************************************************************************
+	 */
+
+	const createKickFunction = (id: string) => {
+		updateModalValue({
+			open: true,
+			type: "Group:kick",
+			name: "Alert",
+			requestUrl: `/api/moments/members/${group_id}/${id}`,
+			onSuccess: handleKickSuccess,
+			onError: handleKickError,
+		});
+	};
 
 	const handleKickSuccess = async ({ response }: any) => {
 		await $fetch(`/api/moments/members/${group_id}`).then((response: any) => {
@@ -410,27 +400,22 @@
 
 		await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
 			.then(async (response: any) => {
-				if (response.data.meta.refresh)
-					await $fetch(`/api/moments/settings/${group_id}`)
-						.then((response) => {
-							content.value = response.data;
-							name.value = response.data.name;
-							config.value = response.data.configuration;
-							description.value = response.data.description;
-						})
-						.catch((error) => {
-							throw createError({
-								statusCode: error.data.meta.code,
-								message: error.data.meta.message,
-								fatal: true,
-							});
-						});
-			})
-			.catch(async (error) => {
+				if (response.data.meta.refresh) await $fetch(`/api/moments/settings/${group_id}`).then((response) => {
+					content.value = response.data;
+					name.value = response.data.name;
+					config.value = response.data.configuration;
+					description.value = response.data.description;
+				}).catch((error) => {
+					throw createError({
+						statusCode: error.data.meta.code,
+						message: error.data.meta.message,
+						fatal: true,
+					});
+				});
+			}).catch(async (error) => {
 				await new Promise((resolve) => setTimeout(resolve, 1000));
 				if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			})
-			.finally(() => (loading.value = false));
+			}).finally(() => (loading.value = false));
 	};
 </script>
 

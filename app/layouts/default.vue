@@ -52,6 +52,13 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess" 
 				/>
+			<FieldFormDeleteGroup v-if="modal.type.includes('Group')"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess"  
+				:type="modal.type"
+			/>
 			<FieldFormCreateImage v-if="modal.type == 'images'" 
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
@@ -71,16 +78,6 @@
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
 			/>
-			<FieldFormDeleteGroup v-if="modal.type.includes('Group')"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
-			/>
-			
-			
-		
 		</ModalBaselayer>
 	</div>
 </template>
