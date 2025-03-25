@@ -11,7 +11,7 @@ export const useFormatListGroup = async (server: SupabaseClient, data: Record<st
             name: data.name,
             description: data.description,
             last_active: data.last_active,
-            last_photo_posted_by: isOwner ? 'You' : author?.user_metadata?.name,
+            last_photo_posted_by: isOwner ? `${author?.user_metadata?.name} (You)` : author?.user_metadata?.name,
             media: {
                 type: "image",
                 url: `/attachments/${data.thumbnail}`
@@ -36,7 +36,7 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
                 created_at: data.created_at,
                 has_liked: data.has_liked || false,
                 author: {
-                    name: isOwner ? 'You' : authorName,
+                    name: isOwner ? `${authorName} (You)` : authorName,
                     is_owner: isOwner,
                 },
                 likes: {

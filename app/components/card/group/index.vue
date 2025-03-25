@@ -1,5 +1,5 @@
 <template>
-	<div ref="target" class="h-16 pb-2 border-b">
+	<div ref="target" class="pb-2 border-b h-fit md:h-16">
 		<NuxtLink :to="`/moments/${content.id}`" class="flex items-center space-x-3">
 			<div class="flex items-center justify-center w-12 h-12 overflow-hidden bg-gray-200 rounded-full">
 				<img v-if="loaded && targetIsVisible" :src="content.media.url" alt="image" class="object-cover w-full h-full" />
@@ -11,7 +11,7 @@
 					<p class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>
 				</div>
 				<p class="text-sm text-gray-500">
-					<span v-if="content.last_photo_posted_by">Laatste foto gepost door: {{ content.last_photo_posted_by }}</span>
+					<span v-if="content.last_photo_posted_by">Laatste foto gepost door: <span class="block font-bold md:inline ">{{ content.last_photo_posted_by }}</span></span>
 					<span v-else>Nog een activiteit, kom later terug</span>
 				</p>
 			</div>

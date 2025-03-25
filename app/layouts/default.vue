@@ -8,7 +8,6 @@
 						<span v-if="$route.path == '/home'">Lumora</span>
 						<span v-else-if="$route.name?.includes('settings-group_id')">Settings</span>
 						<span v-else-if="$route.name?.includes('-group_id')">{{ group }}</span>
-						<span v-else-if="$route.name?.includes('invite-id')">Invite</span>
 						<span v-else>{{ $route.name?.charAt(0).toUpperCase() + $route.name?.slice(1) }} </span>
 					</h1>
 				</button>
@@ -78,11 +77,19 @@
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
 			/>
+			<FieldFormJoinLink v-if="modal.type == 'join'"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess"  
+				:type="modal.type"
+			/>
 		</ModalBaselayer>
 	</div>
 </template>
 
 <script setup>
+
 	
 	const PWAInstalled = ref(false)
 	const { $pwa } = useNuxtApp();
@@ -110,7 +117,10 @@
 	const route = useRoute();
 
 	const handleBack = () => {
-		if (route.name === 'moments-group_id') router.push('/moments'); 
+
+		if(route.name === 'moments-group_id') return router.push('/moments'); 
+		if(route.name === 'moments-group_id-image_id') return router.push(`/moments/${route.params.group_id}`);
+		if(route.name === 'moments-settings-group_id') return router.push(`/moments/${route.params.group_id}`);
 		else router.back(); 
 	};
 

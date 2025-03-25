@@ -1,16 +1,18 @@
 <template>
 	<div class="">
-		<div class="flex items-center gap-2 mb-3 -mt-4">
-			<input :disabled="!List || reload" type="text" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
-			<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
-				<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
-			</button>
-			<button @click="createUploadFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
+			<button @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-2 text-black border border-black hover:bg-gray-100 rounded-xl md:w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
+				<span> Share your moments </span>
 			</button>
-			<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
-				<icon name="ri:settings-3-fill" size="1.4em" />
-			</NuxtLink>
+			<div class="flex items-center gap-2">
+				<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+					<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
+				</button>
+				<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+					<icon name="ri:information-line" size="1.4em" />
+				</NuxtLink>
+			</div>
 		</div>
 		<hr class="mb-2" />
 		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
@@ -74,7 +76,7 @@
 	 ************************************************************************************
 	 */
 
-	const { updateGroupValue} = inject<any>("group");
+	const { updateGroupValue } = inject<any>("group");
 	const { setGroupData, setItemToStart, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
 
 	const useFetchData = async (options: Record<string, any>, load: Ref, timer = 250) => {
@@ -88,9 +90,9 @@
 				name.value = response.meta?.name;
 
 				updateGroupValue(name.value);
-	
+
 				if (options.set) {
-					List.value = response.data as Post[]; 
+					List.value = response.data as Post[];
 					setGroupData(group_id, name.value, Page.value, totalPages.value, List.value);
 				}
 
@@ -106,7 +108,6 @@
 				}
 			})
 			.catch(async (error) => {
-				
 				updateGroupValue(error.data.meta.name);
 				if (error.data.meta.code == 404) {
 					removeData(group_id);
@@ -203,7 +204,6 @@
 	const { updateModalValue } = inject<any>("modal");
 
 	const createUploadFunction = () => {
-
 		updateModalValue({
 			open: true,
 			type: "images",

@@ -4,7 +4,7 @@
 			<div class="flex flex-col items-center justify-center w-full h-full gap-5 my-6">
 				<icon class="text-gray-500" name="ri:alert-line" size="8em" />
 				<h1 class="text-lg font-bold text-center text-balance">
-					<span v-if="type.split(':')[1] == 'Leave'">
+					<span v-if="type.split(':')[1] == 'leave'">
                         Lidmaatschap opzeggen?
                     </span>
                     <span v-else>
@@ -12,7 +12,7 @@
                     </span>
                     
 				</h1>
-				<p v-if="type.split(':')[1] == 'Leave'" class="-mt-5 text-center text-balance ">
+				<p v-if="type.split(':')[1] == 'leave'" class="-mt-5 text-center text-balance ">
 					Je kan altijd weer opnieuw lid worden van deze group, als je een link hebt.
 				</p>
                 <p v-else class="-mt-5 text-center text-balance ">

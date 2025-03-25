@@ -2,6 +2,9 @@
 	<div>
 		<div class="flex items-center gap-2 mb-3 -mt-4">
 			<input :disabled="searchLoading" type="text" @input="debouncedSearch" v-model="searchTerm" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
+			<button @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+				<icon name="ri:attachment-2" size="1.4em" />
+			</button>
 			<button @click="createFunction('Create')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 			</button>
@@ -136,17 +139,6 @@
 	************************************************************************************
 	*/
 
-	const handleSuccess = async ({ response }: SuccessResponse<Group>) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (response.status.redirect) navigateTo(response.status.redirect);
-		
-	};
-
-	const handleError = async ({ error, actions }: ErrorResponse) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if(error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-	};
-
 	const { updateModalValue }: any = inject("modal");
 	const createFunction = (type: string) => {
 		updateModalValue({
@@ -158,4 +150,40 @@
 			onError: handleError,
 		});
 	};
+
+	const handleSuccess = async ({ response }: SuccessResponse<Group>) => {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		if (response.status.redirect) navigateTo(response.status.redirect);
+		
+	};
+
+	const handleError = async ({ error, actions }: ErrorResponse) => {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		if(error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+	};
+
+	/*
+	************************************************************************************
+	*/
+
+	const createLinkFunction = () => {
+		updateModalValue({
+			open: true,
+			type: "join",
+			name: "Join group",
+			requestUrl: "/api/invitations/", 
+			onSuccess: handleLinkSuccess,
+			onError: handleLinkError,
+		});
+	};
+
+	const handleLinkSuccess = async ({ response }: SuccessResponse<Group>) => {
+		
+		
+	};
+
+	const handleLinkError = async ({ error, actions }: ErrorResponse) => {
+		
+	};
+	
 </script>

@@ -98,7 +98,6 @@
 							<div class="flex items-center gap-4">
 								<NuxtImg :src="member.avatar || '/profile.jpg'" class="rounded-full w-11 h-11" />
 								<div class="w-full pl-3 border-l border-gray-100">
-									
 									<div class="flex items-center justify-between w-full">
 										<div>
 											<h1 class="text-sm font-bold">{{ member.name }}</h1>
@@ -107,10 +106,10 @@
 											<p v-else class="text-sm text-gray-500 text">Member</p>
 										</div>
 										<div class="flex items-center gap-2">
-											<button :class="member.name === 'You' || member.Permissions.can_delete_group || !content.permision.change ? 'opacity-50 cursor-not-allowed' : ''" :disabled="member.name === 'You' || member.Permissions.can_delete_group || !content.permision.change" class="flex items-center justify-center p-1">
+											<button :class="member.name.includes('(You)') || member.Permissions.can_delete_group || !content.permision.change ? 'opacity-50 cursor-not-allowed' : ''" :disabled="member.name.includes('(You)') || member.Permissions.can_delete_group || !content.permision.change" class="flex items-center justify-center p-1">
 												<Icon name="ri:settings-2-line" size="1.3rem" />
 											</button>
-											<button @click="KickMember(member.id)" :class="member.name === 'You' || member.Permissions.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member.name === 'You' || member.Permissions.can_delete_group || !content.permision.edit" class="flex items-center justify-center p-1">
+											<button @click="KickMember(member.id)" :class="member.name.includes('(You)') || member.Permissions.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member.name.includes('(You)') || member.Permissions.can_delete_group || !content.permision.edit" class="flex items-center justify-center p-1">
 												<Icon name="ri:delete-bin-2-line" size="1.3rem" />
 											</button>
 										</div>
@@ -181,7 +180,7 @@
 	import * as zod from "zod";
 
 	const group_id = useRoute().params.group_id;
-	
+
 	/*
 	 ************************************************************************************
 	 */
@@ -205,9 +204,9 @@
 	 ************************************************************************************
 	 */
 	const CreateLink = async () => createInviteFunction();
-	const leaveGroup = async () => createLeaveFunction()
+	const leaveGroup = async () => createLeaveFunction();
 	const KickMember = async (id: string) => createKickFunction(id);
-		
+
 	/*
 	 ************************************************************************************
 	 */
@@ -217,16 +216,31 @@
 
 	const debouncedSearch = useDebounce(async () => {
 		searchLoading.value = true;
-		console.log(searchTerm.value);
+		
+		await $fetch(`/api/moments/members/${group_id}?search=${searchTerm.value}`).then((response: any) => {
+			memberList.value = []
+			memberList.value = response.data;
+		}).catch(() => (memberList.value = []))
+
+		.finally(() => {
+			setTimeout(() => {
+				searchLoading.value = false;
+			}, 1000);
+		}); 
+
 	});
 
 	/*
 	 ************************************************************************************
 	 */
+	const router = useRouter();
+	const tab = useRoute().query.tab;
 
-	const activeTab = ref("General");
-	const setActiveTab = async (tab: string) => activeTab.value = tab
-
+	const activeTab = ref(tab || "General");
+	const setActiveTab = async (tab: string) => {
+		activeTab.value = tab;
+		router.push({ query: { tab } });
+	};
 	/*
 	 ************************************************************************************
 	 */
@@ -246,7 +260,7 @@
 				memberList.value = response.data;
 			}).catch((error) => {});
 		}
-	});
+	},{ immediate: true });
 
 	const isLinkExpired = (link: any) => {
 		if (link.expiresAt === null) return link.expiresAt;
@@ -255,9 +269,11 @@
 	const getRemainingUses = (link: any) => link.uses;
 
 	const handleDeleteInviteLink = async (id: any) => {
-		await $fetch(`/api/moments/invitations/${group_id}/${id}`, { method: "delete" }).then((response) => {
-			inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== id);
-		}).catch((error) => {});
+		await $fetch(`/api/moments/invitations/${group_id}/${id}`, { method: "delete" })
+			.then((response) => {
+				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== id);
+			})
+			.catch((error) => {});
 	};
 
 	/*
@@ -265,22 +281,24 @@
 	 */
 	const content = ref();
 	const config = ref();
-	
+
 	const { value: name }: any = useField<string>("name");
 	const { value: description }: any = useField<string>("description");
 
-	await $fetch(`/api/moments/settings/${group_id}`).then((response: any) => {
-		content.value = response.data;
-		name.value = response.data.name;
-		config.value = response.data.configuration;
-		description.value = response.data.description;
-	}).catch((error) => {
-		throw createError({
-			statusCode: error.data.meta.code,
-			message: error.data.meta.message,
-			fatal: true,
+	await $fetch(`/api/moments/settings/${group_id}`)
+		.then((response: any) => {
+			content.value = response.data;
+			name.value = response.data.name;
+			config.value = response.data.configuration;
+			description.value = response.data.description;
+		})
+		.catch((error) => {
+			throw createError({
+				statusCode: error.data.meta.code,
+				message: error.data.meta.message,
+				fatal: true,
+			});
 		});
-	});
 
 	/*
 	 ************************************************************************************
@@ -321,9 +339,12 @@
 	};
 
 	const handleInviteSuccess = async ({ response }: any) => {
-		if (response.status.refresh) await $fetch(`/api/moments/invitations/${group_id}`).then((response: any) => {
-			inviteLinks.value = response.data;
-		}).catch((error) => {});
+		if (response.status.refresh)
+			await $fetch(`/api/moments/invitations/${group_id}`)
+				.then((response: any) => {
+					inviteLinks.value = response.data;
+				})
+				.catch((error) => {});
 	};
 
 	const handleInviteError = async ({ error, actions }: ErrorResponse) => {};
@@ -365,9 +386,11 @@
 	};
 
 	const handleKickSuccess = async ({ response }: any) => {
-		await $fetch(`/api/moments/members/${group_id}`).then((response: any) => {
-			memberList.value = response.data;
-		}).catch((error) => {});
+		await $fetch(`/api/moments/members/${group_id}`)
+			.then((response: any) => {
+				memberList.value = response.data;
+			})
+			.catch((error) => {});
 	};
 
 	const handleKickError = async ({ error, actions }: ErrorResponse) => {};
@@ -400,22 +423,27 @@
 
 		await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
 			.then(async (response: any) => {
-				if (response.data.meta.refresh) await $fetch(`/api/moments/settings/${group_id}`).then((response) => {
-					content.value = response.data;
-					name.value = response.data.name;
-					config.value = response.data.configuration;
-					description.value = response.data.description;
-				}).catch((error) => {
-					throw createError({
-						statusCode: error.data.meta.code,
-						message: error.data.meta.message,
-						fatal: true,
-					});
-				});
-			}).catch(async (error) => {
+				if (response.data.meta.refresh)
+					await $fetch(`/api/moments/settings/${group_id}`)
+						.then((response) => {
+							content.value = response.data;
+							name.value = response.data.name;
+							config.value = response.data.configuration;
+							description.value = response.data.description;
+						})
+						.catch((error) => {
+							throw createError({
+								statusCode: error.data.meta.code,
+								message: error.data.meta.message,
+								fatal: true,
+							});
+						});
+			})
+			.catch(async (error) => {
 				await new Promise((resolve) => setTimeout(resolve, 1000));
 				if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			}).finally(() => (loading.value = false));
+			})
+			.finally(() => (loading.value = false));
 	};
 </script>
 

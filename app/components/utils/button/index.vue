@@ -17,7 +17,7 @@
 		options: { type: Object, default: () => ({
 			notificationCount: undefined,
 			name: undefined,
-			always: false
+			always: true
 		}) },
 	});
 </script>

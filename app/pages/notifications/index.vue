@@ -74,7 +74,6 @@
 		middleware: "unauthorized",
 	});
 
-	const router = useRouter();
 	const activeTab = ref("all");
 
 	const notificationStore = useNotificationStore();
