@@ -14,7 +14,7 @@
 					<span class="text-sm">Invites</span>
 				</button>
 			</div>
-			<button v-if="content.permision.delete" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Delete</button>
+			<button v-if="content?.permision?.delete" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Delete</button>
 			<button v-else @click="leaveGroup" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">Leave<span class="hidden md:flex">group</span></button>
 		</div>
 
@@ -26,7 +26,7 @@
 					<div class="flex items-center justify-between mb-3">
 						<h1 class="font-bold">Group details</h1>
 
-						<button :disabled="loading" v-if="content.permision.edit" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
+						<button :disabled="loading" v-if="content?.permision?.edit" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
 							<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
 							<span v-else> Save changes </span>
 						</button>
@@ -44,7 +44,7 @@
 							</label>
 
 							<div class="flex gap-2">
-								<input :disabled="!content.permision.edit || loading" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" :value="name" type="text" ref="nameData" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
+								<input :disabled="!content?.permision?.edit || loading" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" :value="name" type="text" ref="nameData" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
 							</div>
 						</div>
 					</field>
@@ -58,7 +58,7 @@
 								</transition>
 							</label>
 							<div class="flex gap-2">
-								<textarea :disabled="!content.permision.edit || loading" v-bind="field" placeholder="Describe what your group is about!" id="description" :value="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none max-h-24 min-h-24 rounded-xl"></textarea>
+								<textarea :disabled="!content?.permision?.edit || loading" v-bind="field" placeholder="Describe what your group is about!" id="description" :value="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none max-h-24 min-h-24 rounded-xl"></textarea>
 							</div>
 						</div>
 					</field>
@@ -73,7 +73,7 @@
 						<div v-for="option in section.options" :key="option.key" class="flex items-center justify-between">
 							<p>{{ option.label }}</p>
 							<label class="cursor-pointer">
-								<input :disabled="!content.permision.change || loading" type="checkbox" v-model="option.value" class="sr-only" />
+								<input :disabled="!content?.permision?.change || loading" type="checkbox" v-model="option.value" class="sr-only" />
 								<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ 'bg-gray-900': option.value && content?.permision?.edit && !loading, 'bg-gray-300 cursor-not-allowed': (!content?.permision?.edit || loading) && !option.value, 'bg-gray-600 cursor-not-allowed': option.value && (!content?.permision?.edit || loading) }">
 									<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': option.value }"></div>
 								</div>
@@ -101,15 +101,15 @@
 									<div class="flex items-center justify-between w-full">
 										<div>
 											<h1 class="text-sm font-bold">{{ member.name }}</h1>
-											<p v-if="member.Permissions.can_delete_group" class="text-sm text-gray-500">Admin</p>
-											<p v-else-if="member.Permissions.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
+											<p v-if="member?.Permissions?.can_delete_group" class="text-sm text-gray-500">Admin</p>
+											<p v-else-if="member?.Permissions?.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
 											<p v-else class="text-sm text-gray-500 text">Member</p>
 										</div>
 										<div class="flex items-center gap-2">
-											<button :class="member.name.includes('(You)') || member.Permissions.can_delete_group || !content.permision.change ? 'opacity-50 cursor-not-allowed' : ''" :disabled="member.name.includes('(You)') || member.Permissions.can_delete_group || !content.permision.change" class="flex items-center justify-center p-1">
+											<button :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-50 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
 												<Icon name="ri:settings-2-line" size="1.3rem" />
 											</button>
-											<button @click="KickMember(member.id)" :class="member.name.includes('(You)') || member.Permissions.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member.name.includes('(You)') || member.Permissions.can_delete_group || !content.permision.edit" class="flex items-center justify-center p-1">
+											<button @click="KickMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
 												<Icon name="ri:delete-bin-2-line" size="1.3rem" />
 											</button>
 										</div>
@@ -128,7 +128,7 @@
 				<div class="flex items-center justify-between mb-3">
 					<h1 class="font-bold">Invite links</h1>
 
-					<button v-if="content.permision.create" @click="CreateLink" :disabled="loading" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
+					<button v-if="content?.permision?.create" @click="CreateLink" :disabled="loading" class="flex w-32 md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-black border border-black rounded-xl">
 						<span> Create link </span>
 					</button>
 				</div>
@@ -159,7 +159,7 @@
 									<span v-else>{{ getRemainingUses(link) }}</span>
 								</td>
 								<td class="flex justify-center gap-2 p-3 text-center">
-									<button :class="!link.permision.delete ? ' opacity-50' : 'text-red-500 hover:text-red-700'" :disabled="!link.permision.delete" @click="handleDeleteInviteLink(link.id)" class="transition">
+									<button :class="!link?.permision?.delete ? ' opacity-50' : 'text-red-500 hover:text-red-700'" :disabled="!link?.permision?.delete" @click="handleDeleteInviteLink(link)" class="transition">
 										<Icon name="ri:delete-bin-2-line" size="1.3rem" />
 									</button>
 								</td>
@@ -185,6 +185,8 @@
 	 ************************************************************************************
 	 */
 
+	const { addToast } = useToast();
+
 	const share = (link: any) => {
 		const dummy = document.createElement("input");
 		const text = `${window.location.host}/invitations/${link.id}?token=${link.code}`;
@@ -197,7 +199,13 @@
 		dummy.select();
 		document.execCommand("copy");
 		document.body.removeChild(dummy);
-		alert("Link gekopieerd");
+
+		addToast({
+			message:`De uitnodigingslink is gekopieerd: ${link.code}`,
+			type: 'info',
+			duration: 2000
+		});
+
 	};
 
 	/*
@@ -268,10 +276,16 @@
 	};
 	const getRemainingUses = (link: any) => link.uses;
 
-	const handleDeleteInviteLink = async (id: any) => {
-		await $fetch(`/api/moments/invitations/${group_id}/${id}`, { method: "delete" })
+	const handleDeleteInviteLink = async (invite: any) => {
+		await $fetch(`/api/moments/invitations/${group_id}/${invite.id}`, { method: "delete" })
 			.then((response) => {
-				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== id);
+				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== invite.id);
+				
+				addToast({
+					message:`De uitnodigingslink is verwijderd: ${invite.code}`,
+					type: 'warning',
+					duration: 2000
+				});
 			})
 			.catch((error) => {});
 	};
@@ -294,8 +308,8 @@
 		})
 		.catch((error) => {
 			throw createError({
-				statusCode: error.data.meta.code,
-				message: error.data.meta.message,
+				statusCode: error.data.status.code,
+				message: error.data.status.message,
 				fatal: true,
 			});
 		});
@@ -322,7 +336,10 @@
 		if (response.status.redirect) setTimeout(() => navigateTo(response.status.redirect), 500);
 	};
 
-	const handleError = async ({ error, actions }: ErrorResponse) => {};
+	const handleError = async ({ error, actions }: ErrorResponse) => {
+		actions.setErrors({ message: ["Er is een fout opgetreden, kan de groep niet verwijderen! Probeer het later opnieuw."] });
+	};
+
 
 	/*
 	 ************************************************************************************
@@ -338,16 +355,29 @@
 		});
 	};
 
-	const handleInviteSuccess = async ({ response }: any) => {
-		if (response.status.refresh)
+	const handleInviteSuccess = async ({ response: main }: any) => {
+		if (main.status.refresh)
 			await $fetch(`/api/moments/invitations/${group_id}`)
 				.then((response: any) => {
 					inviteLinks.value = response.data;
+
+					
+					setTimeout(() => {
+						addToast({
+							message:`Uitnodigingslink is aangemaakt: ${main.data.code}`,
+							type: 'success',
+							duration: 2000
+						});
+					}, 500)
+					
+
 				})
 				.catch((error) => {});
 	};
 
-	const handleInviteError = async ({ error, actions }: ErrorResponse) => {};
+	const handleInviteError = async ({ error, actions }: ErrorResponse) => {
+		actions.setErrors({ message: ["Er is een fout opgetreden, kan de groep niet joinen! Probeer het later opnieuw."] });
+	};
 
 	/*
 	 ************************************************************************************
@@ -366,9 +396,21 @@
 
 	const handleLeaveSuccess = async ({ response }: any) => {
 		if (response.status.redirect) navigateTo(response.status.redirect);
+
+		setTimeout(() => {
+			addToast({
+				message: `Je hebt de groep verlaten`,
+				type: 'success',
+				duration: 2000
+			});
+		}, 500)
+
+
 	};
 
-	const handleLeaveError = async ({ error, actions }: ErrorResponse) => {};
+	const handleLeaveError = async ({ error, actions }: ErrorResponse) => {
+		actions.setErrors({ message: ["Er is een fout opgetreden, kan de groep niet verlaten! Probeer het later opnieuw."] });
+	};
 
 	/*
 	 ************************************************************************************
@@ -388,12 +430,22 @@
 	const handleKickSuccess = async ({ response }: any) => {
 		await $fetch(`/api/moments/members/${group_id}`)
 			.then((response: any) => {
-				memberList.value = response.data;
+				memberList.value = response.data
+
+				setTimeout(() => {
+					addToast({
+						message:`Lid is van de groep verwijdered`,
+						type: 'warning',
+						duration: 2000
+					});
+				}, 500)
 			})
 			.catch((error) => {});
 	};
 
-	const handleKickError = async ({ error, actions }: ErrorResponse) => {};
+	const handleKickError = async ({ error, actions }: ErrorResponse) => {
+		actions.setErrors({ message: ["Er is een fout opgetreden, kan de memebr niet kicken! Probeer het later opnieuw."] });
+	};
 
 	/*
 	 ************************************************************************************

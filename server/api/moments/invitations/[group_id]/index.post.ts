@@ -1,8 +1,13 @@
 
 const schema = zod.object({
-	LinkExpiry: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
-	UsageLimit: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
-});
+	LinkExpiry: zod.enum(['1day', '7days', '30days', 'never'], {
+		message: "Ongeldige waarde voor Link Expiry",
+	}),
+	UsageLimit: zod.enum(['1', '5', '10', '25', 'unlimited'], {
+		message: "Ongeldige waarde voor Usage Limit",
+	}),
+})
+
 
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
 
@@ -36,10 +41,12 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	/*
 	************************************************************************************
 	*/
+
+	const token = Math.random().toString(36).substring(2, 8).toUpperCase();
 		
 	const { error } = await client.from("invite_links").insert({
 		group_id: group_id,
-		code: Math.random().toString(36).substring(2, 8).toUpperCase(),
+		code: token,
 		expiresAt: new Date(new Date().setDate(new Date().getDate() + parseInt(request.LinkExpiry))),
 		uses: parseInt(request.UsageLimit),
 	});
@@ -56,6 +63,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			refresh: true,
 			message: "Ok",
 			code: 200
+		}, 
+		data: {
+			code: token
 		}
 	});
 })

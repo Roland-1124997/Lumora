@@ -144,7 +144,7 @@
 		updateModalValue({
 			open: true,
 			type: type,
-			name: "New group",
+			name: "Create group",
 			requestUrl: "/api/moments", 
 			onSuccess: handleSuccess,
 			onError: handleError,

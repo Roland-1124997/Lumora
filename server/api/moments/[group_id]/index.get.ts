@@ -14,9 +14,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		group_id_param: group_id, limit_param: items, page_param: page, user_id_param: user.id
 	}).single()
 
+	if (error) return useReturnResponse(event, notFoundError);
 	if (error && error.details.includes("0 rows")) return useReturnResponse(event, notFoundError)
-	if (error) return useReturnResponse(event, internalServerError);
-
+	
 	/*
 	************************************************************************************
 	*/

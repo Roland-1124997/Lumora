@@ -1,9 +1,9 @@
 <template>
-	<div class="">
+	<div>
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
 			<button @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-2 text-black border border-black hover:bg-gray-100 rounded-xl md:w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
-				<span> Share your moments </span>
+				<span> Share your experiences </span>
 			</button>
 			<div class="flex items-center gap-2">
 				<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
@@ -108,15 +108,12 @@
 				}
 			})
 			.catch(async (error) => {
-				updateGroupValue(error.data.meta.name);
-				if (error.data.meta.code == 404) {
-					removeData(group_id);
-					throw createError({
-						statusCode: error.data.meta.code,
-						message: error.data.meta.message,
-						fatal: true,
-					});
-				}
+				removeData(group_id);
+				throw createError({
+					statusCode: error.data.status.code,
+					message: error.data.status.message,
+					fatal: true,
+				});
 			})
 			.finally(() => setTimeout(() => (load.value = false), timer));
 	};
@@ -207,7 +204,7 @@
 		updateModalValue({
 			open: true,
 			type: "images",
-			name: "New image",
+			name: "Create experience",
 			requestUrl: `/api/moments/${group_id}`,
 			onSuccess: handleSuccess,
 			onError: handleError,

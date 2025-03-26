@@ -75,8 +75,12 @@
 
 	const schema = toTypedSchema(
 		zod.object({
-			LinkExpiry: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
-			UsageLimit: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
+			LinkExpiry: zod.enum(['1day', '7days', '30days', 'never'], {
+				message: "Ongeldige waarde voor Link Expiry",
+			}),
+			UsageLimit: zod.enum(['1', '5', '10', '25', 'unlimited'], {
+				message: "Ongeldige waarde voor Usage Limit",
+			}),
 		})
 	);
 </script>
