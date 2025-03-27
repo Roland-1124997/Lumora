@@ -26,19 +26,19 @@
 				<div class="flex flex-col items-center justify-center flex-1 h-screen p-4">
 					<div class="w-full max-w-md space-y-10 text-center">
 						<div class="relative">
-							<h1 class="lf:text-[11.25em] text-[10.55em] font-bold leading-none tracking-tighter">{{ status }}</h1>
+							<h1 class="lf:text-[11.25em] text-[#756145] text-[10.55em] font-bold leading-none tracking-tighter">{{ status }}</h1>
 							<div class="absolute inset-0 flex items-center justify-center opacity-15">
 								<div class="w-64 h-64 bg-black rounded-full rounde"></div>
 							</div>
 						</div>
-
+						
 						<div class="pt-16 space-y-4 lg:pt-8">
-							<h2 class="text-2xl font-semibold">{{ useStatusCodes[status].message }}</h2>
+							<h2 class="text-2xl text-[#756145] font-semibold">{{ useStatusCodes[status].message }}</h2>
 							<p class="text-gray-600 text-balance">{{ useStatusCodes[status].statusMessage }}</p>
 						</div>
 
 						<div class="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
-							<button @click="handleError('/home')" class="flex items-center gap-2 px-4 py-2 font-medium text-white rounded-lg bg-black/80 hover:bg-black btn-primary">
+							<button @click="handleError('/home')" class="flex items-center gap-2 px-4 py-2 font-medium text-white rounded-lg bg-[#756145]/80 hover:bg-[#756145] btn-primary">
 								<Icon name="mdi:home" class="w-4 h-4" />
 								Back to Home
 							</button>

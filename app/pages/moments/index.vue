@@ -2,10 +2,10 @@
 	<div>
 		<div class="flex items-center gap-2 mb-3 -mt-4">
 			<input :disabled="searchLoading" type="text" @input="debouncedSearch" v-model="searchTerm" placeholder="Search..." class="flex-grow w-full p-2 border border-gray-300 outline-none appearance-none rounded-xl focus:ring-2" />
-			<button @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+			<button @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:attachment-2" size="1.4em" />
 			</button>
-			<button @click="createFunction('Create')" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+			<button @click="createFunction('Create')" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 			</button>
 		</div>

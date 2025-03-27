@@ -10,7 +10,7 @@
 					<span class="text-sm">Unread</span>
 				</button>
 			</div>
-			<button @click="notificationStore.markAllNotificationsAsRead()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-black border border-black rounded-xl w-fit">
+			<button @click="notificationStore.markAllNotificationsAsRead()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				Mark all as read
 				
 				
@@ -24,7 +24,7 @@
 				<div v-for="notification in notifications" :key="notification" class="flex items-center justify-between p-4 border bg-gray-50 rounded-xl">
 					<div class="flex items-start justify-between w-full space-x-3">
 						<div>
-							<p class="text-lg font-semibold text-[#5a4d3c] underline underline-offset-1">{{ notification.title }}</p>
+							<p class="text-lg font-semibold text-[#756145] underline underline-offset-1">{{ notification.title }}</p>
 							<p class="text-sm text-gray-500 line-clamp-2">{{ notification.message }}</p>
 							<p class="text-xs text-gray-400">{{ notification.time }}</p>
 						</div>

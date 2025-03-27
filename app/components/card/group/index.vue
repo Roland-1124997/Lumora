@@ -11,7 +11,7 @@
 					<p class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>
 				</div>
 				<p class="text-sm text-gray-500">
-					<span v-if="content.last_photo_posted_by">Laatste foto gepost door: <span class="block font-bold md:inline ">{{ content.last_photo_posted_by }}</span></span>
+					<span v-if="content.last_photo_posted_by">Laatste foto gepost door: <span class="block text-[#756145] font-bold md:inline ">{{ content.last_photo_posted_by }}</span></span>
 					<span v-else>Nog een activiteit, kom later terug</span>
 				</p>
 			</div>

@@ -102,7 +102,7 @@
 
 	const store = useSessionsStore();
 	const { data: user } = await store.getSession();
-	const username = ref(user.name);
+	const username = ref(user?.name);
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
@@ -122,7 +122,6 @@
 
 		if(route.name === 'moments-group_id') return router.push('/moments'); 
 		if(route.name === 'moments-group_id-image_id') return router.push(`/moments/${route.params.group_id}`);
-		if(route.name === 'moments-settings-group_id') return router.push(`/moments/${route.params.group_id}`);
 		else router.back(); 
 	};
 

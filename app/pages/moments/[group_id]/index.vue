@@ -1,15 +1,15 @@
 <template>
 	<div>
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
-			<button @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-black border border-black hover:bg-gray-100 rounded-xl md:w-fit">
+			<button @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 rounded-xl md:w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 				<span> Share your experiences </span>
 			</button>
 			<div class="flex items-center gap-2">
-				<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+				<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
-				<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-black border border-black rounded-xl w-fit">
+				<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon name="ri:information-line" size="1.4em" />
 				</NuxtLink>
 			</div>

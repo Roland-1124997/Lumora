@@ -6,7 +6,7 @@
 				<icon @click="triggerFileUpload" v-if="files.length < 1" class="text-gray-500" name="material-symbols:android-camera" size="1.6rem" />
 				<div class="w-full h-full" v-else>
 					<NuxtImg v-for="(thumb, index) in files" :key="index" :src="thumb" class="object-cover w-full h-full rounded-full" />
-					<div @click="clearPreviews(field)" class="absolute flex items-center justify-center p-1 -mt-16 text-white bg-black rounded-full">
+					<div @click="clearPreviews(field)" class="absolute flex items-center justify-center p-1 -mt-16 text-white bg-[#756145] rounded-full">
 						<Icon name="pajamas:close-xs" size="1.1em"></Icon>
 					</div>
 				</div>

@@ -1,10 +1,10 @@
 <template>
 	<div>
-		<button @click="logout" class="flex items-center justify-center gap-2 p-2 px-2 font-medium text-white bg-black border border-black rounded-xl w-fit">
+		<button @click="logout" class="flex items-center justify-center gap-2 p-2 px-2 font-medium text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 			<icon name="ri:door-lock-line" size="1.4em" />
 			<span class="pr-2 " >Logout</span>
 		</button>
-		<!-- <button @click="logout">Logout</button> -->
+		
 	</div>
 </template>
 
