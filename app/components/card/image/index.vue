@@ -27,7 +27,7 @@
 					<p class="text-sm font-semibold text-gray-800 truncate ">{{ content.author.name }}</p>
 					<div class="flex w-full items-center gap-2 -mt-[0.15rem] ">
 						<p v-if="content.group" class="text-xs font-medium text-gray-500 truncate max-w-16 md:max-w-fit md:text-sm ">{{ content.group.name }}</p>
-						<p class="text-xs text-gray-400 md:text-sm ">{{ useTimeAgo(content.created_at).value }}</p>
+						<p class="text-xs text-gray-400 truncate md:text-sm ">{{ useTimeAgo(content.created_at).value }}</p>
 					</div>
 					
 				</div>
