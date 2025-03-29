@@ -1,13 +1,12 @@
-import { serverSupabaseClient, } from "#supabase/server";
 
-export default defineEventHandler(async (event) => {
+export default defineSupabaseEventHandler(async(event, user, client, server) => {
+
+    if (!user) return useReturnResponse(event, unauthorizedError);
     
     const { group_id, user_id, image_id } = getRouterParams(event)
 
-    const client = await serverSupabaseClient(event);
-        
-    const { error: sessionError } = await useSessionExists(event, client );
-    if (sessionError) return useReturnResponse(event, unauthorizedError)
+    const { error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+    if (permisionError) return useReturnResponse(event, unauthorizedError)
     
     const filePath = client.storage.from("images").getPublicUrl(`${group_id}/${user_id}/${image_id}`).data.publicUrl
 

@@ -16,7 +16,6 @@
 		method: { type: String, default: "POST" },
 		schema: { type: Object, required: true },
 		label: { type: String, required: true },
-		
 	});
 
 	const loading = ref(false);

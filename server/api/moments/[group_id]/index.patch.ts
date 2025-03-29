@@ -1,7 +1,6 @@
-
 const schema = zod.object({
-	name: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
-	description: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
+	name: zod.string({ message: "This is a required field" }).nonempty({ message: "This is a required field" }),
+	description: zod.string({ message: "This is a required field" }).nonempty({ message: "This is a required field" }),
 });
 
 export default defineSupabaseEventHandler(async (event, user, client, server) => {

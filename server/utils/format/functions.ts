@@ -11,7 +11,10 @@ export const useFormatListGroup = async (server: SupabaseClient, data: Record<st
             name: data.name,
             description: data.description,
             last_active: data.last_active,
-            last_photo_posted_by: isOwner ? `${author?.user_metadata?.name} (You)` : author?.user_metadata?.name,
+            last_photo_posted_by: {
+                name: isOwner ? `${author?.user_metadata?.name} (You)` : author?.user_metadata?.name,
+                url: author?.user_metadata.avatar_url || "/profile.jpg"
+            },
             media: {
                 type: "image",
                 url: `/attachments/${data.thumbnail}`
@@ -26,21 +29,20 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
 
     return await Promise.all(
         data.map(async (data: Record<string, any>) => {
-
             const author: User | undefined = user ? undefined : users.users.find((user: User) => user.id === data.author.id);
             const isOwner = user ? data.author_id == user.id : data.author.is_owner;
             const authorName = user ? user.user_metadata.name : author?.user_metadata.name || null;
-
             return {
                 id: data.id,
                 created_at: data.created_at,
                 has_liked: data.has_liked || false,
                 author: {
                     name: isOwner ? `${authorName} (You)` : authorName,
+                    url: author?.user_metadata.avatar_url || "/profile.jpg",
                     is_owner: isOwner,
                 },
                 likes: {
-                    count: data.likes.count,
+                    count: data.likes.count || 0,
                 },
                 media: {
                     type: "image",

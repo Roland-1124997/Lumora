@@ -7,7 +7,7 @@
 						<label class="text-sm font-medium text-gray-700" for="LinkExpiry">
 							Link Expiration
 							<transition name="fade">
-								<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "Er is een probleem met dit veld" }}) </span>
+								<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "There is an issue with this field" }}) </span>
 							</transition>
 						</label>
 						<div @click="isDropdownOpen = !isDropdownOpen" class="w-full p-2 bg-white border rounded-md cursor-pointer">{{ expiryOptions.find(o => o.value === newLinkExpiry)?.label }}</div>
@@ -21,7 +21,7 @@
 						<label class="text-sm font-medium text-gray-700" for="UsageLimit">
 							Usage Limit
 							<transition name="fade">
-								<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "Er is een probleem met dit veld" }}) </span>
+								<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "There is an issue with this field" }}) </span>
 							</transition>
 						</label>
 						<input/>
@@ -76,10 +76,10 @@
 	const schema = toTypedSchema(
 		zod.object({
 			LinkExpiry: zod.enum(['1day', '7days', '30days', 'never'], {
-				message: "Ongeldige waarde voor Link Expiry",
+				message: "Invalid value for Link Expiry",
 			}),
 			UsageLimit: zod.enum(['1', '5', '10', '25', 'unlimited'], {
-				message: "Ongeldige waarde voor Usage Limit",
+				message: "Invalid value for Usage Limit",
 			}),
 		})
 	);

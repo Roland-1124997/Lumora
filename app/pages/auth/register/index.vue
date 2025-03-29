@@ -5,7 +5,7 @@
 			<p class="text-base text-gray-500">Provide your details to create an account</p>
 		</div>
 
-		<FieldFormRegister requestUrl="/api/auth/register" :schema="LoginSchema" :onSuccess="handleSuccess" :onError="handleError" />
+		<FieldFormRegister requestUrl="/api/auth/register" :schema="RegisterSchema" :onSuccess="handleSuccess" :onError="handleError" />
 		<UtilsSeparator />
 		<UtilsButtonGoogle />
 
@@ -19,19 +19,19 @@
 
 	useHead({
 		htmlAttrs: {
-			lang: "nl",
+			lang: "en",
 		},
 	});
 
 	useSeoMeta({
 		title: "Lumora - Register",
-		description: "Bekijk de nieuwste en populairste posts op Lumora!",
+		description: "View the latest and most popular posts on Lumora!",
 		ogTitle: "Lumora",
-		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogDescription: "View the latest and most popular posts on Lumora!",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
 		twitterTitle: "Lumora",
-		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterDescription: "View the latest and most popular posts on Lumora!",
 		twitterImage: "/apple-touch-icon.png",
 		twitterCard: "summary",
 	});
@@ -41,17 +41,17 @@
 		middleware: "authorized",
 	});
 
-	const LoginSchema = toTypedSchema(
+	const RegisterSchema = toTypedSchema(
 		zod.object({
-			email: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }).email({ message: "Moet een correcte email zijn" }),
-			wachtwoord: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }).min(8, { message: "Moet minimaal 8 lang zijn" }),
-			confirmatie: zod.string({ message: "Dit is een verplicht veld" })
+			email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
+			password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
+			confirmation: zod.string({ message: "This field is required" })
 		})
 
-		.refine((data) => data.wachtwoord === data.confirmatie, {
-            message: "Wachtwoorden komen niet overheen",
-            path: ["confirmatie"],
-        })
+		.refine((data) => data.password === data.confirmation, {
+			message: "Passwords do not match",
+			path: ["confirmation"],
+		})
 	);
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
@@ -62,6 +62,4 @@
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if(error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 	};
-
-	
 </script>

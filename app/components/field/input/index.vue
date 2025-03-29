@@ -1,31 +1,31 @@
 <template>
-	<field :name="name" v-slot="{ field, meta }: any">
-		<div class="space-y-2">
-			<label class="text-sm font-medium text-gray-700 " :for="name"> {{ label }} <span class="text-red-700 ">{{ required ? "*" : "" }}</span> 
+    <field :name="name" v-slot="{ field, meta }: any">
+        <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 " :for="name"> {{ label }} <span class="text-red-700 ">{{ required ? "*" : "" }}</span> 
                 <transition name="fade">
-                    <span v-if="meta.validated && !meta.valid" class="text-red-700 ">({{ meta.errors[0] || "Er is een probleem met dit veld" }})</span>
+                    <span v-if="meta.validated && !meta.valid" class="text-red-700 ">({{ meta.errors[0] || "There is an issue with this field" }})</span>
                 </transition>
             </label>
-			
-			<div class="flex gap-2">
-				<input v-bind="field" :id="name" :placeholder type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
-			</div>
-		</div>
-	</field>
+            
+            <div class="flex gap-2">
+                <input v-bind="field" :id="name" :placeholder type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
+            </div>
+        </div>
+    </field>
 </template>
 
 <script setup lang="ts">
-	
+    
     defineProps({
-        name: { type: String, required: true,},
+        name: { type: String, required: true, },
         label: { type: String, default: "text" },
         placeholder: { type: String, default: "" },
         required: { type: Boolean, default: false },
-		disabled: { type: Boolean, default: false },
+        disabled: { type: Boolean, default: false },
     });
 
-	
-	
+    
+    
 </script>
 
 <style scoped>

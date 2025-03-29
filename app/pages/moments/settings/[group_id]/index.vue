@@ -164,7 +164,6 @@
 		</div>
 	</div>
 </template>
-
 <script setup lang="ts">
 	import { toTypedSchema } from "@vee-validate/zod";
 	import * as zod from "zod";
@@ -199,7 +198,7 @@
 		document.body.removeChild(dummy);
 
 		addToast({
-			message: `De uitnodigingslink is gekopieerd: ${link.code}`,
+			message: `The invitation link has been copied: ${link.code}`,
 			type: "info",
 			duration: 5000,
 		});
@@ -253,7 +252,7 @@
 				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== invite.id);
 
 				addToast({
-					message: `De uitnodigingslink is verwijderd: ${invite.code}`,
+					message: `The invitation link has been deleted: ${invite.code}`,
 					type: "warning",
 					duration: 5000,
 				});
@@ -325,7 +324,7 @@
 	const createDeleteFunction = () => {
 		updateModalValue({
 			open: true,
-			type: "negative:groep",
+			type: "negative:group",
 			name: "Alert",
 			requestUrl: `/api/moments/${group_id}`,
 			onSuccess: handleSuccess,
@@ -338,7 +337,7 @@
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["Er is een fout opgetreden, kan de groep niet verwijderen! Probeer het later opnieuw."] });
+		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
 	};
 
 	/*
@@ -363,7 +362,7 @@
 
 					setTimeout(() => {
 						addToast({
-							message: `Uitnodigingslink is aangemaakt: ${main.data.code}`,
+							message: `Invitation link has been created: ${main.data.code}`,
 							type: "success",
 							duration: 5000,
 						});
@@ -373,7 +372,7 @@
 	};
 
 	const handleInviteError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["Er is een fout opgetreden, kan de groep niet joinen! Probeer het later opnieuw."] });
+		actions.setErrors({ message: ["An error occurred, unable to join the group! Please try again later."] });
 	};
 
 	/*
@@ -396,7 +395,7 @@
 
 		setTimeout(() => {
 			addToast({
-				message: `Je hebt de groep verlaten`,
+				message: `You have left the group`,
 				type: "success",
 				duration: 5000,
 			});
@@ -404,7 +403,7 @@
 	};
 
 	const handleLeaveError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["Er is een fout opgetreden, kan de groep niet verlaten! Probeer het later opnieuw."] });
+		actions.setErrors({ message: ["An error occurred, unable to leave the group! Please try again later."] });
 	};
 
 	/*
@@ -429,7 +428,7 @@
 
 				setTimeout(() => {
 					addToast({
-						message: `Lid is van de groep verwijdered`,
+						message: `Member has been removed from the group`,
 						type: "warning",
 						duration: 5000,
 					});
@@ -439,7 +438,7 @@
 	};
 
 	const handleKickError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["Er is een fout opgetreden, kan de memebr niet kicken! Probeer het later opnieuw."] });
+		actions.setErrors({ message: ["An error occurred, unable to kick the member! Please try again later."] });
 	};
 
 	/*
@@ -450,8 +449,8 @@
 
 	const schema = toTypedSchema(
 		zod.object({
-			name: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
-			description: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
+			name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
+			description: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
 		})
 	);
 

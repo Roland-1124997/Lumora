@@ -1,10 +1,10 @@
 
 const schema = zod.object({
 	LinkExpiry: zod.enum(['1day', '7days', '30days', 'never'], {
-		message: "Ongeldige waarde voor Link Expiry",
+		message: "Invalid value for Link Expiry",
 	}),
 	UsageLimit: zod.enum(['1', '5', '10', '25', 'unlimited'], {
-		message: "Ongeldige waarde voor Usage Limit",
+		message: "Invalid value for Usage Limit",
 	}),
 })
 

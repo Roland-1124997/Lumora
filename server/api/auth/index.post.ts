@@ -2,15 +2,15 @@ import * as zod from "zod";
 import type { Session } from "@supabase/supabase-js";
 
 const schema = zod.object({
-  email: zod.string().email(),
-  wachtwoord: zod.string().min(8),
+  email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
+  password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
   remember: zod.boolean().optional(),
-});
+})
 
 export default defineEventHandler(async (event) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const request = await readBody(event)
+  const request = await readBody(event);
 
   const { error: zodError } = await schema.safeParseAsync(request);
 
@@ -20,30 +20,30 @@ export default defineEventHandler(async (event) => {
       type: "fields",
       details: zodError.errors
     }
-  })
+  });
 
-  const client = await serverSupabaseClient(event)
+  const client = await serverSupabaseClient(event);
 
   const { error } = await client.auth.signInWithPassword({
-    email: request.email, password: request.wachtwoord
-  })
+    email: request.email, password: request.password
+  });
 
   if (error) return useReturnResponse(event, {
     ...unauthorizedError,
     error: {
       type: "fields",
       details: {
-        email: ["Onbekende combinatie"],
-        wachtwoord: ["Onbekende combinatie"]
+        email: ["Unknown combination"],
+        password: ["Unknown combination"]
       }
     }
-  })
+  });
 
-  const invite = getCookie(event, "invite_token")
-  const session: Omit<Session, "user"> | null = await serverSupabaseSession(event)
+  const invite = getCookie(event, "invite_token");
+  const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
 
-  deleteCookie(event, "invite_token")
-  useSetCookies(event, session)
+  deleteCookie(event, "invite_token");
+  useSetCookies(event, session);
 
   return useReturnResponse(event, {
     status: {
@@ -52,5 +52,5 @@ export default defineEventHandler(async (event) => {
       message: "Ok",
       code: 200
     }
-  })
-})
+  });
+});

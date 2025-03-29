@@ -8,7 +8,7 @@
 				</button>
 			</div>
 
-			<NuxtLink v-if="loaded && targetIsVisible" :to="`${$route.path}/${content.id}`">
+			<NuxtLink v-if="loaded && targetIsVisible" :to=" content.url ? content.url : `${$route.path}/${content.id}`">
 				<img :src="content.media.url" :alt="content.author.id" class="object-cover aspect-square w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
 			</NuxtLink>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
@@ -17,10 +17,18 @@
 		</div>
 
 		<div class="py-2">
-			<p class="text-sm text-gray-500">
-				<span class="font-semibold ">{{ content.author.name }}</span>
-			</p>
-			<p class="text-sm text-gray-500">{{ useTimeAgo(content.created_at).value }}</p>
+			<div class="flex items-start w-full gap-2 ">
+
+				<div class="flex items-center justify-center w-6 h-6 overflow-hidden bg-gray-200 rounded-full">
+					<img v-if="loaded && targetIsVisible" :src="content.author.url" alt="image" class="object-cover w-full h-full" />
+					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
+				</div>
+				<div class="">
+					<p class="text-sm font-semibold text-gray-800 truncate ">{{ content.author.name }}</p>
+					<p v-if="content.group" class="-mt-1 text-sm font-medium text-gray-500 truncate ">{{ content.group.name }}</p>
+					<p class="-mt-1 text-sm text-gray-400">{{ useTimeAgo(content.created_at).value }}</p>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -51,15 +59,16 @@
 
 	const likeImage = async () => {
 
-		const group_id: any = useRoute().params.group_id
+		const group_id: any = useRoute().params.group_id || "trending"
+		const base_url = content.url || `/moments/${group_id}/${content.id}`
 
-		await $fetch<any>(`/api/moments/${group_id}/${content.id}`, { method: "PATCH" }).then((response: any) => {
+		await $fetch<any>(`/api${base_url}`, { method: "PATCH" }).then((response: any) => {
 			hearts.value = response.data.likes.count
 			liked.value = response.data.has_liked
 
 			updateItemByMetaId(group_id, content.id, {
 				has_liked: liked.value,
-				likes: { count:hearts.value }
+				likes: { count: hearts.value }
 			});
 		})
 	};

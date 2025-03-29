@@ -23,7 +23,7 @@
 						<label class="text-sm font-medium text-gray-700" for="description">
 							Description <span class="text-red-700">{{ "*" }}</span>
 							<transition name="fade">
-								<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "Er is een probleem met dit veld" }})</span>
+								<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "There is an issue with this field" }})</span>
 							</transition>
 						</label>
 						<div class="flex gap-2">
@@ -50,17 +50,15 @@
 
 	const schema = toTypedSchema(
 		zod.object({
-			name: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
-			description: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
-			thumbnail: zod.instanceof(File, { message: "Dit is een verplicht veld" }) // Controleert of het een `File` is
-            .refine((file) => file.size <= 10 * 1024 * 1024, {
-                message: "Bestandsgrootte mag niet groter zijn dan 10MB",
-            })
-            .refine((file) => ["image/png", "image/jpeg"].includes(file.type), {
-                message: "Alleen PNG of JPEG-bestanden zijn toegestaan",
-            }),
+			name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
+			description: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
+			thumbnail: zod.instanceof(File, { message: "This field is required" }) // Checks if it is a `File`
+			.refine((file) => file.size <= 10 * 1024 * 1024, {
+				message: "File size must not exceed 10MB",
+			})
+			.refine((file) => ["image/png", "image/jpeg"].includes(file.type), {
+				message: "Only PNG or JPEG files are allowed",
+			}),
 		})
 	);
 </script>
-
-

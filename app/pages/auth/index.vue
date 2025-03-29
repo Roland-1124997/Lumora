@@ -19,19 +19,19 @@
 
 	useHead({
 		htmlAttrs: {
-			lang: "nl",
+			lang: "en",
 		},
 	});
 
 	useSeoMeta({
 		title: "Lumora - Login",
-		description: "Bekijk de nieuwste en populairste posts op Lumora!",
+		description: "View the latest and most popular posts on Lumora!",
 		ogTitle: "Lumora",
-		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogDescription: "View the latest and most popular posts on Lumora!",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
 		twitterTitle: "Lumora",
-		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterDescription: "View the latest and most popular posts on Lumora!",
 		twitterImage: "/apple-touch-icon.png",
 		twitterCard: "summary",
 	});
@@ -43,8 +43,8 @@
 
 	const LoginSchema = toTypedSchema(
 		zod.object({
-			email: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }).email({ message: "Moet een correcte email zijn" }),
-			wachtwoord: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }).min(8, { message: "Moet minimaal 8 lang zijn" }),
+			email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
+			password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
 			remember: zod.boolean().optional(),
 		})
 	);

@@ -34,7 +34,7 @@
 						
 						<div class="pt-16 space-y-4 lg:pt-8">
 							<h2 class="text-2xl text-[#756145] font-semibold">{{ useStatusCodes[status].message }}</h2>
-							<p class="text-gray-600 text-balance">{{ useStatusCodes[status].statusMessage }}</p>
+							<p class="text-gray-600 text-balance">{{status == 500 ? error : useStatusCodes[status].statusMessage }}</p>
 						</div>
 
 						<div class="flex flex-col justify-center gap-3 pt-2 sm:flex-row">

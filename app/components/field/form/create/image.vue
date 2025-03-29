@@ -24,11 +24,11 @@
 		zod.object({
 			images: zod.array(
 				zod.instanceof(File)
-				.refine((file) => file.size <= 10 * 1024 * 1024, {message: "Bestandsgrootte mag niet groter zijn dan 10MB",})
-				.refine((file) => ["image/png", "image/jpeg"].includes(file.type), {message: "Alleen PNG of JPEG-bestanden zijn toegestaan",})
+				.refine((file) => file.size <= 10 * 1024 * 1024, {message: "File size must not exceed 10MB",})
+				.refine((file) => ["image/png", "image/jpeg"].includes(file.type), {message: "Only PNG or JPEG files are allowed",})
 			)
-			.min(1, { message: "Je moet minimaal één afbeelding uploaden" }) 
-			.max(4, { message: "4 afbeeldingen maximaal" })
+			.min(1, { message: "You must upload at least one image" }) 
+			.max(4, { message: "Maximum of 4 images allowed" })
 			.or(zod.literal(undefined).transform(() => [])),
 		})
 	);

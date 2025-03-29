@@ -4,7 +4,7 @@
 		<div class="space-y-2">
 			<label class="text-sm font-medium text-gray-700 " :for="name"> {{ label }} <span class="text-red-700 ">{{ required ? "*" : "" }}</span> 
 				<transition name="fade">
-					<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "Er is een probleem met dit veld" }})</span>
+					<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "There is an issue with this field" }})</span>
 				</transition>
 			</label>
 
@@ -36,9 +36,9 @@
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.3s ease;
+	transition: opacity 0.3s ease;
 }
 .fade-enter-from, .fade-leave-to {
-    opacity: 0;
+	opacity: 0;
 }
 </style>

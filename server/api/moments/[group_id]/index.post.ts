@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 const schema = zod.object({
-	files: createFilesObject(zod).max(4, { message: "4 afbeeldingen maximaal" })
+	files: createFilesObject(zod).max(4, { message: "Maximum of 4 images allowed" })
 });
 
 export default defineSupabaseEventHandler(async (event, user, client, server) => {

@@ -5,11 +5,11 @@
 				<div class="flex flex-col items-center justify-center w-full h-full gap-5 my-6">
 					<icon class="text-[#756145]" name="ri:alert-line" size="8em" />
 					<h1 class="text-lg font-bold text-center text-balance">
-						<span v-if="type.split(':')[1] == 'leave'"> Lidmaatschap opzeggen? </span>
+						<span v-if="type.split(':')[1] == 'leave'"> Cancel membership? </span>
 						<span v-else> Kick member? </span>
 					</h1>
-					<p v-if="type.split(':')[1] == 'leave'" class="-mt-5 text-center text-balance">Je kan altijd weer opnieuw lid worden van deze group, als je een link hebt.</p>
-					<p v-else class="-mt-5 text-center text-balance">De gebruiker zal niet meer lid zijn van deze group, zolang hij geen link heeft.</p>
+					<p v-if="type.split(':')[1] == 'leave'" class="-mt-5 text-center text-balance">You can always rejoin this group if you have a link.</p>
+					<p v-else class="-mt-5 text-center text-balance">The user will no longer be a member of this group unless they have a link.</p>
 					<p class="text-center text-red-700">
 						{{ errors.message }}
 					</p>

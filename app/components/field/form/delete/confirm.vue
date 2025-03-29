@@ -5,10 +5,10 @@
 				<div class="flex flex-col items-center justify-center w-full h-full gap-5 my-6">
 					<icon class="text-[#756145]" name="ri:alert-line" size="8em" />
 					<h1 class="text-lg font-bold text-center text-balance">
-						Verwijder deze {{type.split(":")[1]}}?
+						Delete this {{type.split(":")[1]}}?
 					</h1>
 					<p class="-mt-5 text-center text-balance ">
-						Dit is een permanente actie die niet ongedaan gemaakt kan worden.
+						This is a permanent action that cannot be undone.
 					</p>
 					<p class="text-center text-red-700">
 						{{ errors.message }}

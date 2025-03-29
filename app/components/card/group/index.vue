@@ -10,9 +10,17 @@
 					<h3 class="text-lg font-semibold">{{ content.name }}</h3>
 					<p class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>
 				</div>
-				<p class="text-sm text-gray-500">
-					<span v-if="content.last_photo_posted_by">Laatste foto gepost door: <span class="block text-[#756145] font-bold md:inline ">{{ content.last_photo_posted_by }}</span></span>
-					<span v-else>Nog een activiteit, kom later terug</span>
+				<p class="-mt-1 text-sm text-gray-500">
+					<span v-if="content.last_photo_posted_by.name">Last photo posted by: 
+						<span class="flex items-center w-full gap-2 mt-1">
+							<div class="flex items-center justify-center w-5 h-5 overflow-hidden bg-gray-200 rounded-full">
+								<img v-if="loaded && targetIsVisible" :src="content.last_photo_posted_by.url" alt="image" class="object-cover w-full h-full" />
+								<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
+							</div>
+							<span class="font-bold text-gray-500">{{ content.last_photo_posted_by.name }}</span>
+						</span>
+					</span>
+					<span v-else>No activity yet, check back later</span>
 				</p>
 			</div>
 		</NuxtLink>
@@ -37,6 +45,4 @@
 			}, 500);
 		}
 	});
-
-	
 </script>

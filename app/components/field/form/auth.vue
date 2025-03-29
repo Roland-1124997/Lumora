@@ -1,12 +1,12 @@
 <template>
 	<FieldFormBaseLayer :requestUrl :onSuccess :onError :method :schema label="Login">
 		<div class="space-y-4">
-			<FieldInputEmail name="email" placeholder="Enter your email" :required="true" :initalvalue />
-			<FieldInputPassword name="wachtwoord" placeholder="Enter your password" :required="true" :enableToggle="true" />
+			<FieldInputEmail name="email" placeholder="Enter your email" :required="true" :initialValue />
+			<FieldInputPassword name="password" placeholder="Enter your password" :required="true" :enableToggle="true" />
 		</div>
 
 		<div class="flex justify-between">
-			<FieldInputCheckBox name="remember" label="Remember me" :initalvalue />
+			<FieldInputCheckBox name="remember" label="Remember me" :initialValue />
 			<NuxtLink class="text-sm font-medium text-[#817a70] hover:text-[#6e675d]" to="/"> Forgot Password? </NuxtLink>
 		</div>
 	</FieldFormBaseLayer>
@@ -22,7 +22,7 @@
 	});
 
 	const remember = useLocalStorage("user-email", undefined) as Ref<string | undefined>;
-	const initalvalue = computed(() => {
+	const initialValue = computed(() => {
 		return remember.value;
 	});
 </script>
