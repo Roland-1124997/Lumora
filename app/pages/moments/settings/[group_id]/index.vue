@@ -3,15 +3,15 @@
 		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
 			
 			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
-				<input type="search" :disabled="searchLoading" @input="debouncedSearch" v-model="searchTerm" placeholder="Search member..." class="flex-grow hidden md:flex w-full p-[0.35rem] border border-[#756145] px-3 bg-white outline-none appearance-none rounded-xl focus:border-gray-200 focus:ring-2" />
+				<input type="search" :disabled="searchLoading" @input="debouncedSearch" v-model="searchTerm" placeholder="Search member..." class="flex-grow text-sm hidden md:flex w-full p-[0.35rem] border border-[#756145] px-2 bg-white outline-none appearance-none rounded-xl focus:border-gray-200 focus:ring-2" />
 
-				<button v-if="content?.permision?.create" @click="CreateLink" :disabled="loading" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl"><span> Create link </span></button>
+				<button v-if="content?.permision?.create" @click="CreateLink" :disabled="loading" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl"><span> Create link </span></button>
 				<button :disabled="loading" @click="clickButton" v-if="content?.permision?.edit" class="flex w-full md:w-44 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 					<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
 					<span v-else> Update group</span>
 				</button>
-				<button v-if="content?.permision?.delete" @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
-				<button v-else @click="leaveGroup" class="flex w-full md:w-44 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave group<span class="hidden md:flex"></span></button>
+				<button v-if="content?.permision?.delete" @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
+				<button v-else @click="leaveGroup" class="flex w-full md:w-44 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave group<span class="hidden md:flex"></span></button>
 			</div>
 			<input type="search" :disabled="searchLoading" @input="debouncedSearch" v-model="searchTerm" placeholder="Search member..." class="flex-grow md:hidden w-full p-[0.35rem] border border-[#756145] px-3 bg-white outline-none appearance-none rounded-xl focus:border-gray-200 focus:ring-2" />
 			<hr class="pb-3 mt-3" />
