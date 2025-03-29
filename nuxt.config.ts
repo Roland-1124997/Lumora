@@ -91,8 +91,6 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    "/timeline/**": { ssr: false },
-    "/trending/**": { ssr: false },
     "/moments/**": { ssr: false },
     "/auth/**": { ssr: true },
     "/**": { ssr: true },

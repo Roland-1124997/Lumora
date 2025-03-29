@@ -3,18 +3,17 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	if (!user) return useReturnResponse(event, unauthorizedError);
 
 	const query: query = getQuery(event);
-	const { items, page } = useMakePagination(12, query);
+	const { items, page, start, end } = useMakePagination(12, query);
 
 	/*
 	************************************************************************************
 	*/
 
-	const { count, data, error } = await client.from("posts").select("*").eq("author_id", user.id);
+	const { count, data, error } = await client.from("posts").select("*", { count: "exact"}).eq("author_id", user.id).order("created_at", { ascending: false }).range(start, end);
 	if (error) return useReturnResponse(event, notFoundError);
 
 	const { data: groups } = await client.from("groups").select("*")
 
-	
 	/*
 	************************************************************************************
 	*/

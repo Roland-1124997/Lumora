@@ -12,12 +12,8 @@
 				</div>
 				<p class="-mt-1 text-sm text-gray-500">
 					<span v-if="content.last_photo_posted_by.name">Last photo posted by: 
-						<span class="flex items-center w-full gap-2 mt-1">
-							<div class="flex items-center justify-center w-5 h-5 overflow-hidden bg-gray-200 rounded-full">
-								<img v-if="loaded && targetIsVisible" :src="content.last_photo_posted_by.url" alt="image" class="object-cover w-full h-full" />
-								<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
-							</div>
-							<span class="font-bold text-gray-500">{{ content.last_photo_posted_by.name }}</span>
+						<span class="block md:inline-block">
+							<span class="font-bold text-gray-500 truncate">{{ content.last_photo_posted_by.name }}</span>
 						</span>
 					</span>
 					<span v-else>No activity yet, check back later</span>

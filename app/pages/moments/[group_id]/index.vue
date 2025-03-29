@@ -17,8 +17,9 @@
 		<hr class="mb-2" />
 		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
-				<div :class="PWAInstalled ? 'last:mb-16 md:last:mb-8' : 'last:mb-4 md:last:mb-8'" v-for="(content, index) in List" :key="index">
-					<LazyCardImage :content />
+				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
+					<LazyCardImage v-if="content" :content="content" />
+                    <LazyCardImageSkeleton v-else />
 				</div>
 			</div>
 		</section>
@@ -69,7 +70,7 @@
 	const totalPages = ref(1);
 	const Page = ref(1);
 
-	const List = ref<Post[]>([]);
+	const List = ref<Post[]|any>([]);
 	const name = ref();
 
 	/*
@@ -128,7 +129,7 @@
 	};
 
 	const loading = ref(false);
-	const group = getGroupData(group_id);
+	const group: any = getGroupData(group_id);
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
 
@@ -179,12 +180,32 @@
 	const handleManualReload = async () => await useFetchData({ reload: true }, reload, 2000);
 
 	const handleReload = async (response: Post | undefined) => {
-		if (List.value.length >= 1) {
-			reload.value = true;
 
-			if (response) setItemToStart(group_id, response);
-			setTimeout(() => (reload.value = false), 2000);
-		} else await useFetchData({ reload: true }, reload, 2000);
+		const page = ref(1)
+		reload.value = true;
+
+		while (page.value <= totalPages.value) {
+			
+			await $fetch(`/api/moments/${group_id}?page=${page.value}`).then((response) => {
+				totalPages.value = response.pagination.total
+				name.value = response.meta.name
+
+				if (page.value === 1) {
+					List.value = response.data;
+					removeData(group_id, { partial: true });
+					setTimeout(() => setGroupData(group_id, name.value, page.value, totalPages.value, List.value), 200);
+				} else {
+					List.value.push(...response.data);
+					setTimeout(() => updateGroupData(group_id, name.value, page.value, totalPages.value, List.value), 200);
+				}
+			})
+
+			if (page.value < totalPages.value) page.value++;
+			else break;
+		}
+
+		setTimeout(() => (reload.value = false), 2000)
+
 	};
 
 	const handleSuccess = async ({ response }: SuccessResponse<Post>) => {
@@ -211,7 +232,4 @@
 		});
 	};
 
-	/*
-	 ************************************************************************************
-	 */
 </script>

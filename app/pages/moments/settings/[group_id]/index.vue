@@ -6,12 +6,12 @@
 				<input type="search" :disabled="searchLoading" @input="debouncedSearch" v-model="searchTerm" placeholder="Search member..." class="flex-grow hidden md:flex w-full p-[0.35rem] border border-[#756145] px-3 bg-white outline-none appearance-none rounded-xl focus:border-gray-200 focus:ring-2" />
 
 				<button v-if="content?.permision?.create" @click="CreateLink" :disabled="loading" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl"><span> Create link </span></button>
-				<button :disabled="loading" @click="clickButton" v-if="content?.permision?.edit" class="flex w-full md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+				<button :disabled="loading" @click="clickButton" v-if="content?.permision?.edit" class="flex w-full md:w-44 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 					<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
-					<span v-else> Update </span>
+					<span v-else> Update group</span>
 				</button>
-				<button v-if="content?.permision?.delete" @click="deleteData" class="flex w-full md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete</button>
-				<button v-else @click="leaveGroup" class="flex w-full md:w-28 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave<span class="hidden md:flex">group</span></button>
+				<button v-if="content?.permision?.delete" @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
+				<button v-else @click="leaveGroup" class="flex w-full md:w-44 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave group<span class="hidden md:flex"></span></button>
 			</div>
 			<input type="search" :disabled="searchLoading" @input="debouncedSearch" v-model="searchTerm" placeholder="Search member..." class="flex-grow md:hidden w-full p-[0.35rem] border border-[#756145] px-3 bg-white outline-none appearance-none rounded-xl focus:border-gray-200 focus:ring-2" />
 			<hr class="pb-3 mt-3" />
@@ -333,7 +333,20 @@
 	};
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		if (response.status.redirect) setTimeout(() => navigateTo(response.status.redirect), 500);
+		if (response.status.redirect) {
+
+			setTimeout(() => navigateTo(response.status.redirect), 500);
+
+			setTimeout(() => {
+				addToast({
+					message: `You have deleted the group`,
+					type: "success",
+					duration: 5000,
+				});
+			}, 800);
+		}
+		
+		
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
@@ -469,13 +482,20 @@
 
 		await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
 			.then(async (response: any) => {
-				if (response.data.meta.refresh)
+				if (response.status.refresh)
 					await $fetch(`/api/moments/settings/${group_id}`)
 						.then((response) => {
 							content.value = response.data;
 							name.value = response.data.name;
 							config.value = response.data.configuration;
 							description.value = response.data.description;
+
+							addToast({
+								message: `Group settings have been updated`,
+								type: "success",
+								duration: 5000,
+							});
+							
 						})
 						.catch((error) => {
 							throw createError({
@@ -487,7 +507,7 @@
 			})
 			.catch(async (error) => {
 				await new Promise((resolve) => setTimeout(resolve, 1000));
-				if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+				if (error.data && error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 			})
 			.finally(() => (loading.value = false));
 	};

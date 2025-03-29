@@ -10,15 +10,16 @@
 		<hr class="mb-2" />
 		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
-				<div :class="PWAInstalled ? 'last:mb-32 md:last:mb-16' : 'last:mb-8 md:last:mb-16'" v-for="(content, index) in List" :key="index">
-					<LazyCardImage :content />
-				</div>
-			</div>
+                <div :class="PWAInstalled ? 'last:pb-[8.5rem] md:last:pb-20' : 'last:pb-16 md:last:pb-20'" v-for="(content, index) in List" :key="index">
+                    <LazyCardImage v-if="content" :content="content" />
+                    <LazyCardImageSkeleton v-else />
+                </div>
+            </div>
 		</section>
 
 		<section v-else class="h-[80vh] overflow-y-auto">
 			<div class="grid w-full grid-cols-2 gap-3 mb-[4.3rem] lg:grid-cols-4">
-				<div class="" v-for="i in 12">
+				<div class="" v-for="i in 8">
 					<LazyCardImageSkeleton />
 				</div>
 			</div>
@@ -60,81 +61,39 @@
 
 	const List = ref<Post[]>([]);
 
-	const { setGroupData, setItemToStart, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
-
 	const useFetchData = async (options: Record<string, any>, load: Ref, timer = 250) => {
 		load.value = true;
 		if (options.reload) Page.value = 1;
 		if (options.update) Page.value += 1;
 
-		await $fetch(`/api/trending?page=${Page.value}`)
-			.then((response: ApiResponse<Post[]>) => {
-				totalPages.value = response.pagination?.total || 0;
-				
-				if (options.set) {
-					List.value = response.data as Post[];
-					setGroupData("trending", "trending", Page.value, totalPages.value, List.value);
-				}
+		List.value = List.value.filter((item: any) => item.placeholder == undefined);
 
-				if (options.update) {
-					List.value.push(...(response.data as Post[]));
-					updateGroupData("trending", "trending", Page.value, totalPages.value, List.value);
-				}
+		const { data: response, error} = await useFetch(`/api/trending?page=${Page.value}`)
 
-				if (options.reload) {
-					List.value = response.data as Post[];
-					removeData("trending");
-					setTimeout(() => setGroupData("trending", "trending", Page.value, totalPages.value, List.value), 3000);
-				}
-			})
-			.catch(async (error) => {
-				throw createError({
-					statusCode: error.data.status.code,
-					message: error.data.status.message,
-					fatal: true,
-				});
-			})
-			.finally(() => setTimeout(() => (load.value = false), timer));
-	};
+		if(error.value) throw createError({
+			statusCode: error.value.data.status.code,
+			message: error.value.data.status.message,
+			fatal: true,
+		});
+		
+		totalPages.value = response.value.pagination?.total || 0;
+		if (options.set) List.value = response.value.data as Post[];
+		if (options.update) List.value.push(...(response.value.data as Post[]));
+		if (options.reload) List.value = response.value.data as Post[];
 
-	const useDisplayStorageData = (state: Record<string, any>) => {
-		totalPages.value = state.pagination.total;
-		List.value = state.data;
-		Page.value = state.pagination.page;
+		setTimeout(() => (load.value = false), timer)
+
 	};
 
 	const loading = ref(false);
-	const group = getGroupData("trending");
-	if (!group) await useFetchData({ set: true }, loading);
-	else useDisplayStorageData(group);
-
+	await useFetchData({ set: true }, loading);
+	
 	/*
 	 ************************************************************************************
 	 */
 
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
-	const { scrollPercentage, scrollPixels, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
-
-	const useScrollToPosition = (state: Record<string, any>, behavior: ScrollBehavior = "auto") => {
-		if (state) {
-			scrollPercentage.value = state.percentage;
-			scrollPixels.value = state.pixels;
-
-			const container = containerProps.ref.value;
-			const scrollPosition = (scrollPixels.value / 100) * state.percentage;
-
-			if (container)
-				container.scrollTo({
-					top: scrollPosition,
-					behavior: behavior,
-				});
-		}
-	};
-
-	const scrollData = getScrollData("trending");
-	onMounted(() => {
-		if (scrollData) useScrollToPosition(scrollData);
-	});
+	const { scrollPercentage, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
 
 	useInfiniteScroll(
 		containerProps.ref,
@@ -144,8 +103,6 @@
 		},
 		{ direction: "bottom", distance: 20 }
 	);
-
-	watch(scrollPercentage, (percentage) => updateScrollData("trending", percentage, scrollPixels.value));
 
 	/*
 	 ************************************************************************************

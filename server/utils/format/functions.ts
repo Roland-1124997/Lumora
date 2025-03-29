@@ -32,13 +32,14 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
             const author: User | undefined = user ? undefined : users.users.find((user: User) => user.id === data.author.id);
             const isOwner = user ? data.author_id == user.id : data.author.is_owner;
             const authorName = user ? user.user_metadata.name : author?.user_metadata.name || null;
+
             return {
                 id: data.id,
                 created_at: data.created_at,
                 has_liked: data.has_liked || false,
                 author: {
                     name: isOwner ? `${authorName} (You)` : authorName,
-                    url: author?.user_metadata.avatar_url || "/profile.jpg",
+                    url: author?.user_metadata.avatar_url || user?.user_metadata.avatar_url || "/profile.jpg",
                     is_owner: isOwner,
                 },
                 likes: {

@@ -7,8 +7,8 @@
 		</div>
 
 		<div class="py-2">
-			<div class=" w-36 h-4 mb-[0.35rem] rounded bg-gray-300"></div>
-			<div class="h-4 bg-gray-200 rounded w-28"></div>
+			<div class=" w-36 h-4 mb-[0.32rem] rounded bg-gray-300"></div>
+			<div class="h-3 bg-gray-200 rounded w-28"></div>
 		</div>
 	</div>
 </template>

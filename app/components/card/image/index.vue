@@ -2,7 +2,7 @@
 	<div ref="target" class="border-b">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 md:h-52 rounded-xl">
 			<div class="relative z-40 flex items-center justify-between p-2">
-				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] disabled:opacity-60 text-black bg-white border rounded-lg">
+				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon :class="liked ? ' bg-red-600' : ''" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.1em" />
 					<span class="text-xs font-medium">{{ hearts }}</span>
 				</button>
@@ -17,16 +17,19 @@
 		</div>
 
 		<div class="py-2">
-			<div class="flex items-start w-full gap-2 ">
+			<div class="flex items-center gap-2 ">
 
-				<div class="flex items-center justify-center w-6 h-6 overflow-hidden bg-gray-200 rounded-full">
+				<div class="flex items-center justify-center overflow-hidden bg-gray-200 rounded-full w-7 h-7">
 					<img v-if="loaded && targetIsVisible" :src="content.author.url" alt="image" class="object-cover w-full h-full" />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
 				</div>
 				<div class="">
 					<p class="text-sm font-semibold text-gray-800 truncate ">{{ content.author.name }}</p>
-					<p v-if="content.group" class="-mt-1 text-sm font-medium text-gray-500 truncate ">{{ content.group.name }}</p>
-					<p class="-mt-1 text-sm text-gray-400">{{ useTimeAgo(content.created_at).value }}</p>
+					<div class="flex w-full items-center gap-2 -mt-[0.15rem] ">
+						<p v-if="content.group" class="text-xs font-medium text-gray-500 truncate max-w-16 md:max-w-fit md:text-sm ">{{ content.group.name }}</p>
+						<p class="text-xs text-gray-400 md:text-sm ">{{ useTimeAgo(content.created_at).value }}</p>
+					</div>
+					
 				</div>
 			</div>
 		</div>

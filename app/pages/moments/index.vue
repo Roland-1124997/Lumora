@@ -73,6 +73,8 @@
 	const searchTerm = ref(`${query.search || ""}`);
 	const searchLoading = ref(false);
 
+	const { addToast } = useToast();
+
 	/*
 	************************************************************************************
 	*/
@@ -154,6 +156,14 @@
 	const handleSuccess = async ({ response }: SuccessResponse<Group>) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (response.status.redirect) navigateTo(response.status.redirect);
+
+		setTimeout(() => {
+			addToast({
+				message: `Group has been created`,
+				type: "success",
+				duration: 5000,
+			});
+		}, 800)
 		
 	};
 
