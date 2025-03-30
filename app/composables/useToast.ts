@@ -14,7 +14,7 @@ export function useToast() {
         const id = Date.now();
 
         toasts.value.push({ id, message, type });
-        if (toasts.value.length > 8) toasts.value.shift();
+        if (toasts.value.length > 6) toasts.value.shift();
         
         setTimeout(() => removeToast(id), duration);
     };

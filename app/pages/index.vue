@@ -24,7 +24,7 @@
 	});
 
 	definePageMeta({
-		middleware: "redirect",
+		middleware: "redirect-client",
 		layout: false,
 	});
 

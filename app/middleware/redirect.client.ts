@@ -4,6 +4,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const { error } = await store.getSession()
     if (error) return navigateTo("/auth")
 
-    else if (document) return navigateTo("/home")
+    else return navigateTo("/moments")
     
 })

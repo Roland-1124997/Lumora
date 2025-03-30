@@ -2,43 +2,24 @@
 	<div class="min-h-screen">
 		<header :class=" PWAInstalled ? 'top-11 md:top-0': 'top-0'" class="fixed z-50 w-full bg-white ">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
-				<button @click="$route.path !== '/home' ? handleBack() : ''" class="flex items-center justify-center gap-2">
-					<icon v-if="$route.path !== '/home'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>
+				<button @click="$route.path !== '/moments' ? handleBack() : ''" class="flex items-center justify-center gap-2">
+					<icon v-if="$route.path !== '/moments'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>
 					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
-						<span v-if="$route.path == '/home'">Lumora</span>
+						<span v-if="$route.path == '/moments'">Lumora</span>
 						<span v-else-if="$route.name?.includes('settings-group_id')">Settings</span>
 						<span v-else-if="$route.name?.includes('-group_id')">{{ group }}</span>
 						<span v-else>{{ $route.name?.charAt(0).toUpperCase() + $route.name?.slice(1) }} </span>
 					</h1>
 				</button>
 				<div class="flex items-center gap-2">
-					<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name: username }" />
+					<UtilsButton to="/account" :options="{ name: username, url: avatar }" />
+					<UtilsButton to="/moments" iconName="ri:home-4-fill"/>
 					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 				</div>
 			</div>
-
-			<nav v-if="!$route.name?.includes('-group_id')" class="container max-w-5xl mx-auto border-b">
-				<div class="flex items-center w-full h-10 gap-2 p-1 px-2 bg-gray-100 cursor-pointer md:rounded-lg justify-evenly">
-					<NuxtLink to="/home" class="flex items-center justify-center h-full gap-2 px-2 py-1 rounded-lg w-fit">
-						<icon name="mdi:home" size="1.2rem"></icon>
-					</NuxtLink>
-					<span class="text-sm text-gray-400">|</span>
-					<NuxtLink to="/timeline" class="flex items-center justify-center w-full h-full py-1 rounded-lg">
-						<span class="text-sm">Timeline</span>
-					</NuxtLink>
-					<span class="text-sm text-gray-400">|</span>
-					<NuxtLink to="/trending" class="flex items-center justify-center w-full h-full py-1 rounded-lg">
-						<span class="text-sm"> Trending </span>
-					</NuxtLink>
-					<span class="text-sm text-gray-400">|</span>
-					<NuxtLink to="/moments" class="flex items-center justify-center w-full h-full py-1 rounded-lg">
-						<span class="text-sm">Moments</span>
-					</NuxtLink>
-				</div>
-			</nav>
 		</header>
 
-		<main :class="!$route.name?.includes('-group_id') ? 'mt-28' : 'mt-[4.5rem]'" class="fixed w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over sm:px-6 lg:px-24">
+		<main  class="fixed mt-[4.5rem] w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over sm:px-6 lg:px-24">
 			<div class="container max-w-5xl mx-auto mt-4">
 				<slot></slot>
 			</div>
@@ -103,6 +84,7 @@
 	const store = useSessionsStore();
 	const { data: user } = await store.getSession();
 	const username = ref(user?.name);
+	const avatar = ref(user?.avatar)
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
@@ -139,7 +121,7 @@
 
 	const closeModal = () => (modal.value = false);
 	
-	provide("username", {username, updateUsername});
+	provide("username", { username, updateUsername});
 	provide("modal", { modal, updateModalValue});
 	provide("group", { group, updateGroupValue })
 	provide("PWA", { PWAInstalled })

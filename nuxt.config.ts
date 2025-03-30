@@ -93,7 +93,7 @@ export default defineNuxtConfig({
   routeRules: {
     "/moments/**": { ssr: false },
     "/auth/**": { ssr: true },
-    "/**": { ssr: true },
+    "/": { ssr: true},
   },
 
   veeValidate: {

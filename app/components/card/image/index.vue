@@ -1,10 +1,14 @@
 <template>
 	<div ref="target" class="border-b">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 md:h-52 rounded-xl">
-			<div class="relative z-40 flex items-center justify-between p-2">
+			<div class="relative z-40 flex items-center justify-start gap-2 p-2">
 				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon :class="liked ? ' bg-red-600' : ''" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.1em" />
 					<span class="text-xs font-medium">{{ hearts }}</span>
+				</button>
+				<button :disabled="content.author.is_owner" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+					<icon name="ri:message-3-line" size="1.1em" />
+					<span class="text-xs font-medium">{{ comments }}</span>
 				</button>
 			</div>
 
@@ -49,6 +53,7 @@
 
 	hearts.value = content.likes.count
 	liked.value = content.has_liked
+	const comments = ref(0)
 	
 	watch(targetIsVisible, (value) => {
 		if (value) {
@@ -62,10 +67,9 @@
 
 	const likeImage = async () => {
 
-		const group_id: any = useRoute().params.group_id || "trending"
-		const base_url = content.url || `/moments/${group_id}/${content.id}`
-
-		await $fetch<any>(`/api${base_url}`, { method: "PATCH" }).then((response: any) => {
+		const group_id: any = useRoute().params.group_id 
+		
+		await $fetch<any>(`/api/moments/${group_id}/${content.id}`, { method: "PATCH" }).then((response: any) => {
 			hearts.value = response.data.likes.count
 			liked.value = response.data.has_liked
 
