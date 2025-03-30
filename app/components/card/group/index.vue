@@ -8,7 +8,10 @@
 			<div class="flex-1 pl-3 border-l">
 				<div class="flex justify-between">
 					<h3 class="text-lg font-semibold">{{ content.name }}</h3>
-					<p class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>
+					<ClientOnly>
+						<p class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>
+					</ClientOnly>
+					
 				</div>
 				<p class="-mt-1 text-sm text-gray-500">
 					<span v-if="content.last_photo_posted_by.name">Last photo posted by: 
