@@ -60,12 +60,7 @@
 	const error = useError();
 	const status = ref(error.value.statusCode);
 
-	const PWAInstalled = ref(false);
-	const { $pwa } = useNuxtApp();
-
-	onMounted(() => {
-		if ($pwa.isPWAInstalled) PWAInstalled.value = true;
-	});
+	const { PWAInstalled } = useCheckPwa()
 
 	const userValue = ref();
 	const errorValue = ref(false);

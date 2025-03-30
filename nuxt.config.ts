@@ -91,7 +91,7 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    "/moments/**": { ssr: false },
+    "/moments/:group_id/**": { ssr: false },
     "/auth/**": { ssr: true },
     "/": { ssr: true},
   },

@@ -1,5 +1,5 @@
 <template>
-	<div class="fixed z-50 flex flex-col gap-2 right-6 bottom-8 md:right-[13rem]">
+	<div class="fixed z-50 flex flex-col gap-2 right-6 bottom-9 md:right-[13rem]">
 		<TransitionGroup name="toast">
 			<div v-for="toast in toasts" :key="toast.id" class=" w-[88vw] md:w-[30vw] flex items-center gap-4 p-2 px-3 rounded-xl shadow-lg border transition-all bg-white " :class="toastStyles(toast.type)" role="alert">
 				<Icon :name="iconMap[toast.type]" class="text-4xl" />

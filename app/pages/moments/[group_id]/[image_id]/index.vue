@@ -136,10 +136,7 @@
 	 ************************************************************************************
 	 */
 
-	const PWAInstalled = ref(false);
-	const { $pwa } = useNuxtApp();
-
-	PWAInstalled.value = $pwa.isPWAInstalled ? true : false;
+	const { PWAInstalled } = inject<any>("PWA");
 
 	const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId } = useGroupStore();
 

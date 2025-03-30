@@ -185,6 +185,13 @@
 	 */
 
 	const share = (link: any) => {
+
+		if(isLinkExpired(link) || getRemainingUses(link) === 0) return addToast({
+			message: `The invitation link has already expired: ${link.code}`,
+			type: "error",
+			duration: 5000,
+		});
+		
 		const dummy = document.createElement("input");
 		const text = `${window.location.host}/invitations/${link.id}?token=${link.code}`;
 		dummy.style.opacity = "0";

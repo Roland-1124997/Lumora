@@ -73,13 +73,7 @@
 
 <script setup>
 
-	
-	const PWAInstalled = ref(false)
-	const { $pwa } = useNuxtApp();
-
-	onMounted(() => {
-		if ($pwa.isPWAInstalled ) PWAInstalled.value = true;
-	});
+	const { PWAInstalled } = useCheckPwa()
 
 	const store = useSessionsStore();
 	const { data: user } = await store.getSession();
