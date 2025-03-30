@@ -136,7 +136,7 @@
 	 ************************************************************************************
 	 */
 
-	const { PWAInstalled } = inject<any>("PWA");
+	const { PWAInstalled } = inject("PWA");
 
 	const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId } = useGroupStore();
 
