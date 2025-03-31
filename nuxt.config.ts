@@ -94,7 +94,7 @@ export default defineNuxtConfig({
     "/moments/**": { ssr: false },
     "/notifications": { ssr: false },
     "/account": { ssr: false },
-    "/auth/**": { ssr: true, prerender: true },
+    "/auth/**": { ssr: true },
     "/": { ssr: true },
   },
 
