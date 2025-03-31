@@ -1,8 +1,11 @@
 export default defineEventHandler( async (event) => {
-   
     const client = await serverSupabaseClient(event)
     const { credential } = await readBody(event)
     const { provider } = getRouterParams(event)
+
+    /*
+    ************************************************************************************
+    */
 
     const { error } = await client.auth.signInWithIdToken({
         provider: provider,
@@ -16,6 +19,10 @@ export default defineEventHandler( async (event) => {
             details: error,
         }
     })
+
+    /*
+    ************************************************************************************
+    */
 
     const invite = getCookie(event, "invite_token")
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event)

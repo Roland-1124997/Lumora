@@ -10,16 +10,12 @@
 					<span class="text-sm">Unread</span>
 				</button>
 			</div>
-			<button @click="notificationStore.markAllNotificationsAsRead()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-				Mark all as read
-				
-				
-			</button>
+			<button @click="notificationStore.markAllNotificationsAsRead()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">Mark all as read</button>
 		</div>
 
 		<hr class="pb-3" />
 
-		<section v-if="notifications.length >= 1" class=" h-[80vh] w-full overflow-scroll">
+		<section v-if="notifications.length >= 1" class="h-[80vh] w-full overflow-scroll">
 			<div class="mb-24 space-y-2">
 				<div v-for="notification in notifications" :key="notification" class="flex items-center justify-between p-4 border bg-gray-50 rounded-xl">
 					<div class="flex items-start justify-between w-full space-x-3">
@@ -38,22 +34,16 @@
 			<div class="flex flex-col items-center justify-center w-full h-full gap-5">
 				<icon class="text-gray-500" name="ri:notification-2-line" size="5em" />
 				<h1 class="text-lg font-bold text-center text-balance">Je bent up to date!</h1>
-				<p class="-mt-5 text-center text-balance ">Er zijn geen ongelezen berichten</p>
+				<p class="-mt-5 text-center text-balance">Er zijn geen ongelezen berichten</p>
 			</div>
-			
 		</section>
-
-
-		
-
-		
 	</div>
 </template>
 
 <script setup>
 	useHead({
 		htmlAttrs: {
-			lang: "nl",
+			lang: "en",
 		},
 	});
 
@@ -96,6 +86,5 @@
 	.fade-enter-from,
 	.fade-leave-to {
 		opacity: 0;
-		/* transform: translateX(12em); */
 	}
 </style>

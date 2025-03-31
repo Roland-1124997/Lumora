@@ -7,11 +7,19 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const query: query = getQuery(event);
     const currentSearch = query.search ? query.search.toLowerCase() : null;
 
+    /*
+    ************************************************************************************
+    */
+
     const { error: permisionError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
     if (permisionError) return useReturnResponse(event, notFoundError)
 
     const { data, error } = await client.from("members").select("*").eq("group_id", group_id)
     if (error) return useReturnResponse(event, notFoundError)
+
+    /*
+    ************************************************************************************
+    */
 
     const { data: users } = await useListUsers(server);
 
@@ -35,6 +43,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if (currentSearch) usersData = usersData.filter((user: any) => {
         return user.name.toLowerCase().includes(currentSearch)
     })
+
+    /*
+    ************************************************************************************
+    */
 
     return useReturnResponse(event, {
         status: {

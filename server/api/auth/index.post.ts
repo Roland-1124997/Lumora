@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   const request = await readBody(event);
-
   const { error: zodError } = await schema.safeParseAsync(request);
 
   if (zodError) return useReturnResponse(event, {
@@ -21,6 +20,10 @@ export default defineEventHandler(async (event) => {
       details: zodError.errors
     }
   });
+
+  /*
+  ************************************************************************************
+  */
 
   const client = await serverSupabaseClient(event);
 
@@ -38,6 +41,10 @@ export default defineEventHandler(async (event) => {
       }
     }
   });
+
+  /*
+  ************************************************************************************
+  */
 
   const invite = getCookie(event, "invite_token");
   const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);

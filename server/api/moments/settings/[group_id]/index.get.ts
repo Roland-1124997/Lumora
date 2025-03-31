@@ -37,6 +37,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         ],
     };
 
+    /*
+    ************************************************************************************
+    */
+
     return useReturnResponse(event, {
         status: {
             success: true,

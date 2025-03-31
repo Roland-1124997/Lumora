@@ -1,5 +1,5 @@
 <template>
-	<div :class="PWAInstalled ? 'fixed' : ''" class="px-4 py-8 md:px-6">
+	<div :class="PWAInstalled ? 'fixed w-full h-full' : ''" class="px-4 py-8 md:px-6">
 		<div class="w-full h-full max-w-lg mx-auto space-y-8">
 			<header class="space-y-6">
 				<div class="flex items-center space-x-2">

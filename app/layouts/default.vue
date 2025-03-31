@@ -13,13 +13,13 @@
 				</button>
 				<div class="flex items-center gap-2">
 					<UtilsButton to="/account" :options="{ name: username, url: avatar }" />
-					<UtilsButton to="/moments" iconName="ri:home-4-fill"/>
+					<UtilsButton to="/moments" iconName="ri:archive-stack-fill"/>
 					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 				</div>
 			</div>
 		</header>
 
-		<main  class="fixed mt-[4.5rem] w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over sm:px-6 lg:px-24">
+		<main class="fixed mt-[4.5rem] w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over sm:px-6 lg:px-24">
 			<div class="container max-w-5xl mx-auto mt-4">
 				<slot></slot>
 			</div>
@@ -111,6 +111,7 @@
 
 	function updateUsername(name) {
 		username.value = name
+		console.log(username.value)
 	}
 
 	const closeModal = () => (modal.value = false);

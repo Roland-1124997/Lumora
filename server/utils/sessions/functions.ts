@@ -14,9 +14,10 @@ export const useDeleteSession = async (client: SupabaseClient) => {
 export const useSetSessionData = (user: User | null) => {
     return user ? {
         id: user.id as string,
-        name: user.user_metadata.name as string,
+        name: user.user_metadata.name || "Anymouses" as string,
         avatar: user.user_metadata.avatar_url || "/profile.jpg" as string,
-        email: user.user_metadata.email as string,
+        email: user.user_metadata.email || user.email as string,
+        provider: user.app_metadata.provider
     } : null;
 }
 

@@ -1,9 +1,9 @@
 <template>
 	<FieldFormBaseLayer :requestUrl :onSuccess :onError :method :schema label="Register">
 		<div class="space-y-4">
-			<FieldInputEmail name="email" placeholder="Enter your email" :required="true" />
-			<FieldInputPassword name="password" placeholder="Enter your password" :required="true" :enableToggle="true" />
-			<FieldInputPassword name="confirmation" label="Confirmation" placeholder="Confirm your password" :required="true" :enableToggle="true" />
+			<FieldInputEmail name="email" placeholder="Enter your email" required />
+			<FieldInputPassword name="password" placeholder="Enter your password" required rerender enableToggle />
+			<FieldInputPassword name="confirmation" label="Confirmation" placeholder="Confirm your password" required rerender enableToggle />
 		</div>
 	</FieldFormBaseLayer>
 </template>

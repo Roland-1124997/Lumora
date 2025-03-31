@@ -25,7 +25,6 @@
 							<Icon :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							{{ content.likes.count }}
 						</button>
-						
 
 						<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon name="ri:delete-bin-5-line" size="1.2rem" />
@@ -86,12 +85,12 @@
 
 	useHead({
 		htmlAttrs: {
-			lang: "nl",
+			lang: "en",
 		},
 	});
 
 	useSeoMeta({
-		title: "Lumora - Moments",
+		title: "Lumora - Moments - Pictures",
 		description: "Bekijk de nieuwste en populairste posts op Lumora!",
 		ogTitle: "Lumora",
 		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",

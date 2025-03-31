@@ -1,7 +1,6 @@
 <template>
 	<div>
 		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
-			
 			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
 				<input type="search" :disabled="searchLoading" @input="debouncedSearch" v-model="searchTerm" placeholder="Search member..." class="flex-grow text-sm hidden md:flex w-full p-[0.35rem] border border-[#756145] px-2 bg-white outline-none appearance-none rounded-xl focus:border-gray-200 focus:ring-2" />
 
@@ -20,10 +19,11 @@
 		<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="flex flex-col gap-4 overflow-scroll">
 			<div class="p-4 border rounded-xl">
 				<Form :validation-schema="schema" v-slot="{ meta, errors }: any" @submit="handleSubmit">
-					<div class="flex items-center justify-between mb-3">
+					<div class="flex items-center justify-between mb-1">
 						<h1 class="font-bold">Group details</h1>
 						<button ref="hidden" :disabled="loading" v-if="content?.permision?.edit" class="sr-only"></button>
 					</div>
+					<p class="mb-3 text-sm text-gray-500">Update the group information.</p>
 
 					<hr class="mb-2" />
 
@@ -59,11 +59,11 @@
 			</div>
 
 			<div class="p-4 border rounded-xl">
-				<div class="flex items-center justify-between mb-2">
+				<div class="flex items-center justify-between mb-1">
 					<h1 class="font-bold">Members</h1>
 				</div>
 
-				
+				<p class="mb-3 text-sm text-gray-500">List with active group members</p>
 				<hr class="mt-3 mb-3" />
 
 				<div class="-mt-2 overflow-x-auto">
@@ -99,9 +99,11 @@
 			</div>
 
 			<div class="p-4 border rounded-xl">
-				<div class="flex items-center justify-between mb-3">
+				<div class="flex items-center justify-between mb-1">
 					<h1 class="font-bold">Invite links</h1>
 				</div>
+
+				<p class="mb-3 text-sm text-gray-500">List with all invite links that have been created</p>
 
 				<hr class="mb-1" />
 
@@ -145,7 +147,11 @@
 			<div class="p-4 mb-2 border rounded-xl">
 				<div class="">
 					<div v-for="(section, index) in config.sections" :key="index">
-						<h1 class="mb-3 font-bold" :class="{ 'mt-4': index > 0 }">{{ section.title }}</h1>
+						<h1 class="mb-1 font-bold" :class="{ 'mt-4': index > 0 }">{{ section.title }}</h1>
+						<p v-if="index == 0" class="mb-3 text-sm text-gray-500">
+							Additional group setting that can be changed
+						</p>
+
 						<hr class="my-3" />
 						<div class="grid items-center gap-2">
 							<div v-for="option in section.options" :key="option.key" class="flex items-center justify-between">
@@ -160,13 +166,40 @@
 						</div>
 					</div>
 				</div>
-			</div> 
+			</div>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 	import { toTypedSchema } from "@vee-validate/zod";
 	import * as zod from "zod";
+
+	useHead({
+		htmlAttrs: {
+			lang: "en",
+		},
+	});
+
+	useSeoMeta({
+		title: "Lumora - Moments - Settings",
+		description: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogTitle: "Lumora",
+		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		ogImage: "/apple-touch-icon.png",
+		ogUrl: "/",
+		twitterTitle: "Lumora",
+		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterImage: "/apple-touch-icon.png",
+		twitterCard: "summary",
+	});
+
+	definePageMeta({
+		middleware: "unauthorized",
+	});
+
+	/*
+	************************************************************************************
+	*/
 
 	const group_id = useRoute().params.group_id;
 
@@ -176,22 +209,18 @@
 	const { PWAInstalled } = inject<any>("PWA");
 	const { addToast } = useToast();
 
-	definePageMeta({
-		middleware: "unauthorized",
-	});
-
 	/*
-	 ************************************************************************************
-	 */
+	************************************************************************************
+	*/
 
 	const share = (link: any) => {
+		if (isLinkExpired(link) || getRemainingUses(link) === 0)
+			return addToast({
+				message: `The invitation link has already expired: ${link.code}`,
+				type: "error",
+				duration: 5000,
+			});
 
-		if(isLinkExpired(link) || getRemainingUses(link) === 0) return addToast({
-			message: `The invitation link has already expired: ${link.code}`,
-			type: "error",
-			duration: 5000,
-		});
-		
 		const dummy = document.createElement("input");
 		const text = `${window.location.host}/invitations/${link.id}?token=${link.code}`;
 		dummy.style.opacity = "0";
@@ -341,7 +370,6 @@
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
 		if (response.status.redirect) {
-
 			setTimeout(() => navigateTo(response.status.redirect), 500);
 
 			setTimeout(() => {
@@ -352,8 +380,6 @@
 				});
 			}, 800);
 		}
-		
-		
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
@@ -502,7 +528,6 @@
 								type: "success",
 								duration: 5000,
 							});
-							
 						})
 						.catch((error) => {
 							throw createError({

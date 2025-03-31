@@ -11,6 +11,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if (data.expiresAt && new Date() > new Date(data.expiresAt)) return useReturnResponse(event, ResourceGoneError);
     if (parseInt(data.uses) == 0) return useReturnResponse(event, ResourceGoneError)
 
+    /*
+    ************************************************************************************
+    */
+
     const { error: memberError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", data.group_id).single()
 
     if (memberError?.details?.includes("0 rows")) {
@@ -22,9 +26,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             can_delete_group: false,
         })
 
-    
         if (error) return useReturnResponse(event, internalServerError)
-
         const count = parseInt(data.uses) - 1;
 
         const { error: updateError } = await server.from("invite_links").update({
@@ -42,6 +44,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             },
         });
     }
+
+    /*
+    ************************************************************************************
+    */
     
     return useReturnResponse(event, {
         status: {

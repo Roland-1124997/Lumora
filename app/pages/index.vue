@@ -1,12 +1,11 @@
 <template>
-	<div>
-	</div>
+	<div></div>
 </template>
 
 <script setup>
 	useHead({
 		htmlAttrs: {
-			lang: "nl",
+			lang: "en",
 		},
 	});
 
@@ -27,5 +26,4 @@
 		middleware: "redirect-client",
 		layout: false,
 	});
-
 </script>

@@ -1,8 +1,8 @@
 <template>
 	<FieldFormBaseLayer :requestUrl :onSuccess :onError :method :schema label="Login">
 		<div class="space-y-4">
-			<FieldInputEmail name="email" placeholder="Enter your email" :required="true" :initialValue />
-			<FieldInputPassword name="password" placeholder="Enter your password" :required="true" :enableToggle="true" />
+			<FieldInputEmail name="email" placeholder="Enter your email" required :initialValue />
+			<FieldInputPassword name="password" placeholder="Enter your password" required enableToggle />
 		</div>
 
 		<div class="flex justify-between">

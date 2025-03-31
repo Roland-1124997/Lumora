@@ -8,10 +8,12 @@
 				</transition>
 			</label>
 
+			
+
 			<ClientOnly>
-			<input v-bind="field" :id="name" :placeholder type="email" :class="meta.validated && !meta.valid ? ' btn-Input-Error ' : ' btn-Input'" class="w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
+			<input v-bind="field" :disabled :id="name" :placeholder type="email" :class="meta.validated && !meta.valid ? ' btn-Input-Error ' : ' btn-Input'" class="w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
 				<template #fallback>
-					<input :id="name" :placeholder type="email" :class="meta.validated && !meta.valid ? ' btn-Input-Error ' : ' btn-Input'" class="w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
+					<input :id="name" :disabled :placeholder type="email" :class="meta.validated && !meta.valid ? ' btn-Input-Error ' : ' btn-Input'" class="w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
 				</template>
 			</ClientOnly>
 		</div>

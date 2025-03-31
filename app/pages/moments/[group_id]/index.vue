@@ -19,7 +19,7 @@
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
 				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
 					<LazyCardImage v-if="content" :content="content" />
-                    <LazyCardImageSkeleton v-else />
+					<LazyCardImageSkeleton v-else />
 				</div>
 			</div>
 		</section>
@@ -37,9 +37,10 @@
 </template>
 
 <script setup lang="ts">
+
 	useHead({
 		htmlAttrs: {
-			lang: "nl",
+			lang: "en",
 		},
 	});
 
@@ -70,8 +71,9 @@
 	const totalPages = ref(1);
 	const Page = ref(1);
 
-	const List = ref<Post[]|any>([]);
+	const List = ref<Post[] | any>([]);
 	const name = ref();
+
 
 	/*
 	 ************************************************************************************
@@ -180,15 +182,13 @@
 	const handleManualReload = async () => await useFetchData({ reload: true }, reload, 2000);
 
 	const handleReload = async (response: Post | undefined) => {
-
-		const page = ref(1)
+		const page = ref(1);
 		reload.value = true;
 
 		while (page.value <= totalPages.value) {
-			
 			await $fetch(`/api/moments/${group_id}?page=${page.value}`).then((response) => {
-				totalPages.value = response.pagination.total
-				name.value = response.meta.name
+				totalPages.value = response.pagination.total;
+				name.value = response.meta.name;
 
 				if (page.value === 1) {
 					List.value = response.data;
@@ -198,14 +198,13 @@
 					List.value.push(...response.data);
 					setTimeout(() => updateGroupData(group_id, name.value, page.value, totalPages.value, List.value), 200);
 				}
-			})
+			});
 
 			if (page.value < totalPages.value) page.value++;
 			else break;
 		}
 
-		setTimeout(() => (reload.value = false), 2000)
-
+		setTimeout(() => (reload.value = false), 2000);
 	};
 
 	const handleSuccess = async ({ response }: SuccessResponse<Post>) => {
@@ -231,5 +230,4 @@
 			onError: handleError,
 		});
 	};
-
 </script>

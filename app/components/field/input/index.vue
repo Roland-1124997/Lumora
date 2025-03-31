@@ -8,7 +8,7 @@
             </label>
             
             <div class="flex gap-2">
-                <input v-bind="field" :id="name" :placeholder type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
+                <input v-bind="field" :disabled :id="name" :placeholder type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
             </div>
         </div>
     </field>
@@ -16,15 +16,17 @@
 
 <script setup lang="ts">
     
-    defineProps({
+    const { name, initalvalue } = defineProps({
         name: { type: String, required: true, },
         label: { type: String, default: "text" },
         placeholder: { type: String, default: "" },
         required: { type: Boolean, default: false },
         disabled: { type: Boolean, default: false },
+        initalvalue: { type: String, default: "" },
     });
 
-    
+    const { value } = useField<string>(`${name}`);
+	value.value = initalvalue;
     
 </script>
 
