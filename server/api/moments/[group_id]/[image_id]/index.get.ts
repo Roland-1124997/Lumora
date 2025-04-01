@@ -11,8 +11,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     */
 
     const { data, error } = await client.from('posts').select('*', { count: 'exact' }).eq('id', image_id).single()
-    if (error && error.details.includes("0 rows")) return useReturnResponse(event, notFoundError);
-    if (error) return useReturnResponse(event, internalServerError);
+    if (error && error?.details?.includes("0 rows")) return useReturnResponse(event, notFoundError);
+    if (error) return useReturnResponse(event, notFoundError);
 
     /*
     ************************************************************************************

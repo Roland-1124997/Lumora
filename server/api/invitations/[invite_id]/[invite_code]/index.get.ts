@@ -11,6 +11,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if (data.expiresAt && new Date() > new Date(data.expiresAt)) return useReturnResponse(event, ResourceGoneError);
     if (parseInt(data.uses) == 0) return useReturnResponse(event, ResourceGoneError)
 
+    const { error: user_left_error } = await server.from("posts").update({ user_left: false }).eq("author_id", user.id).eq("group_id", data.group_id).select("*")
+    if (user_left_error) return useReturnResponse(event, internalServerError)
+
     /*
     ************************************************************************************
     */

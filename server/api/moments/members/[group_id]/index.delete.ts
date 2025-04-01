@@ -8,6 +8,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { error } = await client.from("members").delete().eq("user_id", user.id).eq("group_id", group_id)
     if (error) return useReturnResponse(event, notFoundError)
 
+    const { error: user_left_error } = await server.from("posts").update({ user_left: true }).eq("author_id", user.id).eq("group_id", group_id).select("*")
+    if (user_left_error) return useReturnResponse(event, internalServerError)
+
     return useReturnResponse(event, {
         status: {
             success: true,

@@ -111,7 +111,6 @@
 
 	function updateUsername(name) {
 		username.value = name
-		console.log(username.value)
 	}
 
 	const closeModal = () => (modal.value = false);

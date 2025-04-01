@@ -8,10 +8,10 @@
 						<span>Lumora</span>
 					</h1>
 				</div>
-
 				<ClientOnly>
 					<div v-if="!errorValue" class="flex items-center gap-2">
-						<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name: userValue }" />
+						<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name, url: avatar }" />
+						<UtilsButton to="/moments" iconName="ri:archive-stack-fill"/>
 						<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 					</div>
 					<div v-else class="flex items-center gap-2">
@@ -38,7 +38,7 @@
 						</div>
 
 						<div class="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
-							<button @click="handleError('/')" class="flex items-center gap-2 px-4 py-2 font-medium text-white rounded-lg bg-[#756145]/80 hover:bg-[#756145] btn-primary">
+							<button @click="handleError('/moments')" class="flex items-center gap-2 px-4 py-2 font-medium text-white rounded-lg bg-[#756145]/80 hover:bg-[#756145] btn-primary">
 								<Icon name="mdi:home" class="w-4 h-4" />
 								Back to Home
 							</button>
@@ -61,16 +61,18 @@
 	const status = ref(error.value.statusCode);
 
 	const { PWAInstalled } = useCheckPwa()
-
-	const userValue = ref();
+	
 	const errorValue = ref(false);
+	
+	const name = ref()
+	const avatar = ref()
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
 
-	
 	await $fetch("/api/user").then((response) => {
-		userValue.value = response.data.name
+		name.value = response.data.name
+		avatar.value = response.data.avatar
 	}).catch(() => (errorValue.value = true));
 
 	const handleError = (to) => {
