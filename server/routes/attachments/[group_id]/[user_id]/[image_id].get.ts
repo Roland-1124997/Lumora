@@ -15,7 +15,7 @@ export default defineSupabaseEventHandler(async(event, user, client, server) => 
 
     setHeaders(event, {
         'Content-Type': response.headers.get('Content-Type') || 'image/webp',
-        'Cache-Control': 'public, max-age=3600',
+        'Cache-Control': 'public, max-age=86400',
     })
 
     return new Response(imageBuffer)

@@ -70,7 +70,7 @@
 					<div class="">
 						<div v-for="member in memberList" :key="member.id" class="w-full gap-4 p-2 border-b border-gray-100 min-h-16 hover:bg-gray-50">
 							<div class="flex items-center gap-4">
-								<NuxtImg :src="member.avatar || '/profile.jpg'" class="rounded-full w-11 h-11" />
+								<img :src="member.avatar || '/profile.jpg'" class="rounded-full w-11 h-11" />
 								<div class="w-full pl-3 border-l border-gray-100">
 									<div class="flex items-center justify-between w-full">
 										<div>
@@ -79,7 +79,7 @@
 											<p v-else-if="member?.Permissions?.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
 											<p v-else class="text-sm text-gray-500 text">Member</p>
 										</div>
-										<div class="flex items-center gap-2">
+										<div v-if="content?.permision?.change" class="flex items-center gap-2">
 											<button :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-50 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
 												<Icon name="ri:settings-2-line" size="1.3rem" />
 											</button>

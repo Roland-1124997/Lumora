@@ -15,7 +15,7 @@ export const useSetSessionData = (user: User | null) => {
     return user ? {
         id: user.id as string,
         name: user.user_metadata.name || "Anymouses" as string,
-        avatar: user.user_metadata.avatar_url || "/profile.jpg" as string,
+        avatar: user.user_metadata.avatar_url || `/attachments/avatar/${user.id}` as string,
         email: user.user_metadata.email || user.email as string,
         provider: user.app_metadata.provider
     } : null;

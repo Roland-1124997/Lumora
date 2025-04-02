@@ -30,7 +30,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         return {
             id: author.id,
             name: user.id == author.id ? `${author.user_metadata.name} (You)` : author.user_metadata.name,
-            avatar: author.user_metadata.avatar_url,
+            avatar: author.user_metadata.avatar_url || `/attachments/avatar/${author.id}`,
             Permissions: {
                 can_edit_group: data.can_edit_group,
                 can_delete_group: data.can_delete_group,
