@@ -17,15 +17,14 @@ export const useGetCookies = (event: H3Event) => {
 export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | null) => {
     if (session) {
         setCookie(event, "sb-access-token", session.access_token, {
-            maxAge: 60 * 15, // Cookie valid for 30 minutes
+            maxAge: 60 * 10, // Cookie valid for 10 minutes
             httpOnly: true,
         });
 
         setCookie(event, "sb-refresh-token", session.refresh_token, {
-            maxAge: 60 * 60 * 24 * 7, // Cookie valid for 7 days
+            maxAge: 60 * 60 * 24 * 14, // Cookie valid for 14 days
             httpOnly: true,
         });
-
     }
 }
 

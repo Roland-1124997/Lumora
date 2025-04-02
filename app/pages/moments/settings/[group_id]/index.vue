@@ -181,7 +181,7 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Moments - Settings",
+		title: "Lumora - Moments",
 		description: "Bekijk de nieuwste en populairste posts op Lumora!",
 		ogTitle: "Lumora",
 		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
