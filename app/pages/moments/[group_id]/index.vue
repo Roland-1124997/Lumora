@@ -80,6 +80,14 @@
 	const name = ref();
 
 	/*
+	************************************************************************************
+	*/
+
+	const { updateGroupValue } = inject<any>("group");
+	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
+	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Post[]>>();
+
+	/*
 	 ************************************************************************************
 	 */
 
@@ -113,14 +121,6 @@
 		}
 	};
 
-	/*
-	 ************************************************************************************
-	 */
-
-	const { updateGroupValue } = inject<any>("group");
-	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
-
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Post[]>>();
 
 	const useFetchData = async (options: Record<string, any>, load: Ref, timer = 250) => {
 		load.value = true;
@@ -147,14 +147,18 @@
 		updateGroupValue(name.value);
 	};
 
+	/*
+	************************************************************************************
+	*/
+
 	const loading = ref(false);
 	const group: any = getGroupData(group_id);
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
 
 	/*
-	 ************************************************************************************
-	 */
+	************************************************************************************
+	*/
 
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
 	const { scrollPercentage, scrollPixels, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
@@ -167,11 +171,10 @@
 			const container = containerProps.ref.value;
 			const scrollPosition = (scrollPixels.value / 100) * state.percentage;
 
-			if (container)
-				container.scrollTo({
-					top: scrollPosition,
-					behavior: behavior,
-				});
+			if (container) container.scrollTo({
+				top: scrollPosition,
+				behavior: behavior,
+			});
 		}
 	};
 
@@ -200,13 +203,12 @@
 		await useFetchData({ reload: true }, reload, 2000);
 	};
 
-	
-
 	const reload = ref(false);
 	const handleReload = async () => {
 		const page = ref(1);
 		reload.value = true;
 
+		await $fetch("/api/user");
 		while (page.value <= totalPages.value) {
 			await makeRequest(`/api/moments/${group_id}?page=${page.value}`);
 

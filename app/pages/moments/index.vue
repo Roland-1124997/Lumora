@@ -5,7 +5,7 @@
 			<button @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:attachment-2" size="1.4em" />
 			</button>
-			<button @click="createFunction('Create')" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+			<button @click="createFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 			</button>
 		</div>
@@ -23,19 +23,29 @@
 		<section v-else class="h-[60vh] md:h-[65vh] flex items-start justify-center overflow-hidden">
 			<div v-if="searchLoading" class="flex flex-col items-center justify-center w-full h-full gap-5">
 				<icon class="text-gray-500 animate-spin" name="ri:loader-2-line" size="5em" />
-				<h1 class="text-center text-balance">Zoeken...</h1>
+				<h1 class="mt-5 text-center text-balance">Searching...</h1>
 			</div>
 			<div v-else class="flex flex-col items-center justify-center w-full h-full gap-5">
 				<icon class="text-gray-500" name="rivet-icons:sad" size="5em" />
-				<h1 class="text-center text-balance">Geen resultaten gevonden Probeer een andere zoekterm.</h1>
-				<button @click="createFunction('Create')" class="underline underline-offset-2 text-[#817a70] font-medium hover:text-[#6e675d]">Maak groep aan</button>
+				<h1 class="md:w-[30vw] text-center text-balance mt-5 border-b pb-4">
+					<span v-if="searched"> No results found. Try a different search term or check for any typos in your query. </span>
+					<span v-else> No groups found that you are currently a member of. You might want to create a new group or join an existing one. </span>
+				</h1>
+				<div class="flex md:w-[30vw] justify-center w-full gap-3 px-8">
+					<button v-if="!searched" @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+						<icon name="ri:attachment-2" size="1.4em" />
+					</button>
+					<button @click="createFunction()" class="flex items-center justify-center w-full gap-2 px-4 py-2 font-medium text-gray-700 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100">
+						<Icon name="ri:add-circle-line" class="w-4 h-4" />
+						Create Group
+					</button>
+				</div>
 			</div>
 		</section>
 	</div>
 </template>
 
 <script setup lang="ts">
-
 	useHead({
 		htmlAttrs: {
 			lang: "en",
@@ -60,8 +70,8 @@
 	});
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const List: any = ref([]);
 	const loading = ref(false);
@@ -72,12 +82,13 @@
 	const { query } = useRoute();
 	const searchTerm = ref(`${query.search || ""}`);
 	const searchLoading = ref(false);
+	const searched = ref(!!query.search);
 
 	const { addToast } = useToast();
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const { data, error }: any = await useFetch(`/api/moments?search=${searchTerm.value}`);
 
@@ -90,29 +101,37 @@
 		Page.value = 1;
 		loading.value = true;
 		searchLoading.value = true;
+		searched.value = true;
 
 		if (searchTerm.value) navigateTo(`/moments?search=${searchTerm.value}`);
 		else navigateTo(`/moments`);
 
-		await $fetch(`/api/moments?search=${searchTerm.value}`)
-			.then((data: any) => {
-				List.value = [];
-				List.value = data.data;
-				totalPages.value = data.pagination.total;
-			})
-			.catch(() => (List.value = []))
-
-			.finally(() => {
-				setTimeout(() => {
-					loading.value = false;
-					searchLoading.value = false;
-				}, 1000);
-			});
+		await $fetch(`/api/moments?search=${searchTerm.value}`).then((data: any) => {
+			List.value = [];
+			List.value = data.data;
+			totalPages.value = data.pagination.total;
+		})
+		.catch((error) => {
+			List.value = [];
+			setTimeout(() => {
+				addToast({
+					message: `An error occurred while searching. Please try again later.`,
+					type: "error",
+					duration: 5000,
+				});
+			}, 1000)
+		})
+		.finally(() => {
+			setTimeout(() => {
+				loading.value = false;
+				searchLoading.value = false;
+			}, 1000);
+		});
 	});
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
 	const { scrollPercentage, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
@@ -129,25 +148,25 @@
 						List.value.push(...data.data);
 						totalPages.value = data.pagination.total;
 						scrollPercentage.value = scrollPercentage.value / 2;
+						searched.value = error.data.status.searched;
 					}, 500);
 				})
-				.catch(() => {})
+				.catch(error)
 				.finally(() => (loading.value = false));
-		},
-		{ direction: "bottom", distance: 20 }
+		}, { direction: "bottom", distance: 20 }
 	);
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const { updateModalValue }: any = inject("modal");
-	const createFunction = (type: string) => {
+	const createFunction = () => {
 		updateModalValue({
 			open: true,
-			type: type,
+			type: "Create",
 			name: "Create group",
-			requestUrl: "/api/moments", 
+			requestUrl: "/api/moments",
 			onSuccess: handleSuccess,
 			onError: handleError,
 		});
@@ -163,37 +182,30 @@
 				type: "success",
 				duration: 5000,
 			});
-		}, 800)
-		
+		}, 800);
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if(error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 	};
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const createLinkFunction = () => {
 		updateModalValue({
 			open: true,
 			type: "join",
 			name: "Join group",
-			requestUrl: "/api/invitations/", 
+			requestUrl: "/api/invitations/",
 			onSuccess: handleLinkSuccess,
 			onError: handleLinkError,
 		});
 	};
 
-	const handleLinkSuccess = async ({ response }: SuccessResponse<Group>) => {
-		
-		
-	};
+	const handleLinkSuccess = async ({ response }: SuccessResponse<Group>) => {};
 
-	const handleLinkError = async ({ error, actions }: ErrorResponse) => {
-		
-	};
-	
+	const handleLinkError = async ({ error, actions }: ErrorResponse) => {};
 </script>

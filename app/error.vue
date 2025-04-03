@@ -52,6 +52,7 @@
 				</div>
 			</div>
 		</main>
+		<UtilsToast/>
 	</div>
 </template>
 

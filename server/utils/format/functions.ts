@@ -41,7 +41,7 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
                 has_been_accepted: data.accepted || true,
                 author: {
                     name: data?.user_left ? "Unknown" : (isOwner ? `${authorName} (You)` : authorName),
-                    url: data?.user_left ? `/profile.jpg` : (author?.user_metadata.avatar_url || user?.user_metadata.avatar_url || `/attachments/avatar/${data.author.id}`),
+                    url: data?.user_left ? `/profile.jpg` : (author?.user_metadata.avatar_url || user?.user_metadata.avatar_url || `/attachments/avatar/${data?.author?.id || data?.author_id}`),
                     is_owner: isOwner,
                 },
                 likes: {

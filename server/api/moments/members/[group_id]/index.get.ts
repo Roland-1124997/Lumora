@@ -44,6 +44,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         return user.name.toLowerCase().includes(currentSearch)
     })
 
+    if(usersData.length == 0) return useReturnResponse(event, notFoundError)
+
     /*
     ************************************************************************************
     */

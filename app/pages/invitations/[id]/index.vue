@@ -22,7 +22,7 @@ await $fetch(`/api/invitations/${id}/${token}`).then((response) => {
     setTimeout(() => {
         if (response.status.redirect) navigateTo(response.status.redirect);
     }, 500);
-}).catch((error) => setTimeout(() => navigateTo('/moments'), 500));
+}).catch((error) => setTimeout(() => navigateTo('/moments'), 1000));
 
 
 </script>

@@ -17,8 +17,6 @@
 <script setup lang="ts">
 	const { toasts, removeToast } = useToast();
 
-    const { PWAInstalled } = inject<any>("PWA")
-
 	const iconMap = {
 		info: "ri:information-2-fill",
 		success: "ri:checkbox-circle-fill",

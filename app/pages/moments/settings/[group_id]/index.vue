@@ -148,9 +148,7 @@
 				<div class="">
 					<div v-for="(section, index) in config.sections" :key="index">
 						<h1 class="mb-1 font-bold" :class="{ 'mt-4': index > 0 }">{{ section.title }}</h1>
-						<p v-if="index == 0" class="mb-3 text-sm text-gray-500">
-							Additional group setting that can be changed
-						</p>
+						<p v-if="index == 0" class="mb-3 text-sm text-gray-500">Additional group setting that can be changed</p>
 
 						<hr class="my-3" />
 						<div class="grid items-center gap-2">
@@ -198,8 +196,8 @@
 	});
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const group_id = useRoute().params.group_id;
 
@@ -210,8 +208,8 @@
 	const { addToast } = useToast();
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const share = (link: any) => {
 		if (isLinkExpired(link) || getRemainingUses(link) === 0)
@@ -263,8 +261,16 @@
 				memberList.value = [];
 				memberList.value = response.data;
 			})
-			.catch(() => (memberList.value = []))
-
+			.catch(() => {
+				memberList.value = [];
+				
+				addToast({
+					message: `An error occurred while searching. Please try again later.`,
+					type: "error",
+					duration: 5000,
+				});
+				
+			})
 			.finally(() => {
 				setTimeout(() => {
 					searchLoading.value = false;
@@ -284,12 +290,11 @@
 
 	const handleDeleteInviteLink = async (invite: any) => {
 		await $fetch(`/api/moments/invitations/${group_id}/${invite.id}`, { method: "delete" })
-			.then((response) => {
+			.then(() => {
 				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== invite.id);
-
 				addToast({
 					message: `The invitation link has been deleted: ${invite.code}`,
-					type: "warning",
+					type: "success",
 					duration: 5000,
 				});
 			})
@@ -450,6 +455,11 @@
 
 	const handleLeaveError = async ({ error, actions }: ErrorResponse) => {
 		actions.setErrors({ message: ["An error occurred, unable to leave the group! Please try again later."] });
+		addToast({
+			message: `An error occurred, unable to leave the group`,
+			type: "error",
+			duration: 5000,
+		});
 	};
 
 	/*
@@ -475,7 +485,7 @@
 				setTimeout(() => {
 					addToast({
 						message: `Member has been removed from the group`,
-						type: "warning",
+						type: "success",
 						duration: 5000,
 					});
 				}, 500);
@@ -485,6 +495,11 @@
 
 	const handleKickError = async ({ error, actions }: ErrorResponse) => {
 		actions.setErrors({ message: ["An error occurred, unable to kick the member! Please try again later."] });
+		addToast({
+			message: `An error occurred, unable to kick the member`,
+			type: "error",
+			duration: 5000,
+		});
 	};
 
 	/*

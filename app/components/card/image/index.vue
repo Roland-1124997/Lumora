@@ -1,6 +1,6 @@
 <template>
 	<div ref="target" class="border-b">
-		<div class="w-full h-40 overflow-hidden bg-gray-200 md:h-52 rounded-xl">
+		<div class="w-full h-40 overflow-hidden bg-gray-200 border md:h-52 rounded-xl">
 			<div class="relative z-40 flex items-center justify-start gap-2 p-2">
 				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon :class="liked ? ' bg-red-600' : ''" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.1em" />
@@ -63,6 +63,7 @@
 		}
 	});
 
+	const { addToast } = useToast();
 	const { updateItemByMetaId } = useGroupStore();
 
 	const likeImage = async () => {
@@ -76,6 +77,12 @@
 			updateItemByMetaId(group_id, content.id, {
 				has_liked: liked.value,
 				likes: { count: hearts.value }
+			});
+		}).catch(() => {
+			addToast({
+				message: `Unable to like this image at the moment.`,
+				type: "error",
+				duration: 5000,
 			});
 		})
 	};

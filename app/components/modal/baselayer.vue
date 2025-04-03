@@ -1,11 +1,12 @@
 <template>
 	<div>
 		<Transition name="modal">
-			<div v-if="status" class="fixed top-0 left-0 z-50 flex items-end justify-center w-screen h-full bg-black md:justify-center md:items-center bg-opacity-60 backdrop-blur-sm">
+			<div v-if="status"
+				class="fixed top-0 left-0 z-50 flex items-end justify-center w-screen h-full bg-black md:justify-center md:items-center bg-opacity-60 backdrop-blur-sm">
 				<div tabindex="0" class="mx-6 outline-none md:mb-0 rounded-xl" ref="modal">
 					<Transition name="modalDelay">
 						<div ref="modalDelay" v-if="DelayStatus">
-							<div class="w-screen h-fit p-5 bg-white md:max-w-[45vw] rounded-2xl">
+							<div class="w-screen max-w-2xl p-5 bg-white h-fit rounded-2xl">
 								<div class="flex items-center justify-between mb-2">
 									<h1 class="text-3xl font-bold">{{ modalStatus.name }}</h1>
 									<button @click="closeModal">

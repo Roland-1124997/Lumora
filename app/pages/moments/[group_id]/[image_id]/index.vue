@@ -13,8 +13,8 @@
 					<a target="_parent" download :href="content?.media?.url" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Download</a>
 					<button @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 				</div>
-				<div class="relative flex items-center justify-center w-full h-full aspect-square min-h-[51vh] max-h-[78vh] md:h-[78vh] overflow-hidden bg-gray-200 border rounded-lg bg-background">
-					<img v-if="loaded" :src="content?.media?.url" class="object-cover w-full h-full" />
+				<div :class="loaded ? 'bg-black' : ' bg-gray-200'" class="relative flex items-center justify-center w-full h-full min-h-[51vh] max-h-[78vh] md:h-[78vh] overflow-hidden border rounded-lg">
+					<img v-if="loaded" :src="content?.media?.url" class="object-contain w-full h-full" />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="5em" />
 				</div>
 			</pane>
