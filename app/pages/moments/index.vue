@@ -85,16 +85,17 @@
 	const searched = ref(!!query.search);
 
 	const { addToast } = useToast();
+	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Group[]>>({ throwOnError: false });
 
 	/*
 	 ************************************************************************************
 	 */
 
-	const { data, error }: any = await useFetch(`/api/moments?search=${searchTerm.value}`);
+	await makeRequest(`/api/moments?search=${searchTerm.value}`)
 
-	if (!error.value) {
+	if (data.value) {
 		List.value = data.value.data;
-		totalPages.value = data.value.pagination.total;
+		totalPages.value = data.value.pagination?.total || 0;
 	}
 
 	const debouncedSearch = useDebounce(async () => {
@@ -106,27 +107,20 @@
 		if (searchTerm.value) navigateTo(`/moments?search=${searchTerm.value}`);
 		else navigateTo(`/moments`);
 
-		await $fetch(`/api/moments?search=${searchTerm.value}`).then((data: any) => {
-			List.value = [];
-			List.value = data.data;
-			totalPages.value = data.pagination.total;
-		})
-		.catch((error) => {
-			List.value = [];
-			setTimeout(() => {
-				addToast({
-					message: `An error occurred while searching. Please try again later.`,
-					type: "error",
-					duration: 5000,
-				});
-			}, 1000)
-		})
-		.finally(() => {
-			setTimeout(() => {
-				loading.value = false;
-				searchLoading.value = false;
-			}, 1000);
-		});
+		await makeRequest(`/api/moments?search=${searchTerm.value}`)
+
+		if (data.value) {
+			List.value = data.value.data;
+			totalPages.value = data.value.pagination?.total || 0;
+		}
+
+		if(error.value) List.value = [];
+
+		setTimeout(() => {
+			loading.value = false;
+			searchLoading.value = false;
+		}, 1000);
+	
 	});
 
 	/*
@@ -142,17 +136,19 @@
 			loading.value = true;
 			Page.value += 1;
 
-			await $fetch(`/api/moments?page=${Page.value}&search=${searchTerm.value}`)
-				.then((data: any) => {
-					setTimeout(() => {
-						List.value.push(...data.data);
-						totalPages.value = data.pagination.total;
-						scrollPercentage.value = scrollPercentage.value / 2;
-						searched.value = error.data.status.searched;
-					}, 500);
-				})
-				.catch(error)
-				.finally(() => (loading.value = false));
+			await makeRequest(`/api/moments?search=${searchTerm.value}`)
+
+			if (data.value && Array.isArray(data.value.data)) {
+
+				new Promise((resolve) => setTimeout(resolve, 500));	
+
+				List.value.push(...data.value.data);	
+				totalPages.value = data.value.pagination?.total || 0;
+				scrollPercentage.value = scrollPercentage.value / 2;
+			}
+
+			loading.value = false
+
 		}, { direction: "bottom", distance: 20 }
 	);
 

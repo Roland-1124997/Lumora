@@ -85,7 +85,7 @@
 
 	const { updateGroupValue } = inject<any>("group");
 	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Post[]>>();
+	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
 
 	/*
 	 ************************************************************************************
@@ -128,7 +128,7 @@
 		if (options.reload) Page.value = 1;
 		if (options.update) Page.value += 1;
 
-		await makeRequest(`/api/moments/${group_id}?page=${Page.value}`);
+		await makeRequest(`/api/moments/${group_id}?page=${Page.value}`, { sessions: options.reload || options.update });
 
 		if (data.value) {
 			const response = processPostsApiResponse(data);
@@ -199,7 +199,6 @@
 	 */
 
 	const handleManualReload = async () => {
-		await $fetch("/api/user");
 		await useFetchData({ reload: true }, reload, 2000);
 	};
 
@@ -208,9 +207,8 @@
 		const page = ref(1);
 		reload.value = true;
 
-		await $fetch("/api/user");
 		while (page.value <= totalPages.value) {
-			await makeRequest(`/api/moments/${group_id}?page=${page.value}`);
+			await makeRequest(`/api/moments/${group_id}?page=${page.value}`, { sessions: true });
 
 			if (data.value) {
 				const response = processPostsApiResponse(data);

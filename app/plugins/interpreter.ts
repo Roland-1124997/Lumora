@@ -1,7 +1,11 @@
 export default defineNuxtPlugin((nuxtApp) => {
     const originalFetch = $fetch;
 
-    const fetch = async (url: Parameters<typeof $fetch>[0], options: Parameters<typeof $fetch>[1] = {}) => {
+    const fetch = async (url: Parameters<typeof $fetch>[0], options: Parameters<typeof $fetch>[1] & { sessions?: boolean } = {}) => {
+
+        if (typeof url === 'string' && !url.startsWith('/api/auth') && (options.sessions || ['POST', 'PATCH', 'PUT', 'DELETE'].includes(options.method || ''))) {
+            await originalFetch('/api/user');
+        }
         
         return originalFetch(url, options).then(async (response) => response).catch((error) => {
             throw error;
