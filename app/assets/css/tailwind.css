@@ -2,11 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-
 ::-webkit-scrollbar {
     @apply hidden;
 }
-
 
 html {
     min-height: calc(100% + env(safe-area-inset-top));
