@@ -1,6 +1,6 @@
 <template>
     <div class="w-full ">
-        <input :disabled="loading" v-model="term" @input="debouncedSearch" type="search" :placeholder="placeholder ? placeholder : 'Search...'" class="flex-grow w-full p-2 px-3 border border-[#756145] ring-[#756145] outline-none appearance-none rounded-xl focus:ring-1" />
+        <input :disabled="loading" v-model="term" @input="debouncedSearch" type="search" :placeholder="placeholder ? placeholder : 'Search...'" class="flex-grow w-full p-2 px-3 border bg-white border-[#756145] ring-[#756145] outline-none appearance-none rounded-xl focus:ring-1" />
     </div>
 </template>
 
