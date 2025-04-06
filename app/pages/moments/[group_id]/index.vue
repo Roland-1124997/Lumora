@@ -43,6 +43,8 @@
 </template>
 
 <script setup lang="ts">
+import { once } from 'events';
+
 	useHead({
 		htmlAttrs: {
 			lang: "en",
@@ -94,25 +96,12 @@
 	 */
 
 	const { update } = await useServerEvent()
-	
-
-	const eventSource = new EventSource(`/socket/moments/${group_id}`);
-
-	
-
-	eventSource.onmessage = (event) => {
-		const response = JSON.parse(event.data);
-
-		const group_id = response.data.group_id;
-		const image_id = response.data.image_id;
-		const likes = response.data.likes.count;
-
-		update(response.data);
-
-		updateItemByMetaId(group_id, image_id, {
-			likes: { count: likes },	
-		});
-	};
+	useEventSourceOnce(group_id, (data: any) => {
+		update(data)
+		updateItemByMetaId(data.group_id, data.image_id, {
+			likes: { count: data.likes.count },
+		})
+	})
 
 	const processPostsApiResponse = (data: Record<string, any>) => {
 		const response = data.value;

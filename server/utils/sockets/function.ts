@@ -1,8 +1,8 @@
-let payloadString: string | null = null;
+let payloadString: Record<string, any> | null = null;
 
 export const userServerSocket = () => {
     const broadcastEvent = (payload: Record<string, any>) => {
-        payloadString = JSON.stringify(payload);
+        payloadString = payload;
     };
 
     const getPayLoad = () => {

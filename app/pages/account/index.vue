@@ -127,8 +127,7 @@
 	);
 
 	const schema_password = toTypedSchema(
-		zod
-			.object({
+		zod.object({
 				New_password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
 				Confirm_password: zod.string({ message: "This field is required" }),
 			})
@@ -239,6 +238,7 @@
 	const logout = () => {
 		$fetch("/api/auth/logout", { method: "POST" }).then((response) => {
 			store.clearSession();
+			closeAllEventSources();
 			navigateTo(response.status.redirect);
 		});
 	};

@@ -308,7 +308,6 @@
 	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>();
 
 	await makeRequest(`/api/moments/settings/${group_id}`)
-	// if(error.value) useThrowError(error)
 	if(data.value) {
 		content.value = data.value.data;
 		name.value = data.value.data.name;
@@ -318,11 +317,9 @@
 
 	await makeRequest(`/api/moments/invitations/${group_id}`)
 	if(data.value) inviteLinks.value = data.value.data;
-	// if(error.value) useThrowError(error)
 	
 	await makeRequest(`/api/moments/members/${group_id}`)
 	if(data.value) memberList.value = data.value.data;
-	// if(error.value) useThrowError(error)
 
 	/*
 	 ************************************************************************************
@@ -344,6 +341,8 @@
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
 		if (response.status.redirect) {
 			setTimeout(() => navigateTo(response.status.redirect), 500);
+
+			closeEventSource(group_id as string);
 
 			setTimeout(() => {
 				addToast({
@@ -411,6 +410,8 @@
 
 	const handleLeaveSuccess = async ({ response }: any) => {
 		if (response.status.redirect) navigateTo(response.status.redirect);
+
+		closeEventSource(group_id as string);
 
 		setTimeout(() => {
 			addToast({

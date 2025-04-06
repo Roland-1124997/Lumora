@@ -4,7 +4,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const { group_id } = getRouterParams(event)
 
-    const { error } = await client.from("groups").select("*").eq("id", group_id).single()
+    const { data, error } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
     if (error) return useReturnResponse(event, notFoundError);
 
     const eventStream = createEventStream(event);
@@ -12,11 +12,11 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const interval = setInterval(async () => {
 
-        const payload = getPayLoad()
+        const payload: any = getPayLoad()
+        if (payload && payload.data.group_id === data.group_id) {
 
-        if (payload) {
-            await eventStream.push(payload);
-            setTimeout(() => deletePayLoad(), 0);
+            await eventStream.push(JSON.stringify(payload));
+            setTimeout(() => deletePayLoad(), 5);
         }
     
     }, 10);
