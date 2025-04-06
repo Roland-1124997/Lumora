@@ -9,13 +9,7 @@ export function useRetryableFetch<T>(configuration: { maxAttempts?: number; dela
         return await $fetch(url, options).then((response) => {data.value = response;}).catch((err) => {
             error.value = err;
             if (++attempts < maxAttempts) return new Promise((resolve) => setTimeout(resolve, delay)).then(() => fetchWithRetry(url, options, attempts));
-            
-            if (throwOnError) throw createError({
-                statusCode: error.value?.data?.status?.code || 500,
-                message: error.value?.data?.status?.message || "An unknown error occurred",
-                fatal: true,
-            });
-            
+            if (throwOnError) useThrowError(error)
         });
     };
 

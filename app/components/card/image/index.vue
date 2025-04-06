@@ -2,18 +2,18 @@
 	<div ref="target" class="border-b">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 border md:h-52 rounded-xl">
 			<div class="relative z-40 flex items-center justify-start gap-2 p-2">
-				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
-					<icon :class="liked ? ' bg-red-600' : ''" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.1em" />
-					<span class="text-xs font-medium">{{ hearts }}</span>
+				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-12 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+					<icon :class="liked ? ' bg-red-600' : ''" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2em" />
+					<UtilsCounter :count="hearts" />
 				</button>
-				<button :disabled="content.author.is_owner" class="relative z-50 w-11 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
-					<icon name="ri:message-3-line" size="1.1em" />
-					<span class="text-xs font-medium">{{ comments }}</span>
+				<button :disabled="content.author.is_owner" class="relative z-50 w-12 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+					<icon name="ri:message-3-line" size="1.2em" />
+					<UtilsCounter :count="comments" />
 				</button>
 			</div>
 
 			<NuxtLink v-if="loaded && targetIsVisible" :to=" content.url ? content.url : `${$route.path}/${content.id}`">
-				<img :src="content.media.url" :alt="content.author.id" class="object-cover aspect-square w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" />
+				<img :src="content.media.url" :alt="content.author.id" class="object-cover aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
 			</NuxtLink>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
@@ -43,6 +43,7 @@
 <script setup lang="ts">
 	const target = ref(null);
 	const targetIsVisible = useElementVisibility(target);
+
 	const hearts = ref(0);
 	const liked = ref(false);
 	const loaded = ref(false);
@@ -63,13 +64,23 @@
 		}
 	});
 
+	const group_id: any = useRoute().params.group_id 
+
+	const { payload } = await useServerEvent()
+
+	watchEffect(() => {
+		if (payload.value) {
+			if (payload.value.image_id === content.id && payload.value.group_id === group_id) {
+				hearts.value = payload.value.likes.count
+			}
+		}
+	})
+
 	const { addToast } = useToast();
 	const { updateItemByMetaId } = useGroupStore();
 
 	const likeImage = async () => {
 
-		const group_id: any = useRoute().params.group_id 
-		
 		await $fetch<any>(`/api/moments/${group_id}/${content.id}`, { method: "PATCH" }).then((response: any) => {
 			hearts.value = response.data.likes.count
 			liked.value = response.data.has_liked
@@ -86,4 +97,14 @@
 			});
 		})
 	};
+
+	
+
+
+
+
+
+
 </script>
+
+

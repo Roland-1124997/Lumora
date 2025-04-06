@@ -302,51 +302,27 @@
 	const { value: name }: any = useField<string>("name");
 	const { value: description }: any = useField<string>("description");
 
-	await $fetch(`/api/moments/settings/${group_id}`)
-		.then((response: any) => {
-			content.value = response.data;
-			name.value = response.data.name;
-			config.value = response.data.configuration;
-			description.value = response.data.description;
-		})
-		.catch((error) => {
-			throw createError({
-				statusCode: error.data.status.code,
-				message: error.data.status.message,
-				fatal: true,
-			});
-		});
-
-	/*
-	 ************************************************************************************
-	 */
-
 	const inviteLinks: any = ref([]);
 	const memberList: any = ref([]);
 
-	await $fetch(`/api/moments/invitations/${group_id}`)
-		.then((response: any) => {
-			inviteLinks.value = response.data;
-		})
-		.catch((error) => {
-			throw createError({
-				statusCode: error.data.status.code,
-				message: error.data.status.message,
-				fatal: true,
-			});
-		});
+	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>();
 
-	await $fetch(`/api/moments/members/${group_id}`)
-		.then((response: any) => {
-			memberList.value = response.data;
-		})
-		.catch((error) => {
-			throw createError({
-				statusCode: error.data.status.code,
-				message: error.data.status.message,
-				fatal: true,
-			});
-		});
+	await makeRequest(`/api/moments/settings/${group_id}`)
+	// if(error.value) useThrowError(error)
+	if(data.value) {
+		content.value = data.value.data;
+		name.value = data.value.data.name;
+		config.value = data.value.data.configuration;
+		description.value = data.value.data.description;
+	}
+
+	await makeRequest(`/api/moments/invitations/${group_id}`)
+	if(data.value) inviteLinks.value = data.value.data;
+	// if(error.value) useThrowError(error)
+	
+	await makeRequest(`/api/moments/members/${group_id}`)
+	if(data.value) memberList.value = data.value.data;
+	// if(error.value) useThrowError(error)
 
 	/*
 	 ************************************************************************************

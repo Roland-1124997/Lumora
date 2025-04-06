@@ -79,9 +79,10 @@
 	</div>
 </template>
 
-<script setup langs="ts">
+<script setup>
 	import { Splitpanes, Pane } from "splitpanes";
 	import "splitpanes/dist/splitpanes.css";
+
 
 	useHead({
 		htmlAttrs: {
@@ -146,20 +147,16 @@
 
 	const group = getGroupData(group_id);
 
-	await $fetch(`/api/moments/${group_id}/${image_id}`)
-		.then((response) => {
-			content.value = response.data;
-			updateGroupValue(response.meta.name);
-		})
-		.catch((error) => {
-			removeItemByMetaId(group_id, image_id);
+	
+	const { makeRequest, data, error } = useRetryableFetch();
 
-			throw createError({
-				statusCode: error.data.status.code,
-				message: error.data.status.message,
-				fatal: true,
-			});
-		});
+	await makeRequest(`/api/moments/${group_id}/${image_id}`)
+	if(error.value) removeItemByMetaId(group_id, image_id);
+
+	if(data.value) {
+		content.value = data.value.data;
+		updateGroupValue(data.value.meta.name);
+	}
 
 	/*
 	 ************************************************************************************
@@ -170,9 +167,7 @@
 	const list = ref();
 	const name = ref();
 
-	const deleteData = async () => {
-		createDeleteFunction();
-	};
+	const deleteData = async () => createDeleteFunction();
 
 	/*
 	 ************************************************************************************

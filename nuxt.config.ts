@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
 
   devtools: {
-    enabled: false,
+    enabled: true,
 
     timeline: {
       enabled: true,
@@ -26,6 +26,12 @@ export default defineNuxtConfig({
     "@nuxtjs/supabase",
     "nuxt-scheduler",
   ],
+
+  nitro: {
+    experimental: {
+      websocket: true,
+    }
+  },
 
   runtimeConfig: {
     ServerUrl: process.env.SERVER_URL,
@@ -91,8 +97,8 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    "/moments/**": { ssr: false },
     "/notifications": { ssr: false },
+    "/moments/**": { ssr: false },
     "/account": { ssr: false },
     "/auth/**": { ssr: true },
     "/": { ssr: true },

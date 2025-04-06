@@ -79,17 +79,40 @@
 	const List = ref<Post[] | any>([]);
 	const name = ref();
 
+	
+
 	/*
 	************************************************************************************
 	*/
 
 	const { updateGroupValue } = inject<any>("group");
-	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
+	const { setGroupData, getGroupData, updateItemByMetaId, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
 
 	/*
 	 ************************************************************************************
 	 */
+
+	const { update } = await useServerEvent()
+	
+
+	const eventSource = new EventSource(`/socket/moments/${group_id}`);
+
+	
+
+	eventSource.onmessage = (event) => {
+		const response = JSON.parse(event.data);
+
+		const group_id = response.data.group_id;
+		const image_id = response.data.image_id;
+		const likes = response.data.likes.count;
+
+		update(response.data);
+
+		updateItemByMetaId(group_id, image_id, {
+			likes: { count: likes },	
+		});
+	};
 
 	const processPostsApiResponse = (data: Record<string, any>) => {
 		const response = data.value;
