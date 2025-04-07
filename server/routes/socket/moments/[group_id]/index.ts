@@ -7,25 +7,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { data, error } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
     if (error) return useReturnResponse(event, notFoundError);
 
-    const eventStream = createEventStream(event);
-    const { getPayLoad, deletePayLoad } = userServerSocket()
+    const { create } = useEventStream(event)
 
-    const interval = setInterval(async () => {
+    const eventStream = create({
+        id: data.group_id,
+    })
 
-        const payload: any = getPayLoad()
-        if (payload && payload.data.group_id === data.group_id) {
-
-            await eventStream.push(JSON.stringify(payload));
-            setTimeout(() => deletePayLoad(), 5);
-        }
+    return eventStream.send()
     
-    }, 10);
-
-    eventStream.onClosed(() => {
-        clearInterval(interval);
-    });
-
-    return eventStream.send();
 });
 
 

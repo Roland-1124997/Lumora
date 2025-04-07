@@ -7,7 +7,7 @@ export function useEventSourceOnce(groupId: string, onMessage: (data: any) => vo
     const source = new EventSource(`/socket/moments/${groupId}`)
     source.onmessage = (event) => {
         const response = JSON.parse(event.data)
-        onMessage(response.data)
+        onMessage(response)
     }
 
     sources.set(groupId, source)

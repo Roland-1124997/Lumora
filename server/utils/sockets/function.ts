@@ -1,21 +1,23 @@
-let payloadString: Record<string, any> | null = null;
+let eventStream: any = null;
+let id: any = null;
 
-export const userServerSocket = () => {
-    const broadcastEvent = (payload: Record<string, any>) => {
-        payloadString = payload;
-    };
+export const useEventStream = (event: H3Event) => {
 
-    const getPayLoad = () => {
-        return payloadString;
-    };
+    const create = (options?: Record<string, any>) => {
+        id = options?.id || null;
 
-    const deletePayLoad = () => {
-        payloadString = null;
-    };
+        eventStream = createEventStream(event);
+        eventStream.onClosed(() => eventStream = null);
+
+        return eventStream
+    }
+
+    const push = async (data: Record<string, any>) => {
+        if (eventStream && data.group_id == id) await eventStream.push(JSON.stringify(data));
+    }
 
     return {
-        getPayLoad, 
-        broadcastEvent,
-        deletePayLoad
-    };
-};
+        create,
+        push,
+    }
+}

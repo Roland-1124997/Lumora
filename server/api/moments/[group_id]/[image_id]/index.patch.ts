@@ -7,17 +7,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     
     if (error) return useReturnResponse(event, internalServerError);
 
-    const { broadcastEvent } = userServerSocket()
+    const { push } = useEventStream(event)
 
-    broadcastEvent({
-        event: 'like',
-        data: {
-            group_id: group_id,
-            image_id: image_id,
-            likes: {
-                count: data.likes_count,
-            }
+    await push({
+        group_id: group_id,
+        image_id: image_id,
+        likes: {
+            count: data.likes_count,
         }
+        
     })
 
     /*
