@@ -91,17 +91,14 @@ import { once } from 'events';
 	const { setGroupData, getGroupData, updateItemByMetaId, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
 
+
+	
+
+
+
 	/*
 	 ************************************************************************************
 	 */
-
-	const { update } = await useServerEvent()
-	useEventSourceOnce(group_id, (data: any) => {
-		update(data)
-		updateItemByMetaId(data.group_id, data.image_id, {
-			likes: { count: data.likes.count },
-		})
-	})
 
 	const processPostsApiResponse = (data: Record<string, any>) => {
 		const response = data.value;

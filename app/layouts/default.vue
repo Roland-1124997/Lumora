@@ -80,9 +80,11 @@
 	const username = ref(user?.name);
 	const avatar = ref(user?.avatar)
 
+
+	const { data, send, close } = useWebSocket(`ws://${location.host}/sockets`)
+
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
-
 
 	const group = ref()
 	
@@ -114,6 +116,8 @@
 	}
 
 	const closeModal = () => (modal.value = false);
+
+	provide("WebSocket", { data, send, close})
 	
 	provide("username", { username, updateUsername});
 	provide("modal", { modal, updateModalValue});

@@ -2,11 +2,11 @@
 	<div ref="target" class="border-b">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 border md:h-52 rounded-xl">
 			<div class="relative z-40 flex items-center justify-start gap-2 p-2">
-				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 w-12 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon :class="liked ? ' bg-red-600' : ''" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2em" />
 					<UtilsCounter :count="hearts" />
 				</button>
-				<button :disabled="content.author.is_owner" class="relative z-50 w-12 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+				<button :disabled="content.author.is_owner" class="relative gap-1 z-50 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon name="ri:message-3-line" size="1.2em" />
 					<UtilsCounter :count="comments" />
 				</button>
@@ -66,24 +66,32 @@
 
 	const group_id: any = useRoute().params.group_id 
 
-	const { payload } = await useServerEvent()
-
-	watchEffect(() => {
-		if (payload.value) {
-			if (payload.value.image_id === content.id && payload.value.group_id === group_id) {
-				hearts.value = payload.value.likes.count
-			}
-		}
-	})
-
 	const { addToast } = useToast();
 	const { updateItemByMetaId } = useGroupStore();
+
+	const webSocket = inject<any>("WebSocket")
+
+	watch(webSocket.data, (payload => {
+
+		const data = JSON.parse(payload)
+
+		if (data.image_id === content.id && data.group_id === group_id) {
+			hearts.value = data.likes.count
+		}
+	}))
 
 	const likeImage = async () => {
 
 		await $fetch<any>(`/api/moments/${group_id}/${content.id}`, { method: "PATCH" }).then((response: any) => {
 			hearts.value = response.data.likes.count
 			liked.value = response.data.has_liked
+
+			webSocket.send(JSON.stringify({
+				group_id, image_id: content.id, 
+				likes: {
+					count: hearts.value
+				}
+			}))
 
 			updateItemByMetaId(group_id, content.id, {
 				has_liked: liked.value,

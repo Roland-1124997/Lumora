@@ -342,8 +342,6 @@
 		if (response.status.redirect) {
 			setTimeout(() => navigateTo(response.status.redirect), 500);
 
-			closeEventSource(group_id as string);
-
 			setTimeout(() => {
 				addToast({
 					message: `You have deleted the group`,
@@ -410,8 +408,6 @@
 
 	const handleLeaveSuccess = async ({ response }: any) => {
 		if (response.status.redirect) navigateTo(response.status.redirect);
-
-		closeEventSource(group_id as string);
 
 		setTimeout(() => {
 			addToast({

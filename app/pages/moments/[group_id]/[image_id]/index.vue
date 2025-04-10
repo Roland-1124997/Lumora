@@ -5,7 +5,7 @@
 				<div class="hidden w-full gap-2 mb-4 max-w-[35vw] md:flex">
 					<button v-if="!content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 						<Icon :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
-						{{ content.likes.count }}
+						<UtilsCounter :count="content.likes.count" />
 					</button>
 					<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 						<Icon name="ri:delete-bin-5-line" size="1.2rem" />
@@ -23,7 +23,7 @@
 					<div class="flex w-full gap-2 mt-4 mb-2 md:hidden">
 						<button v-if="!content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
-							{{ content.likes.count }}
+							<UtilsCounter :count="content.likes.count" />
 						</button>
 
 						<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
@@ -173,6 +173,17 @@
 	 ************************************************************************************
 	 */
 
+	const webSocket = inject("WebSocket")
+
+	watch(webSocket.data, (payload => {
+
+		const data = JSON.parse(payload)
+
+		if (data.image_id === image_id && data.group_id === group_id) {
+			content.value.likes.count = data.likes.count
+		}
+	}))
+
 	const { updateItemByMetaId } = useGroupStore();
 
 	const likeImage = async () => {
@@ -181,6 +192,14 @@
 		await $fetch(`/api/moments/${group_id}/${content.value.id}`, { method: "PATCH" }).then((response) => {
 			content.value.likes.count = response.data.likes.count;
 			content.value.has_liked = response.data.has_liked;
+
+			webSocket.send(JSON.stringify({
+				group_id, image_id: content.value.id, 
+				likes: {
+					count: content.value.likes.count
+				}
+			}))
+
 
 			updateItemByMetaId(group_id, content.value.id, {
 				has_liked: content.value.has_liked,
