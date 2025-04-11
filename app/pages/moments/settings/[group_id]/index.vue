@@ -325,6 +325,8 @@
 	 ************************************************************************************
 	 */
 
+	const webSocket = inject<any>("WebSocket")
+
 	const { updateModalValue } = inject<any>("modal");
 
 	const createDeleteFunction = () => {
@@ -341,6 +343,10 @@
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
 		if (response.status.redirect) {
 			setTimeout(() => navigateTo(response.status.redirect), 500);
+
+			webSocket.send(JSON.stringify({
+				type: "delete", group_id
+			}))
 
 			setTimeout(() => {
 				addToast({
@@ -409,6 +415,10 @@
 	const handleLeaveSuccess = async ({ response }: any) => {
 		if (response.status.redirect) navigateTo(response.status.redirect);
 
+		webSocket.send(JSON.stringify({
+			type: "update-topics"
+		}))
+
 		setTimeout(() => {
 			addToast({
 				message: `You have left the group`,
@@ -431,7 +441,11 @@
 	 ************************************************************************************
 	 */
 
+	const member_id = ref()
+
 	const createKickFunction = (id: string) => {
+		member_id.value = id
+
 		updateModalValue({
 			open: true,
 			type: "Group:kick",
@@ -446,6 +460,10 @@
 		await $fetch(`/api/moments/members/${group_id}`)
 			.then((response: any) => {
 				memberList.value = response.data;
+
+				webSocket.send(JSON.stringify({
+					type: "kick", group_id, member_id: member_id.value
+				}))
 
 				setTimeout(() => {
 					addToast({

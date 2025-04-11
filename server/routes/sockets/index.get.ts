@@ -7,7 +7,13 @@ export default defineWebSocketHandler({
 
         const { data } = await useSupaBaseUser(server, peer)
 
-        if(data) await useRegisterTopics(server, peer, data)
+        console.log(data.user.user_metadata.name)
+        console.log(data.user.id)
+
+        if(data) {
+            peer.subscribe(data.user.id)
+            await useRegisterTopics(server, peer, data)
+        }
         else peer.close()
     },
     async message(peer: Peer, message: Message) {
@@ -16,14 +22,27 @@ export default defineWebSocketHandler({
 
         if(data) {
 
-            await useRegisterTopics(server, peer, data)
-
             const payload: Record<string, any> = message.json()
-            peer.publish(payload.group_id, message.toString())
+            
+            if (payload.type == "update-topics") await useRegisterTopics(server, peer, data)
+
+            if (payload.type == "delete") {
+                peer.publish(payload.group_id, message.toString())
+                await useRegisterTopics(server, peer, data)
+            }
+
+            if(payload.type == "kick") {
+                peer.publish(payload.group_id, message.toString())
+                await useRegisterTopics(server, peer, data)
+            }
+
+            if(payload.type == "update") {
+                await useRegisterTopics(server, peer, data)
+                peer.publish(payload.group_id, message.toString())
+            }
         }
 
         else peer.close()
-
     },
 })
 
@@ -51,6 +70,13 @@ const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: any) 
     const topics = await useTopics(server, data)
     const topicIds = topics.map((t: any) => t.group_id)
 
+    for (const topic of Array.from(peer.topics)) {
+        if (!topicIds.includes(topic)) {
+            peer.topics.delete(topic)
+            peer.unsubscribe(topic)
+        }
+    }
+
     topicIds.forEach((id: string) => {
         if (!peer.topics.has(id)) {
             peer.topics.add(id)
@@ -58,6 +84,7 @@ const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: any) 
         }
     })
 }
+
 
 const useTopics = async (server: SupabaseClient, data: any) => {
     const { data: topics }: any = await server.from("members").select("group_id").eq("user_id", data.user.id)

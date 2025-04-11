@@ -87,7 +87,7 @@
 			liked.value = response.data.has_liked
 
 			webSocket.send(JSON.stringify({
-				group_id, image_id: content.id, 
+				type: "update", group_id, image_id: content.id, 
 				likes: {
 					count: hearts.value
 				}

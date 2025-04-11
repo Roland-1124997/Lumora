@@ -194,7 +194,7 @@
 			content.value.has_liked = response.data.has_liked;
 
 			webSocket.send(JSON.stringify({
-				group_id, image_id: content.value.id, 
+				type: "update", group_id, image_id: content.value.id, 
 				likes: {
 					count: content.value.likes.count
 				}

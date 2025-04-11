@@ -81,7 +81,7 @@
 	const avatar = ref(user?.avatar)
 
 
-	const { data, send, close } = useWebSocket(`ws://${location.host}/sockets`)
+	
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
@@ -95,6 +95,28 @@
 
 	const router = useRouter();
 	const route = useRoute();
+
+	const { data, send, open, close } = useWebSocket(`ws://${location.host}/sockets`)
+	const { removeData } = useGroupStore();
+
+	watch(data, (value => {
+		const payload = JSON.parse(value)
+		
+		if(payload.type == "kick" && payload.member_id == user.id && route.params.group_id == payload.group_id) {
+			removeData(payload.group_id); open()
+			return navigateTo("/moments")
+		}
+
+		if(payload.type == "delete" && route.params.group_id == payload.group_id) {
+			removeData(payload.group_id); open()
+			return navigateTo("/moments")
+		}
+		
+	}))
+
+	onUnmounted(() => {
+		close()
+	})
 
 	const handleBack = () => {
 
@@ -118,7 +140,6 @@
 	const closeModal = () => (modal.value = false);
 
 	provide("WebSocket", { data, send, close})
-	
 	provide("username", { username, updateUsername});
 	provide("modal", { modal, updateModalValue});
 	provide("group", { group, updateGroupValue })
