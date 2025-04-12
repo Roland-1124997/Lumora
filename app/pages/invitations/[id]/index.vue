@@ -1,14 +1,14 @@
 <template>
-	<div class="flex flex-col items-center justify-center min-h-screen p-4 transition-colors duration-500">
-		<div class="w-full max-w-md overflow-hidden bg-white rounded-xl">
-			<div v-if="loading" class="flex flex-col items-center p-8">
+	<div class="flex flex-col items-center justify-center h-[80vh] p-4 transition-colors duration-500 ">
+		<div class="w-full max-w-md ">
+			<div v-if="loading" class="flex flex-col items-center p-8 -mt-24">
 				<icon class="text-gray-500 animate-spin" name="ri:loader-2-line" size="8em" />
 				<h2 class="mt-6 text-xl font-semibold text-center">Verifying invitation...</h2>
 				<p class="mt-2 text-center text-gray-500">Please wait while we verify your invitation link.</p>
 			</div>
 
 			<div v-else>
-				<div v-if="success" class="p-8">
+				<div v-if="success" class="p-4">
 					<div class="flex flex-col items-center mb-6">
 						<icon class="text-gray-500" name="rivet-icons:happy" size="5em" />
 						<h2 class="mt-4 text-2xl font-bold text-center">Invitation Valid!</h2>
@@ -18,24 +18,22 @@
 					<div class="mb-6 space-y-4">
 						<div class="p-4 rounded-lg bg-gray-50">
 							<p class="text-sm text-gray-500">Group Name</p>
-							<p class="text-lg font-semibold">{{ result.data.details.name }}</p>
+							<p class="text-lg font-semibold">{{ result?.data?.details?.name || "name" }}</p>
 						</div>
 
 						<div class="p-4 rounded-lg bg-gray-50">
 							<p class="text-sm text-gray-500">Members</p>
-							<p class="text-lg font-semibold">{{ result.data.details.members }}</p>
+							<p class="text-lg font-semibold">{{ result?.data?.details?.members || 0 }}</p>
 						</div>
 					</div>
 
-					<div class="flex gap-2">
-						<button @click="router.back()" class="flex items-center justify-center gap-2 p-2 px-3 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100">
-							<Icon name="material-symbols:arrow-back-ios-new-rounded" class="w-4 h-4" />
-						</button>
-						<button @click="join" class="w-full py-2 text-white bg-[#756145]/80 hover:bg-[#756145] rounded-md">Join group</button>
-					</div>
+					<button @click="join" :disabled="loadButton" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-[#756145]/80 rounded-xl hover:bg-[#756145]">
+						<UtilsLoader :loading="loadButton" label="Join group" :numberCount="3" />
+					</button>
+
 				</div>
 
-				<div v-if="error" class="p-8">
+				<div v-if="failed" class="p-4">
 					<div class="flex flex-col items-center mb-6">
 						<icon class="text-gray-500" name="rivet-icons:sad" size="5em" />
 						<h2 class="mt-4 text-2xl font-bold text-center">Invitation Invalid</h2>
@@ -57,7 +55,6 @@
 <script setup>
 	definePageMeta({
 		middleware: "invite-redirecter",
-		layout: false,
 	});
 
 	const verifyInvite = async (id, token) => {
@@ -71,12 +68,13 @@
 				result.value = response;
 				success.value = true;
 			})
-			.catch((error) => (error.value = true))
+			.catch(() => (failed.value = true))
 			.finally(() =>{
 
-                if (result.value.status.joined) {
+                if (result.value?.status?.joined) {
 					if (result.value.status.redirect) navigateTo(result.value.status.redirect);
-				} else loading.value = false;
+				} 
+				else loading.value = false;
 					
 			});
 	};
@@ -85,8 +83,9 @@
 	const route = useRoute();
 
 	const loading = ref(true);
+	const loadButton = ref(false)
 	const success = ref(false);
-	const error = ref(false);
+	const failed = ref(false);
 
 	const result = ref();
 
@@ -98,10 +97,15 @@
 	});
 
 	const join = async () => {
+
+		loadButton.value = true
+
 		await $fetch(`/api/invitations/accept/${id}/${token}`).then((response) => {
+
 			setTimeout(() => {
+				loadButton.value = false
 				if (response.status.redirect) navigateTo(response.status.redirect);
-			}, 500);
+			}, 1000);
 		}).catch(() => navigateTo("/moments"))
 	};
 </script>

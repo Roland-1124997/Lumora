@@ -7,6 +7,7 @@
 					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
 						<span v-if="$route.path == '/moments'">Lumora</span>
 						<span v-else-if="$route.name?.includes('settings-group_id')">Settings</span>
+						<span v-else-if="$route.name?.includes('invitations-id')">invitations</span>
 						<span v-else-if="$route.name?.includes('-group_id')">{{ group }}</span>
 						<span v-else>{{ $route.name?.charAt(0).toUpperCase() + $route.name?.slice(1) }} </span>
 					</h1>
@@ -79,9 +80,6 @@
 	const { data: user } = await store.getSession();
 	const username = ref(user?.name);
 	const avatar = ref(user?.avatar)
-
-
-	
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
