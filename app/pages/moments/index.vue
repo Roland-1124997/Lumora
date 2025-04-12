@@ -23,6 +23,8 @@
 
 		<UtilsSearchIndicator v-else :loading="searchLoading">
 			<icon class="text-gray-500" name="rivet-icons:sad" size="5em" />
+			
+
 			<h1 class="md:w-[30vw] text-center text-balance mt-5 border-b pb-4">
 				<span v-if="searched"> No results found. Try a different search term or check for any typos in your query. </span>
 				<span v-else> No groups found that you are currently a member of. You might want to create a new group or join an existing one. </span>
@@ -67,8 +69,6 @@
 	/*
 	 ************************************************************************************
 	 */
-
-	
 
 	const List: any = ref([]);
 	const loading = ref(false);

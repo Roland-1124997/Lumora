@@ -33,6 +33,7 @@ interface Status {
     success: boolean;
     redirect?: string,
     refresh?: boolean,
+    joined?: boolean,
     message: string;
     code: number;
 }

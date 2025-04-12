@@ -1,4 +1,4 @@
-export const useCheckPwa = () => {
+export function useCheckPwa() {
     const PWAInstalled = ref(false); 
     const { $pwa } = useNuxtApp(); 
     
