@@ -170,6 +170,7 @@
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+		else actions.setErrors({ message: ["An error occurred, unable to create the group! Please try again later."] });
 	};
 
 	/*

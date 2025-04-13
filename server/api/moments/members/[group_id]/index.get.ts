@@ -4,8 +4,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if (!user) return useReturnResponse(event, unauthorizedError);
 
     const { group_id } = getRouterParams(event);
-    const query: query = getQuery(event);
+    const query: any = getQuery(event);
     const currentSearch = query.search ? query.search.toLowerCase() : null;
+    const pending = query.pending ? query.pending.toLowerCase() : false;
 
     /*
     ************************************************************************************
@@ -14,7 +15,12 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { error: permisionError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
     if (permisionError) return useReturnResponse(event, notFoundError)
 
-    const { data, error } = await client.from("members").select("*").eq("group_id", group_id)
+    const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
+    
+    const { data, error } = !accepted 
+        ? await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id)
+        : await client.from("members").select("*").eq("group_id", group_id).neq("accepted", pending)
+    
     if (error) return useReturnResponse(event, notFoundError)
 
     /*
@@ -31,6 +37,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             id: author.id,
             name: user.id == author.id ? `${author.user_metadata.name} (You)` : author.user_metadata.name,
             avatar: author.user_metadata.avatar_url || `/attachments/avatar/${author.id}`,
+            accepted: data.accepted,
             Permissions: {
                 can_edit_group: data.can_edit_group,
                 can_delete_group: data.can_delete_group,

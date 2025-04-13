@@ -31,7 +31,12 @@
 						</div>
 					</div>
 				</field>
+				<p class="mt-2 text-red-700">
+					{{ errors.message }}
+				</p>
 			</div>
+			
+
 		</template>
 	</FieldFormBaseLayer>
 </template>

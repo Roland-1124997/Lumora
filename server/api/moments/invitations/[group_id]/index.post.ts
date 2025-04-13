@@ -30,7 +30,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
-	const { data: permissions, error: permisionError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+	const { data: permissions, error: permisionError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).eq("accepted", true).single()
 	if (permisionError) return useReturnResponse(event, notFoundError)
 
 	const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", group_id).single()

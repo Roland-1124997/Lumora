@@ -3,6 +3,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if (!user) return useReturnResponse(event, unauthorizedError);
 
     const { group_id, image_id } = getRouterParams(event)
+
+    const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
+    if(!accepted) return useReturnResponse(event, unauthorizedError)
+
     const { data, error }: any = await server.rpc('toggle_like', { liked_post_id: image_id, liked_user_id: user.id }).single()
     
     if (error) return useReturnResponse(event, internalServerError);

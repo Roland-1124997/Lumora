@@ -1,8 +1,8 @@
 <template>
 	<div v-if="List">
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
-			<button @click="createUploadFunction()"
-				class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 rounded-xl md:w-fit">
+			<button :disabled="!accepted" @click="createUploadFunction()"
+				class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 				<span> Share your experiences </span>
 			</button>
@@ -18,6 +18,7 @@
 			</div>
 		</div>
 		<hr class="mb-2" />
+
 		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps"
 			class="h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
@@ -43,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { once } from 'events';
 
 	useHead({
 		htmlAttrs: {
@@ -88,13 +88,8 @@ import { once } from 'events';
 	*/
 
 	const { updateGroupValue } = inject<any>("group");
-	const { setGroupData, getGroupData, updateItemByMetaId, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
+	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
-
-
-	
-
-
 
 	/*
 	 ************************************************************************************
@@ -160,10 +155,15 @@ import { once } from 'events';
 	************************************************************************************
 	*/
 
+	const accepted = ref(false)
 	const loading = ref(false);
 	const group: any = getGroupData(group_id);
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
+
+	await $fetch(`/api/moments/pending/${group_id}`).then((response) => {
+		accepted.value = response.data.accepted
+	}).catch((error) => {})
 
 	/*
 	************************************************************************************
@@ -257,5 +257,6 @@ import { once } from 'events';
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+		else actions.setErrors({ message: ["An error occurred, unable to post an image! Please try again later."] });
 	};
 </script>

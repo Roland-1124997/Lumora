@@ -51,6 +51,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             ...data,
             id: data.id,
             name: data.name,
+            accepted: permissions.accepted,
             description: data.description,
             last_active: data.last_active,
             permision: {

@@ -32,7 +32,7 @@
 
 						<a v-if="!PWAInstalled" target="_parent" download :href="content?.media?.url" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Download</a>
 						<div v-else class="relative group">
-							<button disabled class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] disabled:bg-gray-100 rounded-xl">Download</button>
+							<button disabled class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] disabled:opacity-50 rounded-xl">Download</button>
 							<div class="absolute z-50 hidden px-4 py-1 text-xs text-center text-white transition duration-200 ease-in-out transform -translate-y-full bg-[#756145] rounded-md w-44 top-[6.35rem] group-hover:block">
 								<p class="text-center p-[0.45em]">
 									<span class="font-semibold text-balance"> Currently not supported on PWAs! </span>

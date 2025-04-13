@@ -20,16 +20,23 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const { error: memberError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", data.group_id).single()
 
-    const { data: group }: any = await server.from("groups").select("*").eq("id", data.group_id).single()
-    const { count: groupCount } = await server.from("members").select("*", { count: "exact" }).eq("group_id", data.group_id)
-
     if (memberError?.details?.includes("0 rows")) {
+        
+        const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", data.group_id).single()
+        if (settingError) return useReturnResponse(event, internalServerError)
+
+        
+        
+        
+        
+        
         const { error} = await client.from("members").insert({
             group_id: data.group_id,
             user_id: user.id,
             can_edit_group: false,
             can_delete_messages_all: false,
             can_delete_group: false,
+            accepted: settings.auto_accept_new_members
         })
 
         if (error) return useReturnResponse(event, internalServerError)
@@ -48,12 +55,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
                 message: "Ok",
                 code: 200
             },
-            data: {
-                details: {
-                    name: group.name,
-                    members: groupCount
-                }
-            }
         });
     }
 
@@ -68,11 +69,5 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             message: "Ok",
             code: 200
         },
-        data: {
-            details: {
-                name: group.name,
-                members: groupCount
-            }
-        }
     });
 })

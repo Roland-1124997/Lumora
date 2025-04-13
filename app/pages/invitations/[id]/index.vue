@@ -8,7 +8,7 @@
 			</div>
 
 			<div v-else>
-				<div v-if="success" class="p-4">
+				<div v-if="success" class="p-4 -mt-24">
 					<div class="flex flex-col items-center mb-6">
 						<icon class="text-gray-500" name="rivet-icons:happy" size="5em" />
 						<h2 class="mt-4 text-2xl font-bold text-center">Invitation Valid!</h2>
@@ -18,22 +18,24 @@
 					<div class="mb-6 space-y-4">
 						<div class="p-4 rounded-lg bg-gray-50">
 							<p class="text-sm text-gray-500">Group Name</p>
-							<p class="text-lg font-semibold">{{ result?.data?.details?.name || "name" }}</p>
+							<p class="text-lg font-semibold">{{ result.data.details.name  }}</p>
 						</div>
 
 						<div class="p-4 rounded-lg bg-gray-50">
 							<p class="text-sm text-gray-500">Members</p>
-							<p class="text-lg font-semibold">{{ result?.data?.details?.members || 0 }}</p>
+							<p class="text-lg font-semibold">{{ result.data.details.members }}</p>
 						</div>
 					</div>
 
+
+
 					<button @click="join" :disabled="loadButton" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-[#756145]/80 rounded-xl hover:bg-[#756145]">
-						<UtilsLoader :loading="loadButton" label="Join group" :numberCount="3" />
+						<UtilsLoader :loading="loadButton" :label="result.data.details.auto_accept ? 'Join group' : 'Send request'" :numberCount="3" />
 					</button>
 
 				</div>
 
-				<div v-if="failed" class="p-4">
+				<div v-if="failed" class="p-4 -mt-24">
 					<div class="flex flex-col items-center mb-6">
 						<icon class="text-gray-500" name="rivet-icons:sad" size="5em" />
 						<h2 class="mt-4 text-2xl font-bold text-center">Invitation Invalid</h2>

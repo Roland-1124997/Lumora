@@ -11,7 +11,11 @@
 							</transition>
 						</label>
                         <input v-bind="field" v-model="link" @input="stripHostFromUrl($event)" id="invite_link" type="url" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
-					</div>
+                        <p class="mt-2 text-red-700 ">
+                            {{ errors.message }}
+                        </p>
+                    </div>
+                    
 				</field>
 			</div>
 		</template>

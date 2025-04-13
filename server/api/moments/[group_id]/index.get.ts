@@ -10,6 +10,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
+	const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
+
 	const { data: media, error }: any = await client.rpc("get_group_with_posts", {
 		group_id_param: group_id, limit_param: items, page_param: page, user_id_param: user.id
 	}).single()
@@ -36,7 +38,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			page: page,
 			total: Math.ceil((media.total_count ?? 1) / items)
 		},
-		data: await useFormatGroup(server, media.posts)
+		data: !accepted ? [] : await useFormatGroup(server, media.posts)
 	});
 })
 

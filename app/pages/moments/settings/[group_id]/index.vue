@@ -2,9 +2,9 @@
 	<div>
 		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
 			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
-				<FieldInputSearch class="hidden md:flex" placeholder="Search member..." :update="handleSearch" :uri="`/api/moments/members/${group_id}`" />
+				<FieldInputSearch v-if="content.accepted" class="hidden md:flex" placeholder="Search member..." :disabled="!content.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
 
-				<button v-if="content?.permision?.create" @click="CreateLink" :disabled="loading" class="flex w-full md:w-40 items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl"><span> Create link </span></button>
+				<button v-if="content?.permision?.create && content.accepted" @click="CreateLink" :disabled="loading" class="flex w-full md:w-40 items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl"><span> Create link </span></button>
 				<button :disabled="loading" @click="clickButton" v-if="content?.permision?.edit" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 					<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
 					<span v-else> Update group</span>
@@ -12,7 +12,7 @@
 				<button v-if="content?.permision?.delete" @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
 				<button v-else @click="leaveGroup" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave group<span class="hidden md:flex"></span></button>
 			</div>
-			<FieldInputSearch class="md:hidden" placeholder="Search member..." :update="handleSearch" :uri="`/api/moments/members/${group_id}`" />
+			<FieldInputSearch v-if="content.accepted" class="md:hidden" placeholder="Search member..." :disabled="!content.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
 			<hr class="pb-3 mt-3" />
 		</div>
 
@@ -62,10 +62,23 @@
 				<div class="flex items-center justify-between mb-1">
 					<h1 class="font-bold">Members</h1>
 				</div>
+				<p v-if="activeTab == 'members'" class="mb-3 text-sm text-gray-500">
+					List with active group members
+				</p>
+				<p v-else class="mb-3 text-sm text-gray-500">
+					List with active invite requests  
+				</p>
 
-				<p class="mb-3 text-sm text-gray-500">List with active group members</p>
+				<div v-if="content.accepted"  class="flex items-center gap-2 justify-evenly p-[0.20rem] border rounded-xl w-full overflow-hidden bg-gray-100">
+					<button @click="setActiveTab('members')" :class="activeTab == 'members' ? 'bg-white font-bold' : ''" class="flex items-center justify-center w-full p-1 rounded-lg">
+						<span class="text-xs">Members</span>
+					</button>
+					<span class="text-sm text-gray-400">|</span>
+					<button @click="setActiveTab('requests')" :class="activeTab == 'requests' ? 'bg-white font-bold' : ''" class="flex items-center justify-center w-full py-1 rounded-lg">
+						<span class="text-xs">Requests</span>
+					</button>
+				</div>
 				<hr class="mt-3 mb-3" />
-
 				<div class="-mt-2 overflow-x-auto">
 					<div  class="">
 						<div v-if="!searchLoading" v-for="member in memberList" :key="member.id" class="w-full gap-4 p-2 border-b border-gray-100 min-h-16 hover:bg-gray-50">
@@ -77,14 +90,21 @@
 											<h1 class="text-sm font-bold">{{ member?.name }}</h1>
 											<p v-if="member?.Permissions?.can_delete_group" class="text-sm text-gray-500">Admin</p>
 											<p v-else-if="member?.Permissions?.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
-											<p v-else class="text-sm text-gray-500 text">Member</p>
+											<p v-else-if="member?.accepted" class="text-sm text-gray-500 text">Member</p>
+											<p v-else class="text-sm text-gray-500 text">Pending</p>
 										</div>
 										<div v-if="content?.permision?.change" class="flex items-center gap-2">
-											<button :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-50 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
+											<button v-if="member?.accepted" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-50 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
 												<Icon name="ri:settings-2-line" size="1.3rem" />
 											</button>
-											<button @click="KickMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+											<button v-else @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+												<Icon name="ri:checkbox-line" size="1.3rem" />
+											</button>
+											<button v-if="member?.accepted" @click="KickMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
 												<Icon name="ri:delete-bin-2-line" size="1.3rem" />
+											</button>
+											<button v-else @click="RejectMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+												<Icon name="ri:checkbox-indeterminate-line" size="1.3rem" />
 											</button>
 										</div>
 									</div>
@@ -95,14 +115,15 @@
 							<icon class="text-gray-500 animate-spin" name="ri:loader-2-line" size="1.2em" />
 							<p class="text-sm"> Searching...</p>
 						</div>
-						<div v-if="memberList.length === 0" class="flex justify-center w-full h-full p-4 text-gray-500 items">
-							<p class="text-sm">No members found</p>
+						<div v-if="memberList.length === 0 && !searchLoading" class="flex justify-center w-full h-full p-4 text-gray-500 items">
+							<p v-if="activeTab == 'requests'" class="text-sm">No invite requests found</p>
+							<p v-else class="text-sm">No members found</p>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="p-4 border rounded-xl">
+			<div v-if="content.accepted" class="p-4 border rounded-xl">
 				<div class="flex items-center justify-between mb-1">
 					<h1 class="font-bold">Invite links</h1>
 				</div>
@@ -248,6 +269,8 @@
 	const leaveGroup = async () => createLeaveFunction();
 	const KickMember = async (id: string) => createKickFunction(id);
 	const deleteData = async () => createDeleteFunction();
+	const AcceptMember = async (id: string) => createAcceptFunction(id);
+	const RejectMember = async (id: string) => createRejectFunction(id);
 
 	/*
 	 ************************************************************************************
@@ -305,7 +328,7 @@
 	const inviteLinks: any = ref([]);
 	const memberList: any = ref([]);
 
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>();
+	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ maxAttempts: 1, throwOnError: false});
 
 	await makeRequest(`/api/moments/settings/${group_id}`)
 	if(data.value) {
@@ -315,10 +338,25 @@
 		description.value = data.value.data.description;
 	}
 
+	const activeTab = ref(content.value.accepted ? "members" : "requests");
+
+	const setActiveTab = async (tab: string) => {
+		searchLoading.value = true;
+		activeTab.value = tab;
+
+		await makeRequest(`/api/moments/members/${group_id}?pending=${tab == "requests"}`, { sessions: true})
+		if(data.value) memberList.value = data.value.data;
+		if(error.value) memberList.value = []
+
+		setTimeout(() => {
+			searchLoading.value = false;
+		}, 1000)
+	};
+
 	await makeRequest(`/api/moments/invitations/${group_id}`)
 	if(data.value) inviteLinks.value = data.value.data;
 	
-	await makeRequest(`/api/moments/members/${group_id}`)
+	await makeRequest(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
 	if(data.value) memberList.value = data.value.data;
 
 	/*
@@ -443,6 +481,19 @@
 
 	const member_id = ref()
 
+	const createRejectFunction = (id: string) => {
+		member_id.value = id
+
+		updateModalValue({
+			open: true,
+			type: "Group:Reject",
+			name: "Alert",
+			requestUrl: `/api/moments/members/${group_id}/${id}`,
+			onSuccess: handleKickSuccess,
+			onError: handleKickError,
+		});
+	};
+
 	const createKickFunction = (id: string) => {
 		member_id.value = id
 
@@ -457,7 +508,7 @@
 	};
 
 	const handleKickSuccess = async ({ response }: any) => {
-		await $fetch(`/api/moments/members/${group_id}`)
+		await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
 			.then((response: any) => {
 				memberList.value = response.data;
 
@@ -473,11 +524,59 @@
 					});
 				}, 500);
 			})
-			.catch((error) => {});
+			.catch((error) => {
+				memberList.value = []
+			});
 	};
 
 	const handleKickError = async ({ error, actions }: ErrorResponse) => {
 		actions.setErrors({ message: ["An error occurred, unable to kick the member! Please try again later."] });
+		addToast({
+			message: `An error occurred, unable to kick the member`,
+			type: "error",
+			duration: 5000,
+		});
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const createAcceptFunction = (id: string) => {
+		updateModalValue({
+			open: true,
+			type: "join:group",
+			name: "join",
+			requestUrl: `/api/moments/members/${group_id}/${id}`,
+			onSuccess: handleAcceptSuccess,
+			onError: handleAcceptError,
+		});
+	};
+
+	const handleAcceptSuccess = async ({ response }: any) => {
+		await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
+			.then((response: any) => {
+				memberList.value = response.data;
+
+				webSocket.send(JSON.stringify({
+					type: "update-topics"
+				}))
+
+				setTimeout(() => {
+					addToast({
+						message: `Member has accepted to the group`,
+						type: "success",
+						duration: 5000,
+					});
+				}, 500);
+			})
+			.catch((error) => {
+				memberList.value = []
+			});
+	};
+
+	const handleAcceptError = async ({ error, actions }: ErrorResponse) => {
+		actions.setErrors({ message: ["An error occurred, unable to accept the member! Please try again later."] });
 		addToast({
 			message: `An error occurred, unable to kick the member`,
 			type: "error",

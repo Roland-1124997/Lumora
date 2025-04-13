@@ -29,6 +29,7 @@
 		<UtilsToast/>
 		
 		<ModalBaselayer v-model="modal"> 
+
 			<FieldFormCreateGroup v-if="modal.type == 'Create'" 
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
@@ -62,6 +63,13 @@
 				:type="modal.type"
 			/>
 			<FieldFormJoinLink v-if="modal.type == 'join'"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess"  
+				:type="modal.type"
+			/>
+			<FieldFormJoinConfirm v-if="modal.type == 'join:group'"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
 				:onError="modal.onError" 

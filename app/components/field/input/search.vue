@@ -1,6 +1,6 @@
 <template>
     <div class="w-full ">
-        <input :disabled="loading" v-model="term" @input="debouncedSearch" type="search" :placeholder="placeholder ? placeholder : 'Search...'" class="flex-grow w-full p-2 px-3 border bg-white border-[#756145] ring-[#756145] outline-none appearance-none rounded-xl focus:ring-1" />
+        <input :disabled="disabled || loading" v-model="term" @input="debouncedSearch" type="search" :placeholder="placeholder ? placeholder : 'Search...'" class="flex-grow w-full p-2 px-3 border bg-white border-[#756145] ring-[#756145] outline-none appearance-none rounded-xl focus:ring-1" />
     </div>
 </template>
 
@@ -15,6 +15,7 @@
 
     const { uri, url, update } = defineProps<{
         update: (data: any, error: any, loading: boolean) => void;
+        disabled?: boolean,
         placeholder?: string;
         url?: string;
         uri: string; 
@@ -23,9 +24,12 @@
     const debouncedSearch = useDebounce(async () => {
 		loading.value = true;
         term.value = term.value.trim();
+        const atributes = uri?.split("?")[1]
 
         if (url) navigateTo(term.value ? `${url}?search=${term.value}` : url);
-        await makeRequest(`${uri}?search=${term.value}`)
+        
+        if(atributes) await makeRequest(`${uri}&search=${term.value}`)
+        else await makeRequest(`${uri}?search=${term.value}`)
 
         setTimeout(() => loading.value = false, 800);
 	});

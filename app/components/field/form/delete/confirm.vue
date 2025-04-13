@@ -7,6 +7,7 @@
 					<h1 v-if=" type.split(':')[1] == 'account'" class="text-lg font-bold text-center text-balance">
 						Delete your account?
 					</h1>
+
 					<h1 v-else class="text-lg font-bold text-center text-balance">
 						Delete this {{type.split(":")[1]}}?
 					</h1>

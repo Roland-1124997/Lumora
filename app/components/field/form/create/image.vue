@@ -3,6 +3,9 @@
 		<template v-slot="{ errors }">
 			<div class="py-3 mt-5 border-y h-fit">
 				<FieldInputMultipleImages label="images" name="images" />
+				<p class="mt-2 text-red-700 ">
+					{{ errors.message }}
+				</p>
 			</div>
 		</template>
 	</FieldFormBaseLayer>

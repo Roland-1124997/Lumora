@@ -6,6 +6,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     
     if (errorGroup) return useReturnResponse(event, notFoundError);
 
+    const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
+
     /*
     ************************************************************************************
     */
@@ -41,7 +43,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             name: groupData.name,
             description: groupData.description
         },
-        data: await useFormatMediaData(server, client, data, related, group_id, user)
+        data: !accepted ? [] : await useFormatMediaData(server, client, data, related, group_id, user)
     });
 });
 

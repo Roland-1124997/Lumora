@@ -15,6 +15,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     ************************************************************************************
     */
 
+    const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", data.group_id).single()
+    if (settingError) return useReturnResponse(event, internalServerError)
+
     const { error: memberError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", data.group_id).single()
 
     const { data: group }: any = await server.from("groups").select("*").eq("id", data.group_id).single()
@@ -33,7 +36,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             data: {
                 details: {
                     name: group.name,
-                    members: groupCount
+                    members: groupCount,
+                    auto_accept: settings.auto_accept_new_members
                 }
             }
         });
@@ -54,7 +58,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         data: {
             details: {
                 name: group.name,
-                members: groupCount
+                members: groupCount,
+                auto_accept: settings.auto_accept_new_members
             }
         }
     });

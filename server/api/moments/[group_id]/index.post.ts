@@ -8,15 +8,20 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	if (!user) return useReturnResponse(event, unauthorizedError);
 
+	const { group_id } = getRouterParams(event);
+	const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
+	
 	const { request, files, error } = await useValidateMultipartFormData(event, schema)
 	if (error) return useReturnResponse(event, error)
+
+	if (!accepted) return useReturnResponse(event, unauthorizedError)
+
 
 	/*
 	************************************************************************************
 	*/
 
 	const posts: any = []
-	const { group_id } = getRouterParams(event);
 
 	for (const file of files) {
 		const imageId = crypto.randomUUID();
