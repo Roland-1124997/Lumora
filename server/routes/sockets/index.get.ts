@@ -84,6 +84,6 @@ const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: any) 
 
 
 const useTopics = async (server: SupabaseClient, data: any) => {
-    const { data: topics }: any = await server.from("members").select("group_id").eq("user_id", data.user.id).eq("accepted", true)
+    const { data: topics }: any = await server.from("members").select("group_id").eq("user_id", data.user.id)
     return topics
 }
