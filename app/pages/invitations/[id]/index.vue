@@ -63,11 +63,11 @@
 		description: "You've been invited to join a Lumora photo group. View shared moments and start contributing your own!",
 		ogTitle: "You're Invited to a Lumora Group",
 		ogDescription: "Join this group on Lumora to explore photos, share memories, and connect with others.",
-		ogImage: `http://localhost:3000/generate/image?seed=${id}`,
+		ogImage: `http://localhost:3000/generate/image`,
 		ogUrl: "/",
 		twitterTitle: "Join a Group on Lumora",
 		twitterDescription: "Accept your invitation to this Lumora group and become part of the moment.",
-		twitterImage: `http://localhost:3000/generate/image?seed=${id}`,
+		twitterImage: `http://localhost:3000/generate/image`,
 		twitterCard: "summary_large_image",
 	});
 
