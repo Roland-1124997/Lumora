@@ -1,0 +1,55 @@
+import { createCanvas } from '@napi-rs/canvas';
+
+import { serverSupabaseClient } from '#supabase/server'; // Import the Supabase client
+
+export default defineEventHandler(async (event) => {
+
+    const query = getQuery(event);
+
+    const invite_seed = query.seed as string;
+    let name
+
+    if (invite_seed) {
+
+        const server = await serverSupabaseClient(event);
+
+        const { data }: any = await server.from("invite_links").select("*").eq("id", invite_seed).single()
+        const { data: settings }: any = await server.from("groups").select("*").eq("id", data.group_id).single()
+
+        name = settings.name
+    }
+    const text: string = `You're Invited!!`;
+    const subtext: string =  `View shared moments and start contributing your own!`;
+    const topText: string = `LUMORA - ${name}`; 
+
+    const width = 1200;
+    const height = 500;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, '#EAE4DD'); 
+    gradient.addColorStop(1, '#e5e7eb'); 
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = '#1f2937'; 
+    ctx.font = 'bold 30px "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top'; 
+    ctx.fillText(topText, 50, 50);
+
+    
+    ctx.fillStyle = '#756145'; 
+    ctx.font = 'bold 100px "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle'; 
+    ctx.fillText(text, 50, height / 2);
+
+    ctx.fillStyle = '#1f2937'; 
+    ctx.font = '40px "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(subtext, 50, height / 2 + 90);
+
+    setHeader(event, 'Content-Type', 'image/webp');
+    return canvas.toBuffer('image/png');
+});

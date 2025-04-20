@@ -25,16 +25,17 @@
 
 	useSeoMeta({
 		title: "Lumora - Register",
-		description: "View the latest and most popular posts on Lumora!",
-		ogTitle: "Lumora",
-		ogDescription: "View the latest and most popular posts on Lumora!",
+		description: "Create an account on Lumora to explore photos, share memories, and connect with others.",
+		ogTitle: "Register on Lumora",
+		ogDescription: "Sign up for Lumora to start exploring, sharing, and connecting with the community.",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
-		twitterTitle: "Lumora",
-		twitterDescription: "View the latest and most popular posts on Lumora!",
+		twitterTitle: "Lumora - Register",
+		twitterDescription: "Join Lumora by creating an account to explore the latest posts and share your moments.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary",
+		twitterCard: "summary_large_image",
 	});
+
 	
 	definePageMeta({
 		layout: "auth",

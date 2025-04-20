@@ -27,8 +27,6 @@
 						</div>
 					</div>
 
-
-
 					<button @click="join" :disabled="loadButton" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-[#756145]/80 rounded-xl hover:bg-[#756145]">
 						<UtilsLoader :loading="loadButton" :label="result.data.details.auto_accept ? 'Join group' : 'Send request'" :numberCount="3" />
 					</button>
@@ -55,6 +53,24 @@
 </template>
 
 <script setup>
+
+	const route = useRoute();
+	const id = route.params.id;
+	const token = route.query.token || "";
+
+	useSeoMeta({
+		title: "Lumora - Join Group",
+		description: "You've been invited to join a Lumora photo group. View shared moments and start contributing your own!",
+		ogTitle: "You're Invited to a Lumora Group",
+		ogDescription: "Join this group on Lumora to explore photos, share memories, and connect with others.",
+		ogImage: `http://localhost:3000/generate/image?seed=${id}`,
+		ogUrl: "/",
+		twitterTitle: "Join a Group on Lumora",
+		twitterDescription: "Accept your invitation to this Lumora group and become part of the moment.",
+		twitterImage: `http://localhost:3000/generate/image?seed=${id}`,
+		twitterCard: "summary_large_image",
+	});
+
 	definePageMeta({
 		middleware: "invite-redirecter",
 	});
@@ -69,6 +85,7 @@
 
 				result.value = response;
 				success.value = true;
+
 			})
 			.catch(() => (failed.value = true))
 			.finally(() =>{
@@ -82,7 +99,7 @@
 	};
 
 	const router = useRouter();
-	const route = useRoute();
+	
 
 	const loading = ref(true);
 	const loadButton = ref(false)
@@ -90,9 +107,6 @@
 	const failed = ref(false);
 
 	const result = ref();
-
-	const id = route.params.id;
-	const token = route.query.token || "";
 
 	onMounted(async () => {
 		await verifyInvite(id, token);

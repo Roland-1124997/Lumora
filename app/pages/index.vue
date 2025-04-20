@@ -10,16 +10,16 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Home",
-		description: "Bekijk de nieuwste en populairste posts op Lumora!",
-		ogTitle: "Lumora",
-		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		title: "Lumora",
+		description: "Discover and share stunning photos in groups on Lumora. Join the creative community today.",
+		ogTitle: "Lumora - Photo Sharing in Groups",
+		ogDescription: "Connect through photography. Share your moments, join groups, and explore inspiring images.",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
-		twitterTitle: "Lumora",
-		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterTitle: "Lumora - Share Photos",
+		twitterDescription: "Join Lumora to share photos, explore groups, and connect with a creative community.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary",
+		twitterCard: "summary_large_image",
 	});
 
 	definePageMeta({

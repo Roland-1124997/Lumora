@@ -49,13 +49,13 @@
 
 	useSeoMeta({
 		title: "Lumora - Notifications",
-		description: "Bekijk de nieuwste en populairste posts op Lumora!",
-		ogTitle: "Lumora",
-		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		description: "Stay updated with the latest activity, likes, and comments on your photos and groups.",
+		ogTitle: "Lumora - Notifications",
+		ogDescription: "Never miss a moment. Get notified when others interact with your photos or mention you in groups.",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
-		twitterTitle: "Lumora",
-		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterTitle: "Lumora - Notifications",
+		twitterDescription: "See what's new on Lumora. Stay in the loop with updates on your posts and group activity.",
 		twitterImage: "/apple-touch-icon.png",
 		twitterCard: "summary",
 	});

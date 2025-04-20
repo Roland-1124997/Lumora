@@ -4,7 +4,7 @@
 			<pane :size="paneLeft" class="pl-3 -mt-4 border-l md:pr-3" min-size="50" max-size="70">
 				<div class="hidden w-full gap-2 mb-4 max-w-[35vw] md:flex">
 					<button v-if="!content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-						<Icon :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
+						<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 						<UtilsCounter :count="content.likes.count" />
 					</button>
 					<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
@@ -22,7 +22,7 @@
 				<div class="md:h-[82.5vh] overflow-scroll">
 					<div class="flex w-full gap-2 mt-4 mb-2 md:hidden">
 						<button v-if="!content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-							<Icon :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
+							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							<UtilsCounter :count="content.likes.count" />
 						</button>
 
@@ -91,17 +91,18 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Moments",
-		description: "Bekijk de nieuwste en populairste posts op Lumora!",
-		ogTitle: "Lumora",
-		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		title: "Lumora - Photo View",
+		description: "Enjoy this photo shared in a Lumora group. Like, comment, and explore more moments.",
+		ogTitle: "Lumora - A Shared Moment",
+		ogDescription: "See the full photo and join the conversation in this Lumora group.",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
-		twitterTitle: "Lumora",
-		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterTitle: "Lumora - Photo View",
+		twitterDescription: "Check out this moment captured in a Lumora group. Get inspired and connect.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary",
+		twitterCard: "summary_large_image",
 	});
+
 
 	definePageMeta({
 		middleware: "unauthorized",
@@ -184,10 +185,13 @@
 		}
 	}))
 
+	const isAnimating = ref(false);
 	const { updateItemByMetaId } = useGroupStore();
 
 	const likeImage = async () => {
 		const group_id = useRoute().params.group_id;
+		isAnimating.value = true; 
+		setTimeout(() => (isAnimating.value = false), 300);
 
 		await $fetch(`/api/moments/${group_id}/${content.value.id}`, { method: "PATCH" }).then((response) => {
 			content.value.likes.count = response.data.likes.count;

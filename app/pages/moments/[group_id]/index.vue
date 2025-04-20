@@ -52,17 +52,18 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Moments",
-		description: "Bekijk de nieuwste en populairste posts op Lumora!",
-		ogTitle: "Lumora",
-		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		title: "Lumora - Group",
+		description: "View shared photos and stories in this Lumora group. Connect, comment, and be inspired.",
+		ogTitle: "Lumora - Explore This Group",
+		ogDescription: "Dive into the latest posts and moments shared in this Lumora group.",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
-		twitterTitle: "Lumora",
-		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterTitle: "Lumora - Group",
+		twitterDescription: "Discover photos and connect with members in this Lumora group.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary",
+		twitterCard: "summary_large_image",
 	});
+
 
 	definePageMeta({
 		middleware: "unauthorized",

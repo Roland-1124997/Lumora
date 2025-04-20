@@ -94,16 +94,16 @@
 												<p v-else class="text-sm text-gray-500 text">Pending</p>
 											</div>
 											<div v-if="content?.permision?.change" class="flex items-center gap-2">
-												<button v-if="member?.accepted" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-50 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
+												<button v-if="member?.accepted" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
 													<Icon name="ri:settings-2-line" size="1.3rem" />
 												</button>
-												<button v-else @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+												<button v-else @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
 													<Icon name="ri:checkbox-line" size="1.3rem" />
 												</button>
-												<button v-if="member?.accepted" @click="KickMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+												<button v-if="member?.accepted" @click="KickMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
 													<Icon name="ri:delete-bin-2-line" size="1.3rem" />
 												</button>
-												<button v-else @click="RejectMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-50 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+												<button v-else @click="RejectMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
 													<Icon name="ri:checkbox-indeterminate-line" size="1.3rem" />
 												</button>
 											</div>
@@ -227,17 +227,18 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Moments",
-		description: "Bekijk de nieuwste en populairste posts op Lumora!",
-		ogTitle: "Lumora",
-		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		title: "Lumora - Group Settings",
+		description: "Manage your group details, privacy settings, and member access on Lumora.",
+		ogTitle: "Lumora - Customize Your Group",
+		ogDescription: "Edit your group name, description, visibility, and more. Keep your photo group exactly how you want it.",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
-		twitterTitle: "Lumora",
-		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterTitle: "Lumora - Group Settings",
+		twitterDescription: "Update your group settings and manage members easily on Lumora.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary",
+		twitterCard: "summary_large_image",
 	});
+
 
 	definePageMeta({
 		middleware: "unauthorized",

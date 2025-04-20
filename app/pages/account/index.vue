@@ -74,16 +74,17 @@
 
 	useSeoMeta({
 		title: "Lumora - Account",
-		description: "Bekijk de nieuwste en populairste posts op Lumora!",
-		ogTitle: "Lumora",
-		ogDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		description: "Manage your Lumora account, update your profile, and access your shared moments.",
+		ogTitle: "Lumora - Account",
+		ogDescription: "Access and manage your Lumora account, update your profile, and view your shared photos and memories.",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
-		twitterTitle: "Lumora",
-		twitterDescription: "Bekijk de nieuwste en populairste posts op Lumora!",
+		twitterTitle: "Lumora - Account",
+		twitterDescription: "Manage your Lumora account, update your settings, and access your shared moments.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary",
+		twitterCard: "summary_large_image",
 	});
+
 
 	definePageMeta({
 		middleware: "unauthorized",
