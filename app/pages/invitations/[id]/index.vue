@@ -58,17 +58,21 @@
 	const id = route.params.id;
 	const token = route.query.token || "";
 
+	const result = ref();
+
+	const name = ref()
+
 	useSeoMeta({
 		title: "Lumora - Join Group",
-		description: "You've been invited to join a Lumora photo group. View shared moments and start contributing your own!",
+		description: () => `You've been invited to join a the ${name.value} group. View shared moments and start contributing your own!`,
 		ogTitle: "You're Invited to a Lumora Group",
-		ogDescription: "Join this group on Lumora to explore photos, share memories, and connect with others.",
+		ogDescription: () => `Join the ${name.value} group on Lumora to explore photos, share memories, and connect with others.`,
 		ogImage: `/apple-touch-icon.png`,
 		ogUrl: "/",
 		twitterTitle: "Join a Group on Lumora",
-		twitterDescription: "Accept your invitation to this Lumora group and become part of the moment.",
+		twitterDescription:() => `Accept your invitation to the ${name.value} group and become part of the moment.`,
 		twitterImage: `/apple-touch-icon.png`,
-		twitterCard: "summary_",
+		twitterCard: "summary",
 	});
 
 	definePageMeta({
@@ -77,7 +81,6 @@
 	});
 
 	const verifyInvite = async (id, token) => {
-		await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		await $fetch(`/api/invitations/${id}/${token}`)
 			.then((response) => {
@@ -87,11 +90,14 @@
 				result.value = response;
 				success.value = true;
 
+				name.value = response.data.details.name;
+
 			})
 			.catch(() => (failed.value = true))
-			.finally(() =>{
+			.finally( async() =>{
 
                 if (result.value?.status?.joined) {
+					await new Promise((resolve) => setTimeout(resolve, 2000));
 					if (result.value.status.redirect) navigateTo(result.value.status.redirect);
 				} 
 				else loading.value = false;
@@ -106,10 +112,10 @@
 	const success = ref(false);
 	const failed = ref(false);
 
-	const result = ref();
+	
 
 	onMounted(async () => {
-		setTimeout( async () => await verifyInvite(id, token), 2000);
+		await verifyInvite(id, token)
 	});
 
 	const join = async () => {

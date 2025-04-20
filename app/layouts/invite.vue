@@ -8,11 +8,16 @@
 						<span>invitations</span>
 					</h1>
 				</button>
-				<div class="flex items-center gap-2">
-					<UtilsButton to="/account" :options="{ name: username, url: avatar }" />
-					<UtilsButton to="/moments" iconName="ri:archive-stack-fill"/>
-					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
-				</div>
+				<ClientOnly>
+					<div v-if="!errorValue" class="flex items-center gap-2">
+						<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name, url: avatar }" />
+						<UtilsButton to="/moments" iconName="ri:archive-stack-fill"/>
+						<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
+					</div>
+					<div v-else class="flex items-center gap-2">
+						<UtilsButton to="/auth" iconName="ri:lock-fill" :options="{ name: 'Login', always: true }" />
+					</div>
+				</ClientOnly>
 			</div>
 		</header>
 
@@ -22,7 +27,7 @@
 			</div>
 		</main>
 
-		<UtilsToast/>
+		<!-- <UtilsToast/> -->
 		
 	</div>
 </template>
@@ -31,13 +36,17 @@
 
 	const { PWAInstalled } = useCheckPwa()
 
-	const store = useSessionsStore();
-	const { data: user } = await store.getSession();
-	const username = ref(user?.name);
-	const avatar = ref(user?.avatar)
+	const name = ref()
+	const avatar = ref()
+	const errorValue = ref(false)
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
+
+	await $fetch("/api/user").then((response) => {
+		name.value = response.data.name
+		avatar.value = response.data.avatar
+	}).catch(() => (errorValue.value = true));
 
 	const router = useRouter();
 
