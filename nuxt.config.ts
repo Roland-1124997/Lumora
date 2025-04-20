@@ -98,7 +98,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     "/notifications": { ssr: false },
-    "/invitations/**": { ssr: false },
+    "/invitations/**": { ssr: true },
     "/moments/**": { ssr: false },
     "/account": { ssr: false },
     "/auth/**": { ssr: true },

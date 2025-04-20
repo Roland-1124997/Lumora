@@ -63,16 +63,17 @@
 		description: "You've been invited to join a Lumora photo group. View shared moments and start contributing your own!",
 		ogTitle: "You're Invited to a Lumora Group",
 		ogDescription: "Join this group on Lumora to explore photos, share memories, and connect with others.",
-		ogImage: `https://llumora.onrender.com/generate/image`,
-		ogUrl: "https://llumora.onrender.com",
+		ogImage: `/generate/image?seed=${id}`,
+		ogUrl: "/",
 		twitterTitle: "Join a Group on Lumora",
 		twitterDescription: "Accept your invitation to this Lumora group and become part of the moment.",
-		twitterImage: `https://llumora.onrender.com/generate/image`,
+		twitterImage: `/generate/image?seed=${id}`,
 		twitterCard: "summary_large_image",
 	});
 
 	definePageMeta({
 		middleware: "invite-redirecter",
+		layout: "invite",
 	});
 
 	const verifyInvite = async (id, token) => {

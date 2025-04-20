@@ -2,9 +2,25 @@ import { createCanvas } from '@napi-rs/canvas';
 
 export default defineEventHandler(async (event) => {
 
+    const query = getQuery(event);
+    const invite_seed = query.seed as string;
+    let name
+
+    console.log("invite_seed")
+
+    if (invite_seed) {
+
+        const server = await serverSupabaseClient(event);
+
+        const { data }: any = await server.from("invite_links").select("*").eq("id", invite_seed).single()
+        const { data: settings }: any = await server.from("groups").select("*").eq("id", data.group_id).single()
+
+        name = settings.name
+    }
+
     const text: string = `You're Invited!!`;
     const subtext: string =  `View shared moments and start contributing your own!`;
-    const topText: string = `LUMORA`; 
+    const topText: string = `LUMORA ${name ? `- ${name}` : ""}`; 
 
     const width = 1200;
     const height = 500;
