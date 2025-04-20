@@ -82,9 +82,8 @@
 		twitterTitle: "Lumora - Account",
 		twitterDescription: "Manage your Lumora account, update your settings, and access your shared moments.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary_large_image",
+		twitterCard: "summary",
 	});
-
 
 	definePageMeta({
 		middleware: "unauthorized",
@@ -128,7 +127,8 @@
 	);
 
 	const schema_password = toTypedSchema(
-		zod.object({
+		zod
+			.object({
 				New_password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
 				Confirm_password: zod.string({ message: "This field is required" }),
 			})

@@ -19,7 +19,7 @@
 		twitterTitle: "Lumora - Share Photos",
 		twitterDescription: "Join Lumora to share photos, explore groups, and connect with a creative community.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary_large_image",
+		twitterCard: "summary",
 	});
 
 	definePageMeta({

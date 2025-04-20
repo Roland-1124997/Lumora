@@ -83,7 +83,6 @@
 	import { Splitpanes, Pane } from "splitpanes";
 	import "splitpanes/dist/splitpanes.css";
 
-
 	useHead({
 		htmlAttrs: {
 			lang: "en",
@@ -100,9 +99,8 @@
 		twitterTitle: "Lumora - Photo View",
 		twitterDescription: "Check out this moment captured in a Lumora group. Get inspired and connect.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary_large_image",
+		twitterCard: "summary",
 	});
-
 
 	definePageMeta({
 		middleware: "unauthorized",
@@ -148,13 +146,12 @@
 
 	const group = getGroupData(group_id);
 
-	
 	const { makeRequest, data, error } = useRetryableFetch();
 
-	await makeRequest(`/api/moments/${group_id}/${image_id}`)
-	if(error.value) removeItemByMetaId(group_id, image_id);
+	await makeRequest(`/api/moments/${group_id}/${image_id}`);
+	if (error.value) removeItemByMetaId(group_id, image_id);
 
-	if(data.value) {
+	if (data.value) {
 		content.value = data.value.data;
 		updateGroupValue(data.value.meta.name);
 	}
@@ -174,36 +171,38 @@
 	 ************************************************************************************
 	 */
 
-	const webSocket = inject("WebSocket")
+	const webSocket = inject("WebSocket");
 
-	watch(webSocket.data, (payload => {
-
-		const data = JSON.parse(payload)
+	watch(webSocket.data, (payload) => {
+		const data = JSON.parse(payload);
 
 		if (data.image_id === image_id && data.group_id === group_id) {
-			content.value.likes.count = data.likes.count
+			content.value.likes.count = data.likes.count;
 		}
-	}))
+	});
 
 	const isAnimating = ref(false);
 	const { updateItemByMetaId } = useGroupStore();
 
 	const likeImage = async () => {
 		const group_id = useRoute().params.group_id;
-		isAnimating.value = true; 
+		isAnimating.value = true;
 		setTimeout(() => (isAnimating.value = false), 300);
 
 		await $fetch(`/api/moments/${group_id}/${content.value.id}`, { method: "PATCH" }).then((response) => {
 			content.value.likes.count = response.data.likes.count;
 			content.value.has_liked = response.data.has_liked;
 
-			webSocket.send(JSON.stringify({
-				type: "update", group_id, image_id: content.value.id, 
-				likes: {
-					count: content.value.likes.count
-				}
-			}))
-
+			webSocket.send(
+				JSON.stringify({
+					type: "update",
+					group_id,
+					image_id: content.value.id,
+					likes: {
+						count: content.value.likes.count,
+					},
+				})
+			);
 
 			updateItemByMetaId(group_id, content.value.id, {
 				has_liked: content.value.has_liked,

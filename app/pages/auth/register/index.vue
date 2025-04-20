@@ -33,26 +33,26 @@
 		twitterTitle: "Lumora - Register",
 		twitterDescription: "Join Lumora by creating an account to explore the latest posts and share your moments.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary_large_image",
+		twitterCard: "summary",
 	});
 
-	
 	definePageMeta({
 		layout: "auth",
 		middleware: "authorized",
 	});
 
 	const RegisterSchema = toTypedSchema(
-		zod.object({
-			email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
-			password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
-			confirmation: zod.string({ message: "This field is required" })
-		})
+		zod
+			.object({
+				email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
+				password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
+				confirmation: zod.string({ message: "This field is required" }),
+			})
 
-		.refine((data) => data.password === data.confirmation, {
-			message: "Passwords do not match",
-			path: ["confirmation"],
-		})
+			.refine((data) => data.password === data.confirmation, {
+				message: "Passwords do not match",
+				path: ["confirmation"],
+			})
 	);
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
@@ -61,6 +61,6 @@
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if(error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 	};
 </script>

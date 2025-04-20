@@ -23,7 +23,6 @@
 
 		<UtilsSearchIndicator v-else :loading="searchLoading">
 			<icon class="text-gray-500" name="rivet-icons:sad" size="5em" />
-			
 
 			<h1 class="md:w-[30vw] text-center text-balance mt-5 border-b pb-4">
 				<span v-if="searched"> No results found. Try a different search term or check for any typos in your query. </span>
@@ -59,9 +58,8 @@
 		twitterTitle: "Lumora - Moments",
 		twitterDescription: "Your groups, your memories. Discover all your shared moments on Lumora.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary_large_image",
+		twitterCard: "summary",
 	});
-
 
 	definePageMeta({
 		middleware: "unauthorized",

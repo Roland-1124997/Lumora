@@ -1,29 +1,24 @@
 <template>
 	<div v-if="List">
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
-			<button :disabled="!accepted" @click="createUploadFunction()"
-				class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<button :disabled="!accepted" @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 				<icon name="ri:add-circle-line" size="1.4em" />
 				<span> Share your experiences </span>
 			</button>
 			<div class="flex items-center gap-2">
-				<button :disabled="reload" @click="handleManualReload()"
-					class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+				<button :disabled="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
-				<NuxtLink :to="`/moments/settings/${group_id}`"
-					class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+				<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon name="ri:information-line" size="1.4em" />
 				</NuxtLink>
 			</div>
 		</div>
 		<hr class="mb-2" />
 
-		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps"
-			class="h-[80vh] overflow-y-scroll">
+		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
-				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'"
-					v-for="(content, index) in List" :key="index">
+				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
 					<LazyCardImage v-if="content" :content="content" />
 					<LazyCardImageSkeleton v-else />
 				</div>
@@ -38,13 +33,11 @@
 			</div>
 		</section>
 
-		<UtilsButtonScroller :totalPages :loading :scrollPercentage :scrollToTop="() => scrollToTop('smooth')"
-			:scrollToBottom="() => scrollToBottom('smooth')" :Page />
+		<UtilsButtonScroller :totalPages :loading :scrollPercentage :scrollToTop="() => scrollToTop('smooth')" :scrollToBottom="() => scrollToBottom('smooth')" :Page />
 	</div>
 </template>
 
 <script setup lang="ts">
-
 	useHead({
 		htmlAttrs: {
 			lang: "en",
@@ -61,9 +54,8 @@
 		twitterTitle: "Lumora - Group",
 		twitterDescription: "Discover photos and connect with members in this Lumora group.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary_large_image",
+		twitterCard: "summary",
 	});
-
 
 	definePageMeta({
 		middleware: "unauthorized",
@@ -82,11 +74,9 @@
 	const List = ref<Post[] | any>([]);
 	const name = ref();
 
-	
-
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const { updateGroupValue } = inject<any>("group");
 	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
@@ -107,25 +97,19 @@
 	};
 
 	const updateListData = (response: ApiResponse<Post[]>, page: number = 1, options: { set?: boolean; update?: boolean; reload?: boolean } = {}) => {
-		
 		if (options.reload) {
 			List.value = response.data as Post[];
 			removeData(group_id, { partial: false });
 			setTimeout(() => setGroupData(group_id, name.value, page, totalPages.value, List.value), 3000);
-		} 
-		
-		else if (options.set || page === 1) {
+		} else if (options.set || page === 1) {
 			List.value = response.data as Post[];
 			removeData(group_id, { partial: true });
 			setTimeout(() => setGroupData(group_id, name.value, page, totalPages.value, List.value), 200);
-		} 
-		
-		else if (options.update || page > 1) {
+		} else if (options.update || page > 1) {
 			if (Array.isArray(response.data)) List.value.push(...response.data);
 			setTimeout(() => updateGroupData(group_id, name.value, page, totalPages.value, List.value), 200);
 		}
 	};
-
 
 	const useFetchData = async (options: Record<string, any>, load: Ref, timer = 250) => {
 		load.value = true;
@@ -137,7 +121,7 @@
 
 		if (data.value) {
 			const response = processPostsApiResponse(data);
-			updateListData(response, Page.value, options)
+			updateListData(response, Page.value, options);
 		}
 
 		setTimeout(() => (load.value = false), timer);
@@ -153,22 +137,24 @@
 	};
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
-	const accepted = ref(false)
+	const accepted = ref(false);
 	const loading = ref(false);
 	const group: any = getGroupData(group_id);
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
 
-	await $fetch(`/api/moments/pending/${group_id}`).then((response) => {
-		accepted.value = response.data.accepted
-	}).catch((error) => {})
+	await $fetch(`/api/moments/pending/${group_id}`)
+		.then((response) => {
+			accepted.value = response.data.accepted;
+		})
+		.catch((error) => {});
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
 	const { scrollPercentage, scrollPixels, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
@@ -181,10 +167,11 @@
 			const container = containerProps.ref.value;
 			const scrollPosition = (scrollPixels.value / 100) * state.percentage;
 
-			if (container) container.scrollTo({
-				top: scrollPosition,
-				behavior: behavior,
-			});
+			if (container)
+				container.scrollTo({
+					top: scrollPosition,
+					behavior: behavior,
+				});
 		}
 	};
 

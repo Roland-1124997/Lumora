@@ -236,9 +236,8 @@
 		twitterTitle: "Lumora - Group Settings",
 		twitterDescription: "Update your group settings and manage members easily on Lumora.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary_large_image",
+		twitterCard: "summary",
 	});
-
 
 	definePageMeta({
 		middleware: "unauthorized",
@@ -375,13 +374,13 @@
 	const reloadInvite = async () => {
 		InviteLoading.value = true;
 
-		await makeRequest(`/api/moments/invitations/${group_id}` , { sessions: true });
+		await makeRequest(`/api/moments/invitations/${group_id}`, { sessions: true });
 		if (data.value) inviteLinks.value = data.value.data;
 
 		setTimeout(() => {
 			InviteLoading.value = false;
 		}, 1500);
-	}
+	};
 
 	/*
 	 ************************************************************************************

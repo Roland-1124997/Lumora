@@ -8,7 +8,7 @@
 		<FieldFormAuth requestUrl="/api/auth" :schema="LoginSchema" :onSuccess="handleSuccess" :onError="handleError" />
 		<UtilsSeparator />
 		<UtilsButtonGoogle />
-		
+
 		<p class="text-sm text-center text-gray-500 bottom-5">Don't have an account?<NuxtLink class="font-bold text-[#817a70] hover:text-[#6e675d]" to="/auth/register"> Sign Up </NuxtLink></p>
 	</div>
 </template>
@@ -33,9 +33,8 @@
 		twitterTitle: "Lumora - Login",
 		twitterDescription: "Sign in to Lumora to join the conversation and discover the latest posts.",
 		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary_large_image",
+		twitterCard: "summary",
 	});
-
 
 	definePageMeta({
 		layout: "auth",
@@ -49,15 +48,13 @@
 			remember: zod.boolean().optional(),
 		})
 	);
-	
-	const handleSuccess = async ({response}: SuccessResponse<null>) => {
+
+	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
 		if (response.status.redirect) navigateTo(response.status.redirect);
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if(error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 	};
-
-	
 </script>
