@@ -11,8 +11,17 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if (data.expiresAt && new Date() > new Date(data.expiresAt)) return useReturnResponse(event, ResourceGoneError);
     if (parseInt(data.uses) == 0) return useReturnResponse(event, ResourceGoneError)
 
-    const { error: user_left_error } = await server.from("posts").update({ user_left: false }).eq("author_id", user.id).eq("group_id", data.group_id).select("*")
-    if (user_left_error) return useReturnResponse(event, internalServerError)
+    /*
+    ************************************************************************************
+    */
+
+    const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", data.group_id).single()
+    if (settingError) return useReturnResponse(event, internalServerError)
+
+    if (settings.auto_accept_new_members) {
+        const { error: user_left_error } = await server.from("posts").update({ user_left: false }).eq("author_id", user.id).eq("group_id", data.group_id).select("*")
+        if (user_left_error) return useReturnResponse(event, internalServerError)
+    }
 
     /*
     ************************************************************************************
@@ -25,10 +34,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", data.group_id).single()
         if (settingError) return useReturnResponse(event, internalServerError)
 
-        
-        
-        
-        
         
         const { error} = await client.from("members").insert({
             group_id: data.group_id,

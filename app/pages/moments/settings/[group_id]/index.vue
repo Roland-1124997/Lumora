@@ -191,7 +191,7 @@
 					</div>
 				</div>
 
-				<div class="p-4 mb-2 border rounded-xl">
+				<div v-if="content?.accepted" class="p-4 mb-2 border rounded-xl">
 					<div class="">
 						<div v-for="(section, index) in config.sections" :key="index">
 							<h1 class="mb-1 font-bold" :class="{ 'mt-4': index > 0 }">{{ section.title }}</h1>
@@ -373,7 +373,7 @@
 	const reloadInvite = async () => {
 		InviteLoading.value = true;
 
-		await makeRequest(`/api/moments/invitations/${group_id}`);
+		await makeRequest(`/api/moments/invitations/${group_id}` , { sessions: true });
 		if (data.value) inviteLinks.value = data.value.data;
 
 		setTimeout(() => {
