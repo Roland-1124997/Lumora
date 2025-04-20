@@ -269,7 +269,8 @@
 			});
 
 		const dummy = document.createElement("input");
-		const text = `${window.location.host}/invitations/${link.id}?token=${link.code}`;
+
+		const text = `${window.location.origin}/invitations/${link.id}?token=${link.code}`;
 		dummy.style.opacity = "0";
 		dummy.style.position = "absolute";
 		dummy.style.top = "0";

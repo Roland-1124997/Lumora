@@ -29,7 +29,7 @@
 		ogTitle: "Register on Lumora",
 		ogDescription: "Sign up for Lumora to start exploring, sharing, and connecting with the community.",
 		ogImage: "/apple-touch-icon.png",
-		ogUrl: "/",
+		ogUrl: "https://llumora.onrender.com",
 		twitterTitle: "Lumora - Register",
 		twitterDescription: "Join Lumora by creating an account to explore the latest posts and share your moments.",
 		twitterImage: "/apple-touch-icon.png",

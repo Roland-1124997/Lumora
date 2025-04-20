@@ -29,7 +29,7 @@
 		ogTitle: "Login to Lumora",
 		ogDescription: "Access your Lumora account to view photos, share memories, and stay connected.",
 		ogImage: "/apple-touch-icon.png",
-		ogUrl: "/",
+		ogUrl: "https://llumora.onrender.com",
 		twitterTitle: "Lumora - Login",
 		twitterDescription: "Sign in to Lumora to join the conversation and discover the latest posts.",
 		twitterImage: "/apple-touch-icon.png",
