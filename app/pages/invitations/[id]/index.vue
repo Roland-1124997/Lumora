@@ -96,8 +96,8 @@
 			.catch(() => (failed.value = true))
 			.finally( async() =>{
 
-                if (result.value?.status?.joined) {
-					await new Promise((resolve) => setTimeout(resolve, 2000));
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+        if (result.value?.status?.joined) {
 					if (result.value.status.redirect) navigateTo(result.value.status.redirect);
 				} 
 				else loading.value = false;
