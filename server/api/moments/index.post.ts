@@ -1,8 +1,8 @@
 import crypto from "crypto";
 
 const schema = zod.object({
-	name: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
-	description: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }),
+	name: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }).max(20, { message: "Maximaal 20 karakters" }),
+	description: zod.string({ message: "Dit is een verplicht veld" }).nonempty({ message: "Dit is een verplicht veld" }).max(200, { message: "Maximaal 200 karakters" }),
 	files: createFilesObject(zod)
 });
 

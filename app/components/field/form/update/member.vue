@@ -7,8 +7,8 @@
 						<img :src="member.avatar || '/profile.jpg'" class="w-10 h-10 rounded-full" />
 						<div class="pl-2 border-l border-black">
 							<h1 class="-mb-1 font-bold">{{ member.name }}</h1>
-							<p v-if="member.can_delete_group" class="text-sm text-gray-500">Admin</p>
-							<p v-else-if="member.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
+							<p v-if="member.can_delete_messages_all" class="text-sm text-gray-500">Admin</p>
+							<p v-else-if="member.can_edit_group" class="text-sm text-gray-500">Moderator</p>
 							<p v-else class="text-sm text-gray-500 text">Member</p>
 						</div>
 					</div>
@@ -20,7 +20,7 @@
 							<field :name="option.key" v-slot="{ field, meta }: any" v-model="option.value">
 								<p>{{ option.label }}</p>
 								<label class="cursor-pointer">
-									<input type="checkbox" v-model="option.value" class="sr-only" />
+									<input type="checkbox" v-model="option.value" @change="updateRole({ key: option.key, value: option.value})" class="sr-only" />
 									<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ ' bg-yellow-800': option.value, 'bg-gray-300': !option.value }">
 										<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': option.value }"></div>
 									</div>
@@ -49,15 +49,19 @@
         method: { type: String, default: "PATCH" },
     });
 
-    type PermissionKey = "deleteMessages" | "editGroup";
     interface PermissionOption {
-        key: PermissionKey;
-        label: string;
+        key: string;
+        label?: string;
         value: boolean;
     }
-
+	
     const permissions = ref<PermissionOption[]>([]);
     const member = ref();
+	
+	const updateRole = (option: PermissionOption) => {
+		if (option.key === "can_delete_messages_all") member.value.can_delete_messages_all = option.value;
+		else if (option.key === "can_edit_group") member.value.can_edit_group = option.value;
+	};
 
     await $fetch(requestUrl)
         .then((response: any) => {
@@ -72,6 +76,6 @@
         zod.object(permissions.value.reduce((acc, option) => {
             acc[option.key] = zod.boolean();
             return acc;
-        }, {} as Record<PermissionKey, zod.ZodBoolean>))
+        }, {} as Record<string, zod.ZodBoolean>))
     );
 </script>

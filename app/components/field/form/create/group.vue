@@ -54,10 +54,10 @@
 	});
 
 	const schema = toTypedSchema(
-		zod.object({
-			name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
-			description: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
-			thumbnail: zod.instanceof(File, { message: "This field is required" }) // Checks if it is a `File`
+		zod.object({	
+			name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).max(20, { message: "Name must be less than 20 characters" }),
+			description: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).max(200, { message: "Description must be less than 200 characters" }),
+			thumbnail: zod.instanceof(File, { message: "This field is required" }) 
 			.refine((file) => file.size <= 10 * 1024 * 1024, {
 				message: "File size must not exceed 10MB",
 			})
