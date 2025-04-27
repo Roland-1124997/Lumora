@@ -31,7 +31,7 @@
     const stripHostFromUrl = (event: any) => {
         const value = event.target.value;
         const splits = value.split("/");
-        link.value = splits[2] || ""; 
+        link.value = splits[4] || ""; 
     };
     
 
