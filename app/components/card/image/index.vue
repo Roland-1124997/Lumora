@@ -1,7 +1,7 @@
 <template>
 	<div ref="target" class="border-b select-text">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 border md:h-52 rounded-xl">
-			<div class="relative z-40 flex items-center justify-start gap-2 p-2 ">
+			<div v-if="content.has_been_accepted" class="relative z-40 flex items-center justify-start gap-2 p-2 ">
 				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon :class="[liked ? 'text-red-600' : '', isAnimating ? 'animate-like' : '']" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2em" />
 					<UtilsCounter :count="hearts" />
@@ -11,10 +11,18 @@
 					<UtilsCounter :count="comments" />
 				</button>
 			</div>
+			<div v-else class="relative z-40 flex items-center justify-start gap-2 p-2 ">
+				<button class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+					<icon :class="[liked ? 'text-green-600' : '', isAnimating ? 'animate-like' : '']" :name="liked ? 'ri:check-double-line' : 'ri:check-line'" size="1.2em" />
+				</button>
+			</div>
 
-			<NuxtLink v-if="loaded && targetIsVisible" :to="content.url ? content.url : `${$route.path}/${content.id}`">
+			<NuxtLink v-if="content.has_been_accepted && loaded && targetIsVisible" :to="content.url ? content.url : `${$route.path}/${content.id}`">
 				<img :src="content.media.url" :alt="content.author.id" class="object-cover  aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
 			</NuxtLink>
+			<div v-else-if="!content.has_been_accepted && loaded && targetIsVisible">
+				<img :src="content.media.url" :alt="content.author.id" class="object-cover  aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
+			</div>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
 			</div>

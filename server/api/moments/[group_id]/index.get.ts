@@ -6,6 +6,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	const { items, page } = useMakePagination(12, query);
 	const { group_id } = getRouterParams(event);
 
+	const pending = query.pending ? query.pending.toLowerCase() : false;
+
 	/*
 	************************************************************************************
 	*/
@@ -13,12 +15,12 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
 
 	const { data: media, error }: any = await client.rpc("get_group_with_posts", {
-		group_id_param: group_id, limit_param: items, page_param: page, user_id_param: user.id
+		group_id_param: group_id, limit_param: items, page_param: page, user_id_param: user.id, include_accepted_param: !pending
 	}).single()
 
 	if (error) return useReturnResponse(event, notFoundError);
 	if (error && error.details.includes("0 rows")) return useReturnResponse(event, notFoundError)
-	
+
 	/*
 	************************************************************************************
 	*/
@@ -32,7 +34,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		meta: {
 			id: media.group_id,
 			name: media.name,
-			description: media.description
+			description: media.description,
 		},
 		pagination: {
 			page: page,

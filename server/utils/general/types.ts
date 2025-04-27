@@ -5,6 +5,7 @@ export type { H3Event } from "h3";
 export interface query {
     search: string,
     page: string,
+    pending: string,
 }
 export interface MultiPartData {
     name?: string;

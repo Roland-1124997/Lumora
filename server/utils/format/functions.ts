@@ -35,13 +35,12 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
 
             const deleted = authorName === null ;
 
-
             return {
                 id: data.id,
                 created_at: data.created_at,
                 has_liked: data.has_liked || false,
                 has_left: data.user_left || false,
-                has_been_accepted: data.accepted || true,
+                has_been_accepted: data.accepted,
                 author: {
                     name: data?.user_left || deleted ? "Unknown" : (isOwner ? `${authorName} (You)` : authorName),
                     url: data?.user_left || deleted ? `/profile.jpg` : (author?.user_metadata.avatar_url || user?.user_metadata.avatar_url || `/attachments/avatar/${data?.author?.id || data?.author_id}`),

@@ -16,7 +16,17 @@
 		</div>
 		<hr class="mb-2" />
 
-		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
+		<div v-if="need_approval && is_owner" class="flex items-center mb-2 gap-2 justify-evenly p-[0.20rem] border rounded-xl w-full overflow-hidden bg-gray-100">
+			<button @click="setActiveTab('approved')" :class="activeTab == 'approved' ? 'bg-white font-bold' : ''" class="flex items-center justify-center w-full p-1 rounded-lg">
+				<span class="text-xs">Approved</span>
+			</button>
+			<span class="text-sm text-gray-400">|</span>
+			<button @click="setActiveTab('approval')" :class="activeTab == 'approval' ? 'bg-white font-bold' : ''" class="flex items-center justify-center w-full py-1 rounded-lg">
+				<span class="text-xs">Needs approval</span>
+			</button>
+		</div>
+
+		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class=" h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
 				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
 					<LazyCardImage v-if="content" :content="content" />
@@ -73,6 +83,35 @@
 
 	const List = ref<Post[] | any>([]);
 	const name = ref();
+
+	const activeTab = ref("approved");
+
+	const setActiveTab = async (tab: string) => {
+		activeTab.value = tab;
+		List.value = [];
+
+		if (tab === "approval") {
+			removeData(group_id);
+			await makeRequest(`/api/moments/${group_id}?pending=true`, { sessions: true });
+
+			setTimeout(() => {
+				if (data.value) {
+					List.value = data.value.data as Post[];
+					totalPages.value = data.value.pagination?.total || 0;
+				}
+			}, 1000);
+		} else if (tab === "approved") {
+			removeData(group_id);
+			await makeRequest(`/api/moments/${group_id}?page=1`, { sessions: true });
+
+			setTimeout(() => {
+				if (data.value) {
+					const response = processPostsApiResponse(data);
+					updateListData(response, Page.value, { set: true });
+				}
+			}, 1000);
+		}
+	};
 
 	/*
 	 ************************************************************************************
@@ -141,7 +180,10 @@
 	 */
 
 	const accepted = ref(false);
+	const need_approval = ref(false);
+	const is_owner = ref(false);
 	const loading = ref(false);
+
 	const group: any = getGroupData(group_id);
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
@@ -149,6 +191,8 @@
 	await $fetch(`/api/moments/pending/${group_id}`)
 		.then((response) => {
 			accepted.value = response.data.accepted;
+			need_approval.value = response.data.need_approval;
+			is_owner.value = response.data.is_owner;
 		})
 		.catch((error) => {});
 

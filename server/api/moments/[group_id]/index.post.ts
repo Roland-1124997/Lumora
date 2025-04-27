@@ -16,6 +16,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	if (!accepted) return useReturnResponse(event, unauthorizedError)
 
+	const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", group_id).single()
+	if (settingError) return useReturnResponse(event, internalServerError)
 
 	/*
 	************************************************************************************
@@ -31,7 +33,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		if (storageError) return useReturnResponse(event, internalServerError);
 
 		const { data, error } = await client.from("posts").insert({
-			url: image.path, group_id: group_id
+			url: image.path, group_id: group_id, Accepted: !settings.needs_review
 		}).select().single();
 
 		if (error) return useReturnResponse(event, internalServerError);
