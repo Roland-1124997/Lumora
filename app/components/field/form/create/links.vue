@@ -31,6 +31,9 @@
 						</ul>
 					</div>
 				</field>
+				<p class="mt-1 text-red-700 ">
+					{{ errors.message }}
+				</p>
 			</div>
 		</template>
 	</FieldFormBaseLayer>

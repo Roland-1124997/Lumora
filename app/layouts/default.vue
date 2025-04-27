@@ -76,6 +76,17 @@
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
 			/>
+
+			<FieldFormUpdateMember v-if="modal.type == 'update:member'"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess"  
+				:type="modal.type"
+			/>
+
+
+
 		</ModalBaselayer>
 	</div>
 </template>

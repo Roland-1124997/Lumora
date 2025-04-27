@@ -88,13 +88,14 @@
 										<div class="flex items-center justify-between w-full">
 											<div>
 												<h1 class="text-sm font-bold">{{ member?.name }}</h1>
-												<p v-if="member?.Permissions?.can_delete_group" class="text-sm text-gray-500">Admin</p>
-												<p v-else-if="member?.Permissions?.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
+												<p v-if="member?.Permissions?.can_delete_group" class="text-sm text-gray-500">Owner</p>
+												<p v-else-if="member?.Permissions?.can_delete_messages_all" class="text-sm text-gray-500">Admin</p>
+												<p v-else-if="member?.Permissions?.can_edit_group" class="text-sm text-gray-500 text">Moderator</p>
 												<p v-else-if="member?.accepted" class="text-sm text-gray-500 text">Member</p>
 												<p v-else class="text-sm text-gray-500 text">Pending</p>
 											</div>
 											<div v-if="content?.permision?.change" class="flex items-center gap-2">
-												<button v-if="member?.accepted" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
+												<button @click="createUpdateFunction(member?.id)" v-if="member?.accepted" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
 													<Icon name="ri:settings-2-line" size="1.3rem" />
 												</button>
 												<button v-else @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
@@ -643,6 +644,63 @@
 			duration: 5000,
 		});
 	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	
+	const createUpdateFunction = (id: string) => {
+		updateModalValue({
+			open: true,
+			type: "update:member",
+			name: "Edit Permissions",
+			requestUrl: `/api/moments/members/permissions/${group_id}/${id}`,
+			onSuccess: handleUpdateSuccess,
+			onError: handleUpdateError,
+		});
+	};
+
+	const handleUpdateSuccess = async ({ response }: any) => {
+		searchLoading.value = true;
+		await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
+			.then((response: any) => {
+				memberList.value = response.data;
+
+				webSocket.send(
+					JSON.stringify({
+						type: "update-topics",
+					})
+				);
+
+				setTimeout(() => {
+					addToast({
+						message: `Member permissions updated`,
+						type: "success",
+						duration: 5000,
+					});
+				}, 500);
+			})
+			.catch((error) => {
+				memberList.value = [];
+			});
+
+		setTimeout(() => {
+			searchLoading.value = false;
+		}, 1500);
+	};
+
+	const handleUpdateError = async ({ error, actions }: ErrorResponse) => {
+		actions.setErrors({ message: ["An error occurred, unable to accept the member! Please try again later."] });
+		addToast({
+			message: `An error occurred, unable to kick the member`,
+			type: "error",
+			duration: 5000,
+		});
+	};
+
+
+	
 
 	/*
 	 ************************************************************************************

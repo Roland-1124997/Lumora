@@ -1,0 +1,77 @@
+<template>
+	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :schema label="Update">
+		<template v-slot="{ errors }">
+			<div class="py-3 mt-5 border-y h-fit">
+				<div class="">
+					<div class="flex items-center gap-3 p-2 px-3 text-sm font-semibold text-gray-900 rounded bg-gray-50">
+						<img :src="member.avatar || '/profile.jpg'" class="w-10 h-10 rounded-full" />
+						<div class="pl-2 border-l border-black">
+							<h1 class="-mb-1 font-bold">{{ member.name }}</h1>
+							<p v-if="member.can_delete_group" class="text-sm text-gray-500">Admin</p>
+							<p v-else-if="member.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
+							<p v-else class="text-sm text-gray-500 text">Member</p>
+						</div>
+					</div>
+
+					<hr class="my-3" />
+
+					<div class="grid items-center gap-2">
+						<div v-for="option in permissions" :key="option.key" class="flex items-center justify-between">
+							<field :name="option.key" v-slot="{ field, meta }: any" v-model="option.value">
+								<p>{{ option.label }}</p>
+								<label class="cursor-pointer">
+									<input type="checkbox" v-model="option.value" class="sr-only" />
+									<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ ' bg-yellow-800': option.value, 'bg-gray-300': !option.value }">
+										<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': option.value }"></div>
+									</div>
+								</label>
+							</field>
+						</div>
+					</div>
+
+					<p class="mt-2 text-red-700 ">
+						{{ errors.message }}
+					</p>
+				</div>
+			</div>
+		</template>
+	</FieldFormBaseLayer>
+</template>
+<script setup lang="ts">
+    import { toTypedSchema } from "@vee-validate/zod";
+    import * as zod from "zod";
+
+    const { requestUrl, onSuccess, onError, method } = defineProps({
+        callback: { type: Function, required: false },
+        requestUrl: { type: String, required: true },
+        onSuccess: { type: Function, required: true },
+        onError: { type: Function, required: true },
+        method: { type: String, default: "PATCH" },
+    });
+
+    type PermissionKey = "deleteMessages" | "editGroup";
+    interface PermissionOption {
+        key: PermissionKey;
+        label: string;
+        value: boolean;
+    }
+
+    const permissions = ref<PermissionOption[]>([]);
+    const member = ref();
+
+    await $fetch(requestUrl)
+        .then((response: any) => {
+            permissions.value = response.data.permissions.options;
+            member.value = response.data;
+        })
+        .catch((error) => {
+            onError(error.response.data);
+        });
+
+    const schema = toTypedSchema(
+        zod.object(permissions.value.reduce((acc, option) => {
+            acc[option.key] = zod.boolean();
+            return acc;
+        }, {} as Record<PermissionKey, zod.ZodBoolean>))
+    );
+</script>
