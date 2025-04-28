@@ -3,23 +3,23 @@
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
 
 			<div class="items-center hidden gap-2 md:flex ">
-				<button :disabled=" List.length < 1 || reload" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled=" List.length < 1 || reload" @click="approvePinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 					<icon name="ri:check-line" size="1.2em" />
 					<span> Approve all</span>
 				</button>
 
-				<button :disabled=" List.length < 1 || reload" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled=" List.length < 1 || reload" @click="rejectPinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 					<icon name="ri:close-line" size="1.2em" />
 					<span> Reject all </span>
 				</button>
 			</div>
 
-			<button :disabled=" List.length < 1 || reload" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<button :disabled=" List.length < 1 || reload" @click="approvePinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 				<icon name="ri:check-line" size="1.2em" />
 				<span> Approve all</span>
 			</button>
 
-			<button :disabled=" List.length < 1 || reload" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<button :disabled=" List.length < 1 || reload" @click="rejectPinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 				<icon name="ri:close-line" size="1.2em" />
 				<span> Reject all </span>
 			</button>
@@ -100,6 +100,7 @@
 
 	const { updateGroupValue } = inject<any>("group");
 	const { setItemToStart } = useGroupStore();
+	const { getPinnedList, clearPinned } = usePinStore();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
 
 	/*
@@ -184,43 +185,158 @@
 	 ************************************************************************************
 	 */
 
+	const { updateModalValue } = inject<any>("modal");
 	const { addToast } = useToast();
-
+	
 	const approveImage = async (image: any) => {
 
-		await $fetch<any>(`/api/moments/pending/${group_id}/${image.id}`, { method: "PATCH", body: { has_been_accepted: true } }).then( async (response: any) => {
+		const handleApproveSuccess = async ({ response }: SuccessResponse<Post>) => {
+		
 			await handleReload();
 			if(data.value) setItemToStart(group_id, {
 				...image, has_been_accepted: true,
 			});
-			
-		}).catch((error) => {
-			addToast({
-				message: `Unable to approve this image at the moment.`,
-				type: "error",
-				duration: 5000,
-			});
-		});
-	}
 
-	const rejectImage = async (image: any) => {
-		await $fetch<any>(`/api/moments/pending/${group_id}/${image.id}`, { method: "PATCH", body: { has_been_accepted: false } }).then(async (response: any) => await handleReload()).catch((error) => {
 			addToast({
-				message: error || `Unable to reject this image at the moment.`,
-				type: "error",
+				message: `Image approved successfully!`,
+				type: "success",
 				duration: 5000,
 			});
+		
+		};
+
+		const handleApproveError = async ({ error, actions }: ErrorResponse) => {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+			else actions.setErrors({ message: ["An error occurred, unable to approve the image! Please try again later."] });
+		};
+
+		updateModalValue({
+			open: true,
+			type: "image:approve",
+			name: "Alert",
+			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
+			onSuccess: handleApproveSuccess,
+			onError: handleApproveError,
 		});
 	}
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
+
+	const rejectImage = async (image: any) => {
+		
+		const handleRejectSuccess = async ({ response }: SuccessResponse<Post>) => { 
+			await handleReload()
+
+			addToast({
+				message: `Image rejected successfully!`,
+				type: "success",
+				duration: 5000,
+			});
+		};
+			
+		const handleRejectError = async ({ error, actions }: ErrorResponse) => {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+			else actions.setErrors({ message: ["An error occurred, unable to approve the image! Please try again later."] });
+		};
+		
+		updateModalValue({
+			open: true,
+			type: "image:reject",
+			name: "Alert",
+			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
+			onSuccess: handleRejectSuccess,
+			onError: handleRejectError,
+		});
+		
+	}
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const approvePinned = async () => {
+
+		const handleAllApproveSuccess = async ({ response }: SuccessResponse<Post>) => { 
+			await handleReload()
+
+			getPinnedList(group_id).details.forEach((image: any) => {
+				setItemToStart(group_id, {
+					...image, has_been_accepted: true,
+				});
+			});
+
+			clearPinned(group_id);
+
+			addToast({
+				message: `Images approved successfully!`,
+				type: "success",
+				duration: 5000,
+			});
+		};
+			
+		const handleAllApproveError = async ({ error, actions }: ErrorResponse) => {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+			else actions.setErrors({ message: ["An error occurred, unable to approve the images! Please try again later."] });
+		};
+		
+		updateModalValue({
+			open: true,
+			type: "images:multiple:approve",
+			name: "Alert",
+			requestUrl: `/api/moments/pending/marked/${group_id}`,
+			onSuccess: handleAllApproveSuccess,
+			onError: handleAllApproveError,
+		});
+
+	}
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const rejectPinned = async () => {
+		
+		const handleAllRejectSuccess = async ({ response }: SuccessResponse<Post>) => { 
+			await handleReload()
+
+			addToast({
+				message: `Images rejected successfully!`,
+				type: "success",
+				duration: 5000,
+			});
+		};
+			
+		const handleAllRejectError = async ({ error, actions }: ErrorResponse) => {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+			else actions.setErrors({ message: ["An error occurred, unable to reject the images! Please try again later."] });
+		};
+		
+		updateModalValue({
+			open: true,
+			type: "images:multiple:reject",
+			name: "Alert",
+			requestUrl: `/api/moments/pending/marked/${group_id}`,
+			onSuccess: handleAllRejectSuccess,
+			onError: handleAllRejectError,
+		});
+	}
+
+
+	/*
+	 ************************************************************************************
+	 */
 
 	const reload = ref(false);
 
 	const handleReload = async () => {
 		const page = ref(1);
+		reload.value = true;
 		
 		while (page.value <= totalPages.value) {
 			await makeRequest(`/api/moments/${group_id}?page=${page.value}&pending=true`, { sessions: true });
@@ -233,6 +349,8 @@
 			if (page.value < totalPages.value) page.value++;
 			else break;
 		}
+
+		reload.value = false;
 	};
 
 	const handleManualReload = async () => {

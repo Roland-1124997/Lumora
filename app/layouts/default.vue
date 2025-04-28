@@ -86,6 +86,22 @@
 				:type="modal.type"
 			/>
 
+			<FieldFormUpdateConfirm v-if="modal.type.includes('image:')"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess"  
+				:type="modal.type"
+			/>
+
+			<FieldFormUpdateMultipleConfirm v-if="modal.type.includes('images:multiple')"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess"  
+				:type="modal.type"
+			/>
+
 
 
 		</ModalBaselayer>

@@ -2,9 +2,11 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	if (!user) return useReturnResponse(event, unauthorizedError);
 
-	const { group_id, image_id } = getRouterParams(event);
+	const { group_id } = getRouterParams(event);
 
 	const request = await readBody(event)
+
+	if (!request || Object.keys(request).length === 0) return useReturnResponse(event, badRequestError)
 
 	/*
 	************************************************************************************
@@ -22,21 +24,21 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
-	
-	if (!request.has_been_accepted) {
-		await client.from('posts').delete().eq('id', image_id)
-	} 
-	
-	else {
-		const { error: updateError }: any = await server.from("posts").update({ Accepted: true }).eq("id", image_id)
-		if (updateError) return useReturnResponse(event, internalServerError);
+	for (const [key, value] of Object.entries(request)) {
+		
+		if (!value) {
+			await client.from('posts').delete().eq('id', key)
+		}
+
+		else {
+			const { error: updateError }: any = await server.from("posts").update({ Accepted: true }).eq("id", key)
+			if (updateError) return useReturnResponse(event, internalServerError);
+		}
 	}
 
-	
 	/*
 	************************************************************************************
 	*/
-
 
 	return useReturnResponse(event, {
 		status: {

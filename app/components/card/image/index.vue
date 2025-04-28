@@ -12,6 +12,9 @@
 				</button>
 			</div>
 			<div v-else-if="methods" class="relative z-40 flex items-center justify-start gap-2 p-2 ">
+				<button @click="pinImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+					<icon :name=" pinned ? 'ri:unpin-line' : 'ri:pushpin-line'" size="1.2em" />
+				</button>
 				<button @click="methods[0]" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon name="ri:check-line" size="1.2em" />
 				</button>
@@ -70,7 +73,7 @@
 
 	hearts.value = content.likes.count;
 	liked.value = content.has_liked;
-	const isAnimating = ref(false); // Nieuwe state voor animatie
+	const isAnimating = ref(false); 
 
 	const comments = ref(0);
 
@@ -86,6 +89,10 @@
 
 	const { addToast } = useToast();
 	const { updateItemByMetaId } = useGroupStore();
+	const { setPinned, getPinned } = usePinStore();
+
+	const pinned = ref(false);
+	pinned.value = getPinned(group_id, { id: content.id }) ? true : false;
 
 	const webSocket = inject<any>("WebSocket");
 
@@ -96,6 +103,11 @@
 			hearts.value = data.likes.count;
 		}
 	});
+
+	const pinImage = async () => {
+		pinned.value = !pinned.value;
+		setPinned(group_id, { ...content, id: content.id })
+	};
 
 	const likeImage = async () => {
 		isAnimating.value = true; 
