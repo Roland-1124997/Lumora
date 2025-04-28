@@ -7,8 +7,8 @@
 						<img :src="member.avatar || '/profile.jpg'" class="w-10 h-10 rounded-full" />
 						<div class="pl-2 border-l border-black">
 							<h1 class="-mb-1 font-bold">{{ member.name }}</h1>
-							<p v-if="member.can_delete_messages_all" class="text-sm text-gray-500">Admin</p>
-							<p v-else-if="member.can_edit_group" class="text-sm text-gray-500">Moderator</p>
+							<p v-if="member.can_edit_group" class="text-sm text-gray-500">Admin</p>
+							<p v-else-if="member.can_delete_messages_all" class="text-sm text-gray-500">Moderator</p>
 							<p v-else class="text-sm text-gray-500 text">Member</p>
 						</div>
 					</div>

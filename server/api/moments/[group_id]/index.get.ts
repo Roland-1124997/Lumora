@@ -25,6 +25,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
+	if (pending) {
+		if (!accepted.can_edit_group) return useReturnResponse(event, forbiddenError);
+	}
+
 	return useReturnResponse(event, {
 		status: {
 			success: true,

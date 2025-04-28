@@ -1,38 +1,45 @@
 <template>
 	<div v-if="List">
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
-			<div class="items-center hidden gap-2 md:flex">
-				<button :disabled="!accepted" @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-					<icon name="ri:add-circle-line" size="1.4em" />
-					<span> Create posts </span>
+
+			<div class="items-center hidden gap-2 md:flex ">
+				<button :disabled=" List.length < 1 || reload" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+					<icon name="ri:check-line" size="1.2em" />
+					<span> Approve all</span>
 				</button>
-				<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex items-center justify-center w-fit gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-					<span> Queue </span>
-				</NuxtLink>
+
+				<button :disabled=" List.length < 1 || reload" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+					<icon name="ri:close-line" size="1.2em" />
+					<span> Reject all </span>
+				</button>
 			</div>
 
-			<button :disabled="!accepted" @click="createUploadFunction()" class="flex md:hidden items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-				<icon name="ri:add-circle-line" size="1.4em" />
-				<span> Create posts </span>
+			<button :disabled=" List.length < 1 || reload" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<icon name="ri:check-line" size="1.2em" />
+				<span> Approve all</span>
 			</button>
-			<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex md:hidden items-center justify-center w-fit gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-				<span> Queue </span>
-			</NuxtLink>
-			<div class="flex items-center gap-2">
-				<button :disabled=" List.length < 1 || reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+
+			<button :disabled=" List.length < 1 || reload" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<icon name="ri:close-line" size="1.2em" />
+				<span> Reject all </span>
+			</button>
+			
+			<div class="flex items-center gap-2 ">
+				<button :disabled="List.length < 1 || reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="List.length < 1 || reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 				<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon name="ri:information-line" size="1.4em" />
 				</NuxtLink>
+				
 			</div>
 		</div>
 		<hr class="mb-2" />
 
-		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
+		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class=" h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
 				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
-					<LazyCardImage v-if="content" :content="content" />
+					<LazyCardImage v-if="content" :content="content" :methods="[() => approveImage(content), () => rejectImage(content)]"  />
 					<LazyCardImageSkeleton v-else />
 				</div>
 			</div>
@@ -92,7 +99,7 @@
 	 */
 
 	const { updateGroupValue } = inject<any>("group");
-	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
+	const { setItemToStart } = useGroupStore();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
 
 	/*
@@ -112,15 +119,12 @@
 	const updateListData = (response: ApiResponse<Post[]>, page: number = 1, options: { set?: boolean; update?: boolean; reload?: boolean } = {}) => {
 		if (options.reload) {
 			List.value = response.data as Post[];
-			removeData(group_id, { partial: false });
-			setTimeout(() => setGroupData(group_id, name.value, page, totalPages.value, List.value), 3000);
+			
 		} else if (options.set || page === 1) {
 			List.value = response.data as Post[];
-			removeData(group_id, { partial: true });
-			setTimeout(() => setGroupData(group_id, name.value, page, totalPages.value, List.value), 200);
+			
 		} else if (options.update || page > 1) {
 			if (Array.isArray(response.data)) List.value.push(...response.data);
-			setTimeout(() => updateGroupData(group_id, name.value, page, totalPages.value, List.value), 200);
 		}
 	};
 
@@ -130,7 +134,7 @@
 		if (options.reload) Page.value = 1;
 		if (options.update) Page.value += 1;
 
-		await makeRequest(`/api/moments/${group_id}?page=${Page.value}`, { sessions: options.reload || options.update });
+		await makeRequest(`/api/moments/${group_id}?page=${Page.value}&pending=true`, { sessions: options.reload || options.update });
 
 		if (data.value) {
 			const response = processPostsApiResponse(data);
@@ -138,15 +142,6 @@
 		}
 
 		setTimeout(() => (load.value = false), timer);
-	};
-
-	const useDisplayStorageData = (state: Record<string, any>) => {
-		totalPages.value = state.pagination.total;
-		List.value = state.data;
-		Page.value = state.pagination.page;
-		name.value = state.group.name;
-
-		updateGroupValue(name.value);
 	};
 
 	/*
@@ -158,9 +153,7 @@
 	const has_permisons = ref(false);
 	const loading = ref(false);
 
-	const group: any = getGroupData(group_id);
-	if (!group) await useFetchData({ set: true }, loading);
-	else useDisplayStorageData(group);
+	await useFetchData({ set: true }, loading);
 
 	await $fetch(`/api/moments/pending/${group_id}`)
 		.then((response) => {
@@ -175,28 +168,7 @@
 	 */
 
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
-	const { scrollPercentage, scrollPixels, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
-
-	const useScrollToPosition = (state: Record<string, any>, behavior: ScrollBehavior = "auto") => {
-		if (state) {
-			scrollPercentage.value = state.percentage;
-			scrollPixels.value = state.pixels;
-
-			const container = containerProps.ref.value;
-			const scrollPosition = (scrollPixels.value / 100) * state.percentage;
-
-			if (container)
-				container.scrollTo({
-					top: scrollPosition,
-					behavior: behavior,
-				});
-		}
-	};
-
-	const scrollData = getScrollData(group_id);
-	onMounted(() => {
-		if (scrollData) useScrollToPosition(scrollData);
-	});
+	const { scrollPercentage,  scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
 
 	useInfiniteScroll(
 		containerProps.ref,
@@ -207,23 +179,51 @@
 		{ direction: "bottom", distance: 20 }
 	);
 
-	watch(scrollPercentage, (percentage) => updateScrollData(group_id, percentage, scrollPixels.value));
-
+	
 	/*
 	 ************************************************************************************
 	 */
 
-	const handleManualReload = async () => {
-		await useFetchData({ reload: true }, reload, 2000);
-	};
+	const { addToast } = useToast();
+
+	const approveImage = async (image: any) => {
+
+		await $fetch<any>(`/api/moments/pending/${group_id}/${image.id}`, { method: "PATCH", body: { has_been_accepted: true } }).then( async (response: any) => {
+			await handleReload();
+			if(data.value) setItemToStart(group_id, {
+				...image, has_been_accepted: true,
+			});
+			
+		}).catch((error) => {
+			addToast({
+				message: `Unable to approve this image at the moment.`,
+				type: "error",
+				duration: 5000,
+			});
+		});
+	}
+
+	const rejectImage = async (image: any) => {
+		await $fetch<any>(`/api/moments/pending/${group_id}/${image.id}`, { method: "PATCH", body: { has_been_accepted: false } }).then(async (response: any) => await handleReload()).catch((error) => {
+			addToast({
+				message: error || `Unable to reject this image at the moment.`,
+				type: "error",
+				duration: 5000,
+			});
+		});
+	}
+
+	/*
+	************************************************************************************
+	*/
 
 	const reload = ref(false);
+
 	const handleReload = async () => {
 		const page = ref(1);
-		reload.value = true;
-
+		
 		while (page.value <= totalPages.value) {
-			await makeRequest(`/api/moments/${group_id}?page=${page.value}`, { sessions: true });
+			await makeRequest(`/api/moments/${group_id}?page=${page.value}&pending=true`, { sessions: true });
 
 			if (data.value) {
 				const response = processPostsApiResponse(data);
@@ -233,8 +233,10 @@
 			if (page.value < totalPages.value) page.value++;
 			else break;
 		}
+	};
 
-		setTimeout(() => (reload.value = false), 2000);
+	const handleManualReload = async () => {
+		await useFetchData({ reload: true }, reload, 2000);
 	};
 
 	/*
@@ -242,44 +244,4 @@
 	 */
 
 	
-	const { addToast } = useToast();
-
-	const { updateModalValue } = inject<any>("modal");
-
-	const createUploadFunction = () => {
-		updateModalValue({
-			open: true,
-			type: "images",
-			name: "Create experience",
-			requestUrl: `/api/moments/${group_id}`,
-			onSuccess: handleSuccess,
-			onError: handleError,
-		});
-	};
-
-	const handleSuccess = async ({ response }: SuccessResponse<Post>) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-
-		if(need_approval.value) return addToast({ 
-			message: "Your image has been submitted for approval.", 
-			type: "success", 
-			duration: 5000 
-		});
-		
-		else addToast({ 
-			message: "Your image has been posted successfully.", 
-			type: "success", 
-			duration: 5000 
-		});
-
-		if (response.status.redirect) navigateTo(response.status.redirect);
-		if (response.status.refresh) handleReload();
-	};
-
-	const handleError = async ({ error, actions }: ErrorResponse) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-		else actions.setErrors({ message: ["An error occurred, unable to post an image! Please try again later."] });
-	};
 </script>

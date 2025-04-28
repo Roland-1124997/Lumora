@@ -11,14 +11,17 @@
 					<UtilsCounter :count="comments" />
 				</button>
 			</div>
-			<div v-else class="relative z-40 flex items-center justify-start gap-2 p-2 ">
-				<button class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
-					<icon :class="[liked ? 'text-green-600' : '', isAnimating ? 'animate-like' : '']" :name="liked ? 'ri:check-double-line' : 'ri:check-line'" size="1.2em" />
+			<div v-else-if="methods" class="relative z-40 flex items-center justify-start gap-2 p-2 ">
+				<button @click="methods[0]" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+					<icon name="ri:check-line" size="1.2em" />
+				</button>
+				<button @click="methods[1]" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+					<icon name="ri:close-line" size="1.2em" />
 				</button>
 			</div>
 
 			<NuxtLink v-if="content.has_been_accepted && loaded && targetIsVisible" :to="content.url ? content.url : `${$route.path}/${content.id}`">
-				<img :src="content.media.url" :alt="content.author.id" class="object-cover  aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
+				<img :src="content.media.url" :alt="content.author.id" class="object-cover aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
 			</NuxtLink>
 			<div v-else-if="!content.has_been_accepted && loaded && targetIsVisible">
 				<img :src="content.media.url" :alt="content.author.id" class="object-cover  aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
@@ -60,8 +63,9 @@
 	const liked = ref(false);
 	const loaded = ref(false);
 
-	const { content } = defineProps({
+	const { content, methods } = defineProps({
 		content: { type: Object, required: true },
+		methods: { type: Array, required: false },
 	});
 
 	hearts.value = content.likes.count;

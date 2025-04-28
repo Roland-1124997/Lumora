@@ -39,7 +39,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             permissions: {
                 options: [
                     { key: "can_edit_group", label: "can edit the group", value: data.can_edit_group || false },
-                    { key: "can_delete_messages_all", label: "can delete members and posts", value: data.can_delete_messages_all || false },
+                    { key: "can_delete_messages_all", label: "can delete posts", value: data.can_delete_messages_all || false },
                 ],
             },
             

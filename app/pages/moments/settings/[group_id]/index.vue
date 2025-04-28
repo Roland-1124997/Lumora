@@ -89,8 +89,8 @@
 											<div>
 												<h1 class="text-sm font-bold">{{ member?.name }}</h1>
 												<p v-if="member?.Permissions?.can_delete_group" class="text-sm text-gray-500">Owner</p>
-												<p v-else-if="member?.Permissions?.can_delete_messages_all" class="text-sm text-gray-500">Admin</p>
-												<p v-else-if="member?.Permissions?.can_edit_group" class="text-sm text-gray-500 text">Moderator</p>
+												<p v-else-if="member?.Permissions?.can_edit_group" class="text-sm text-gray-500">Admin</p>
+												<p v-else-if="member?.Permissions?.can_delete_messages_all" class="text-sm text-gray-500 text">Moderator</p>
 												<p v-else-if="member?.accepted" class="text-sm text-gray-500 text">Member</p>
 												<p v-else class="text-sm text-gray-500 text">Pending</p>
 											</div>
