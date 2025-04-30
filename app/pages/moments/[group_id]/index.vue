@@ -7,7 +7,10 @@
 					<span> Create posts </span>
 				</button>
 				<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex items-center justify-center w-fit gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-					<span> Queue </span>
+					<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit ">
+						{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}
+					</span>
+					<span> Queue</span>
 				</NuxtLink>
 			</div>
 
@@ -15,7 +18,10 @@
 				<icon name="ri:add-circle-line" size="1.4em" />
 				<span> Create posts </span>
 			</button>
-			<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex md:hidden items-center justify-center w-fit gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex md:hidden items-center justify-center w-full max-w-[5.9rem] gap-1 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit ">
+					{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}
+				</span>
 				<span> Queue </span>
 			</NuxtLink>
 			<div class="flex items-center gap-2">
@@ -156,6 +162,7 @@
 	const accepted = ref(false);
 	const need_approval = ref(false);
 	const has_permisons = ref(false);
+	const posts_count_need_approval = ref(0);
 	const loading = ref(false);
 
 	const group: any = getGroupData(group_id);
@@ -167,6 +174,7 @@
 			accepted.value = response.data.accepted;
 			need_approval.value = response.data.need_approval;
 			has_permisons.value = response.data.has_permisons;
+			posts_count_need_approval.value = response.data.posts_count_need_approval;
 		})
 		.catch((error) => {});
 

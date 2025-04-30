@@ -1,3 +1,5 @@
+import { create } from "domain";
+
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
 
 	if (!user) return useReturnResponse(event, unauthorizedError);
@@ -25,11 +27,22 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	
 	if (!request.has_been_accepted) {
 		await client.from('posts').delete().eq('id', image_id)
+
+		await server.from("groups").update({
+			last_photo_posted_by: null,
+			last_action: "Rejected"
+		}).eq("id", group_id)
 	} 
 	
 	else {
-		const { error: updateError }: any = await server.from("posts").update({ Accepted: true }).eq("id", image_id)
+		const { data: updateData, error: updateError }: any = await server.from("posts").update({ Accepted: true }).eq("id", image_id).select().single()
 		if (updateError) return useReturnResponse(event, internalServerError);
+
+		await server.from("groups").update({
+			last_photo_posted_by: updateData.author_id,
+			last_action: "Approved"
+		}).eq("id", group_id)
+
 	}
 
 	

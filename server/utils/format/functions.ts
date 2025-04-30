@@ -6,14 +6,26 @@ export const useFormatListGroup = async (server: SupabaseClient, data: Record<st
         const author = users.users.find((user: User) => user.id === data.last_photo_posted_by);
         const isOwner = data.last_photo_posted_by == user.id;
 
+        const { data: attention } = await server.rpc('should_show_group_notification', {
+            p_user_id: user.id,
+            p_group_id: data.id
+        })
+
+        const { data: member }: any = await server.from("members").select("*").eq("group_id", data.id).eq("user_id", user.id).single()
+        const { data: settings }: any = await server.from("group_settings").select("*").eq("group_id", data.id).single()
+        const { count }: any = await server.from("posts").select("*", { count: "exact" }).eq("Accepted", false).eq("group_id", data.id)
+    
+
         return {
             id: data.id,
             name: data.name,
             description: data.description,
             last_active: data.last_active,
+            last_action: !member.accepted? 'Pending' : data.last_action,
+            needs_attention: settings.needs_review && (settings.owner_id == user.id || member.can_edit_group) && count > 0 ? true : !member.accepted ? false : attention,
             last_photo_posted_by: {
-                name: isOwner ? `${author?.user_metadata?.name} (You)` : author?.user_metadata?.name,
-                url: author?.user_metadata.avatar_url || "/profile.jpg"
+                name: !member.accepted ? null : (isOwner ? `${author?.user_metadata?.name} (You)` : author?.user_metadata?.name),
+                url: !member.accepted ? null : (author?.user_metadata.avatar_url || "/profile.jpg")
             },
             media: {
                 type: "image",
@@ -38,6 +50,7 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
             return {
                 id: data.id,
                 created_at: data.created_at,
+                updated_at: data.updated_at,
                 has_liked: data.has_liked || false,
                 has_left: data.user_left || false,
                 has_been_accepted: data.accepted,

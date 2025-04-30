@@ -49,7 +49,7 @@
 							{{ content.group.name }}
 						</p>
 						<p class="text-xs text-gray-400 truncate md:text-sm">
-							{{ useTimeAgo(content.created_at).value }}
+							{{ useTimeAgo(content.updated_at || content.created_at).value }}
 						</p>
 					</div>
 				</div>

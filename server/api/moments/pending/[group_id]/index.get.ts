@@ -11,7 +11,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	const { data, error }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).single()
 	if (error) return useReturnResponse(event, notFoundError);
 
+	await server.rpc('upsert_user_group_visit', {
+		p_user_id: user.id,
+		p_group_id: group_id
+	})
+
 	const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", group_id).single()
+	if (settingError) return useReturnResponse(event, internalServerError)
+
+	const { count }: any = await client.from("posts").select("*", { count: "exact" }).eq("Accepted", false).eq("group_id", group_id)
 	if (settingError) return useReturnResponse(event, internalServerError)
 
 	/*
@@ -27,6 +35,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		data: { 
 			accepted: data.accepted,
 			need_approval: settings.needs_review,
+			posts_count_need_approval: settings.needs_review && (settings.owner_id == user.id || data.can_edit_group) ? count : 0,
 			has_permisons: settings.owner_id == user.id || data.can_edit_group,
 		}
 	});

@@ -28,11 +28,21 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		
 		if (!value) {
 			await client.from('posts').delete().eq('id', key)
+
+			await server.from("groups").update({
+				last_photo_posted_by: null,
+				last_action: "Rejected"
+			}).eq("id", group_id)
 		}
 
 		else {
-			const { error: updateError }: any = await server.from("posts").update({ Accepted: true }).eq("id", key)
+			const { data: updateData, error: updateError }: any = await server.from("posts").update({ Accepted: true }).eq("id", key).select().single()
 			if (updateError) return useReturnResponse(event, internalServerError);
+
+			await server.from("groups").update({
+				last_photo_posted_by: updateData.author_id,
+				last_action: "Approved"
+			}).eq("id", group_id)
 		}
 	}
 

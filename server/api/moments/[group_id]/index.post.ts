@@ -44,12 +44,16 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
-	const { error: errorGroup } = await server.from("groups").update({
-		last_active: new Date(Date.now() + (process.env.time ? parseInt(process.env.time) : 0)).toISOString(),
-		last_photo_posted_by: user.id
-	}).eq("id", group_id)
+	if (!settings.needs_review) {
+		const { error: errorGroup } = await server.from("groups").update({
+			last_photo_posted_by: user.id,
+			last_action: "Created"
+		}).eq("id", group_id)
 
-	if (errorGroup) return useReturnResponse(event, internalServerError)
+		if (errorGroup) return useReturnResponse(event, internalServerError)
+	}
+
+	
 
 	/*
 	************************************************************************************

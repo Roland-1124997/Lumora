@@ -3,23 +3,23 @@
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
 
 			<div class="items-center hidden gap-2 md:flex ">
-				<button :disabled=" List.length < 1 || reload" @click="approvePinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled="!has_pinned || List.length < 1 || reload" @click="approvePinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 					<icon name="ri:check-line" size="1.2em" />
 					<span> Approve all</span>
 				</button>
 
-				<button :disabled=" List.length < 1 || reload" @click="rejectPinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled="!has_pinned || List.length < 1 || reload" @click="rejectPinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 					<icon name="ri:close-line" size="1.2em" />
 					<span> Reject all </span>
 				</button>
 			</div>
 
-			<button :disabled=" List.length < 1 || reload" @click="approvePinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<button :disabled="!has_pinned || List.length < 1 || reload" @click="approvePinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 				<icon name="ri:check-line" size="1.2em" />
 				<span> Approve all</span>
 			</button>
 
-			<button :disabled=" List.length < 1 || reload" @click="rejectPinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<button :disabled="!has_pinned || List.length < 1 || reload" @click="rejectPinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 				<icon name="ri:close-line" size="1.2em" />
 				<span> Reject all </span>
 			</button>
@@ -100,8 +100,12 @@
 
 	const { updateGroupValue } = inject<any>("group");
 	const { setItemToStart } = useGroupStore();
-	const { getPinnedList, clearPinned } = usePinStore();
+	const { getPinnedList, getPinned, clearPinned } = usePinStore();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
+
+	const has_pinned = computed(() => {
+		return getPinnedList(group_id).details.length > 0;
+	});
 
 	/*
 	 ************************************************************************************

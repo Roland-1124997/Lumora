@@ -35,5 +35,3 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     });
 
 })
-
-

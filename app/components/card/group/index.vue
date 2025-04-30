@@ -6,20 +6,48 @@
 				<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1.4em" />
 			</div>
 			<div class="flex-1 pl-3 border-l">
-				<div class="flex justify-between">
-					<h3 class="text-lg font-semibold">{{ content.name }}</h3>
-					<ClientOnly>
-						<p class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>
-					</ClientOnly>
-					
+				<div class="flex items-center justify-between">
+					<div class="flex items-center gap-2 mb-1">
+						<h3 class="text-lg font-semibold">{{ content.name }}</h3>
+						<icon v-if="content.needs_attention" name="ri:error-warning-fill" size="1.6rem" class="text-red-600 " />
+					</div>
+
+					<p v-if="content.last_action != 'Pending'" class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>
 				</div>
 				<p class="-mt-1 text-sm text-gray-500">
-					<span v-if="content.last_photo_posted_by.name">Last photo posted by: 
-						<span class="block md:inline-block">
-							<span class="font-bold text-gray-500 truncate">{{ content.last_photo_posted_by.name }}</span>
+					<span v-if="content.last_action == 'Deleted'">
+						<span
+							>A post has been removed by a:
+							<span class="block md:inline-block">
+								<span class="font-bold text-gray-500 truncate">moderator or admin</span>
+							</span>
 						</span>
 					</span>
-					<span v-else>No activity yet, check back later</span>
+					<span v-else-if="content.last_action == 'Rejected'">
+						<span
+							>An post has been rejected by a:
+							<span class="block md:inline-block">
+								<span class="font-bold text-gray-500 truncate">moderator or admin</span>
+							</span>
+						</span>
+					</span>
+					<span v-else-if="content.last_action == 'Created' || content.last_action == 'Approved'">
+						<span v-if="content.last_photo_posted_by.name"
+							>Last photo posted by:
+							<span class="block md:inline-block">
+								<span class="font-bold text-gray-500 truncate">{{ content.last_photo_posted_by.name }}</span>
+							</span>
+						</span>
+						<span v-else>No activity yet, check back later</span>
+					</span>
+					<span v-else-if="content.last_action == 'Pending'">
+						<span
+							>Awaiting for membership approval by a:
+							<span class="block md:inline-block">
+								<span class="font-bold text-gray-500 truncate">moderator or admin</span>
+							</span>
+						</span>
+					</span>
 				</p>
 			</div>
 		</NuxtLink>
