@@ -17,7 +17,7 @@
 				<p class="-mt-1 text-sm text-gray-500">
 					<span v-if="content.last_action == 'Deleted'">
 						<span
-							>A post has been removed by a:
+							>A photo has been removed by a:
 							<span class="block md:inline-block">
 								<span class="font-bold text-gray-500 truncate">moderator or admin</span>
 							</span>
@@ -25,13 +25,13 @@
 					</span>
 					<span v-else-if="content.last_action == 'Rejected'">
 						<span
-							>An post has been rejected by a:
+							>An photo has been rejected by a:
 							<span class="block md:inline-block">
 								<span class="font-bold text-gray-500 truncate">moderator or admin</span>
 							</span>
 						</span>
 					</span>
-					<span v-else-if="content.last_action == 'Created' || content.last_action == 'Approved'">
+					<span v-else-if="content.last_action == 'Created'">
 						<span v-if="content.last_photo_posted_by.name"
 							>Last photo posted by:
 							<span class="block md:inline-block">
@@ -39,6 +39,14 @@
 							</span>
 						</span>
 						<span v-else>No activity yet, check back later</span>
+					</span>
+					<span v-else-if="content.last_action == 'Approved'">
+						<span>
+							Approved an photo posted by:
+							<span class="block md:inline-block">
+								<span class="font-bold text-gray-500 truncate">{{ content.last_photo_posted_by.name }}</span>
+							</span>
+						</span>
 					</span>
 					<span v-else-if="content.last_action == 'Pending'">
 						<span
