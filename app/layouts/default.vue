@@ -47,6 +47,7 @@
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
 				:resize="modal.resize" 
+				v-model="modal"
 			/>
 			<FieldFormCreateImage v-if="modal.type == 'images'" 
 				:callback="closeModal"
@@ -63,6 +64,7 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess" 
 				:resize="modal.resize" 
+				v-model="modal"
 			/>
 			<FieldFormDeleteConfirm v-if="modal.type.includes('negative')"
 				:callback="closeModal"
@@ -71,6 +73,7 @@
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
 				:resize="modal.resize" 
+				v-model="modal"
 			/>
 			<FieldFormJoinLink v-if="modal.type == 'join'"
 				:callback="closeModal"
@@ -78,6 +81,7 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
 				:resize="modal.resize" 
+				v-model="modal"
 			/>
 			<FieldFormJoinConfirm v-if="modal.type == 'join:group'"
 				:callback="closeModal"
@@ -86,6 +90,7 @@
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
 				:resize="modal.resize" 
+				v-model="modal"
 			/>
 
 			<FieldFormUpdateMember v-if="modal.type == 'update:member'"
@@ -94,6 +99,7 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
 				:resize="modal.resize" 
+				v-model="modal"
 			/>
 
 			<FieldFormUpdateConfirm v-if="modal.type.includes('image:')"
@@ -103,6 +109,7 @@
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
 				:resize="modal.resize" 
+				v-model="modal"
 			/>
 
 			<FieldFormUpdateMultipleConfirm v-if="modal.type.includes('images:multiple')"
@@ -112,6 +119,7 @@
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
 				:resize="modal.resize" 
+				v-model="modal"
 			/>
 
 		</ModalBaselayer>
