@@ -1,5 +1,5 @@
 <template>
-	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :schema label="Create group">
+	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :resize :schema label="Create group">
 		<template v-slot="{ errors }">
 			<div class="py-3 mt-5 border-y h-fit">
 				<div :class="errors.thumbnail || errors.name ? ' mb-1' :' '" class="flex items-center space-x-3">
@@ -45,12 +45,14 @@
 	import { toTypedSchema } from "@vee-validate/zod";
 	import * as zod from "zod";
 
+	
 	const { requestUrl, onSuccess, onError, method } = defineProps({
 		callback: { type: Function, required: false },
 		requestUrl: { type: String, required: true },
 		onSuccess: { type: Function, required: true },
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },
+		resize: { type: Boolean, default: false },
 	});
 
 	const schema = toTypedSchema(

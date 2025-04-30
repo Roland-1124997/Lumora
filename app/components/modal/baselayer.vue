@@ -1,8 +1,27 @@
 <template>
 	<div>
 		<Transition name="modal">
-			<div v-if="status"
-				class="fixed top-0 left-0 z-50 flex items-end justify-center w-screen h-full bg-black md:justify-center md:items-center bg-opacity-60 backdrop-blur-sm">
+			<div v-if="status && modalStatus.minimized" class="fixed z-50 flex items-start justify-center transform bottom-5 right-[7.8rem] md:bottom-[0.85rem] md:right-[18.5rem] w-fit">
+				<div tabindex="0">
+					<Transition name="modalDelay">
+						<div ref="modalDelay" v-if="DelayStatus">
+							<div class="w-[15.55rem] px-3 p-1 bg-white shadow-xl border rounded-2xl">
+								<div class="flex items-center justify-between gap-2">
+									
+									<div class="w-full h-5 overflow-hidden bg-gray-200 rounded-full">
+										<div v-if="modalStatus.loading" class="h-full bg-[#756145]/80 loading-bar rounded-full"></div>
+									</div>
+									<button class="mt-1 " @click="closeModal">
+										<Icon name="uil:multiply" size="1.4em"></Icon>
+									</button>
+								</div>
+							</div>
+						</div>
+					</Transition>
+				</div>
+			</div>
+
+			<div v-else-if="status" class="fixed top-0 left-0 z-50 flex items-end justify-center w-screen h-full bg-black md:justify-center md:items-center bg-opacity-60 backdrop-blur-sm">
 				<div tabindex="0" class="mx-6 outline-none md:mb-0 rounded-xl" ref="modal">
 					<Transition name="modalDelay">
 						<div ref="modalDelay" v-if="DelayStatus">
@@ -49,7 +68,11 @@
 	});
 
 	onClickOutside(modal, () => closeModal());
-	const closeModal = () => (modalStatus.value = false);
+
+	const closeModal = () => {
+		modalStatus.value?.controller.abort()
+		modalStatus.value = false
+	};
 </script>
 
 <style scoped>
@@ -72,5 +95,19 @@
 	.modalDelay-leave-to {
 		opacity: 0;
 		transform: translateY(12em);
+	}
+
+	@keyframes slide {
+		0% {
+			transform: translateX(-100%); /* Start buiten de container */
+		}
+		100% {
+			transform: translateX(100%); /* Eindigt buiten de container */
+		}
+	}
+
+	.loading-bar {
+		width: 100%;
+		animation: slide 4s infinite linear;
 	}
 </style>

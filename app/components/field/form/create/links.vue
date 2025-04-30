@@ -1,5 +1,5 @@
 <template>
-	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :schema label="Generate">
+	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :resize :schema label="Generate">
 		<template v-slot="{ errors }">
 			<div class="py-3 mt-5 border-y h-fit">
 				<field name="LinkExpiry" v-slot="{ field, meta }: any" v-model="newLinkExpiry">
@@ -74,6 +74,7 @@
 		onSuccess: { type: Function, required: true },
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },
+		resize: { type: Boolean, default: false },
 	});
 
 	const schema = toTypedSchema(

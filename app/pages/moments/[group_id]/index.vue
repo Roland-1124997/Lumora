@@ -260,6 +260,9 @@
 			type: "images",
 			name: "Create experience",
 			requestUrl: `/api/moments/${group_id}`,
+			resize: true,
+			minimized: false,
+			loading: false,
 			onSuccess: handleSuccess,
 			onError: handleError,
 		});

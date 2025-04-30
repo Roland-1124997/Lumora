@@ -1,5 +1,5 @@
 <template>
-	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :schema label="Update">
+	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :resize :schema label="Update">
 		<template v-slot="{ errors }">
 			<div class="py-3 mt-5 border-y h-fit">
 				<div class="">
@@ -47,6 +47,7 @@
         onSuccess: { type: Function, required: true },
         onError: { type: Function, required: true },
         method: { type: String, default: "PATCH" },
+		resize: { type: Boolean, default: false },
     });
 
     interface PermissionOption {

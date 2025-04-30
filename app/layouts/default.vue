@@ -29,13 +29,16 @@
 
 		<UtilsToast/>
 		
-		<ModalBaselayer v-model="modal"> 
+		<ModalBaselayer v-model="modal" > 
 
 			<FieldFormCreateGroup v-if="modal.type == 'Create'" 
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
 				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess" 
+				:onSuccess="modal.onSuccess"
+				:resize="modal.resize"
+				v-model="modal"
+				
 				/>
 			<FieldFormDeleteGroup v-if="modal.type.includes('Group')"
 				:callback="closeModal"
@@ -43,18 +46,23 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
+				:resize="modal.resize" 
 			/>
 			<FieldFormCreateImage v-if="modal.type == 'images'" 
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess" 
+				:resize="modal.resize" 
+				v-model="modal"
+				
 				/>
 			<FieldFormCreateLinks v-if="modal.type == 'links'"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess" 
+				:resize="modal.resize" 
 			/>
 			<FieldFormDeleteConfirm v-if="modal.type.includes('negative')"
 				:callback="closeModal"
@@ -62,13 +70,14 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
+				:resize="modal.resize" 
 			/>
 			<FieldFormJoinLink v-if="modal.type == 'join'"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
+				:resize="modal.resize" 
 			/>
 			<FieldFormJoinConfirm v-if="modal.type == 'join:group'"
 				:callback="closeModal"
@@ -76,6 +85,7 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
+				:resize="modal.resize" 
 			/>
 
 			<FieldFormUpdateMember v-if="modal.type == 'update:member'"
@@ -83,7 +93,7 @@
 				:requestUrl="modal.requestUrl" 
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
+				:resize="modal.resize" 
 			/>
 
 			<FieldFormUpdateConfirm v-if="modal.type.includes('image:')"
@@ -92,6 +102,7 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
+				:resize="modal.resize" 
 			/>
 
 			<FieldFormUpdateMultipleConfirm v-if="modal.type.includes('images:multiple')"
@@ -100,9 +111,8 @@
 				:onError="modal.onError" 
 				:onSuccess="modal.onSuccess"  
 				:type="modal.type"
+				:resize="modal.resize" 
 			/>
-
-
 
 		</ModalBaselayer>
 	</div>
@@ -124,6 +134,7 @@
 	
 	const modal = ref({
 		open: false,
+		isMinimized: false,
 		type: "",
 	});
 
@@ -164,7 +175,7 @@
 	}
 
 	function updateModalValue(option) {
-		modal.value = option;
+		modal.value = {...option, controller: new AbortController()};
 	}
 
 	function updateUsername(name) {

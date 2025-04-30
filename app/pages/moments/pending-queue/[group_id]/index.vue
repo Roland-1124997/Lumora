@@ -100,7 +100,7 @@
 
 	const { updateGroupValue } = inject<any>("group");
 	const { setItemToStart } = useGroupStore();
-	const { getPinnedList, getPinned, clearPinned } = usePinStore();
+	const { getPinnedList, clearPinned } = usePinStore();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
 
 	const has_pinned = computed(() => {

@@ -1,9 +1,9 @@
 <template>
     <div>
-        <button v-if="totalPages > 1" :disabled="loading" @click="scrollToTop" class="fixed z-50 flex items-center justify-center p-3 text-white bg-[#756145] rounded-full shadow-lg bottom-4 right-[4.2rem] md:bottom-12 md:right-[15rem]">
+        <button v-if="totalPages > 1" :disabled="loading" @click="scrollToTop" class="fixed z-50 flex items-center justify-center p-3 text-white bg-[#756145] rounded-full shadow-lg bottom-4 right-[4.2rem] md:bottom-[0.60rem] md:right-[15rem]">
             <icon class="transition-all " name="ri:arrow-up-line" size="1.4em" />
         </button>
-        <button v-if="totalPages > 1" :disabled="loading" @click="scrollToBottom" class="fixed z-50 flex items-center justify-center p-3 text-white bg-[#756145] rounded-full shadow-lg bottom-4 right-4 md:bottom-12 md:right-[11.65rem]">
+        <button v-if="totalPages > 1" :disabled="loading" @click="scrollToBottom" class="fixed z-50 flex items-center justify-center p-3 text-white bg-[#756145] rounded-full shadow-lg bottom-4 right-4 md:bottom-[0.60rem] md:right-[11.65rem]">
             <icon v-if="loading" class="animate-spin" name="ri:loader-2-line" size="1.4em" />
             <icon v-else  class="transition-all " name="ri:arrow-down-line" size="1.4em" />
         </button>

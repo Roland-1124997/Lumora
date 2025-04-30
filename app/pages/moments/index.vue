@@ -148,6 +148,9 @@
 			type: "Create",
 			name: "Create group",
 			requestUrl: "/api/moments",
+			resize: true,
+			minimized: false,
+			loading: false,
 			onSuccess: handleSuccess,
 			onError: handleError,
 		});

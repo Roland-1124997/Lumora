@@ -1,5 +1,5 @@
 <template>
-	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :schema :label="type.split(':')[1] == 'approve' ? 'Approve image' : 'Reject image'">
+	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :method :resize :schema :label="type.split(':')[1] == 'approve' ? 'Approve image' : 'Reject image'">
 		<template v-slot="{ errors }">
 			<div class="py-3 mt-5 border-y h-fit">
 				<div class="flex flex-col items-center justify-center w-full h-full gap-5 my-6">
@@ -31,6 +31,7 @@
 		onError: { type: Function, required: true },
 		method: { type: String, default: "PATCH" },
 		type: { type: String, required: true },
+		resize: { type: Boolean, default: false },
 	});
 
 	const schema = toTypedSchema(
