@@ -63,9 +63,9 @@ const useSupaBaseUser = async (server: SupabaseClient, peer: Peer) => {
     return await server.auth.getUser(access_token || refresh_token ) as any
 }
 
-const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: any) => {
+const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: Record<string, any>) => {
     const topics = await useTopics(server, data)
-    const topicIds = topics.map((t: any) => t.group_id)
+    const topicIds = topics ? topics.map((topic: Tables<"members">) => topic.group_id).filter((id): id is string => id !== null) : []
 
     for (const topic of Array.from(peer.topics)) {
         if (!topicIds.includes(topic)) {
@@ -74,7 +74,7 @@ const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: any) 
         }
     }
 
-    topicIds.forEach((id: string) => {
+    topicIds.forEach((id) => {
         if (!peer.topics.has(id)) {
             peer.topics.add(id)
             peer.subscribe(id)
@@ -84,6 +84,6 @@ const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: any) 
 
 
 const useTopics = async (server: SupabaseClient, data: any) => {
-    const { data: topics }: any = await server.from("members").select("group_id").eq("user_id", data.user.id)
+    const { data: topics } = await server.from("members").select("group_id").eq("user_id", data.user.id).overrideTypes <Array<Tables<"members">>>()
     return topics
 }

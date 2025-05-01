@@ -12,7 +12,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const { count, data, error } = await client.from("groups")
         .select("*", { count: "exact" }).ilike("name", `${currentSearch}%`).range(start, end)
-        .order(currentSearch ? "name" : "last_active", { ascending: currentSearch ? true : false });
+        .order(currentSearch ? "name" : "last_active", { ascending: currentSearch ? true : false }).overrideTypes<Array<Tables<"groups">>>()
 
     if (error) return useReturnResponse(event, internalServerError);
     if (count === 0) return useReturnResponse(event, notFoundError);

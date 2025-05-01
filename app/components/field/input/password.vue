@@ -1,7 +1,7 @@
 <template>
     <field :name="name" v-slot="{ field, meta }: any">
         <div class="space-y-2">
-            <label class="text-sm font-medium text-gray-700 " :for="name"> {{ label }} <span class="text-red-700 ">{{ required ? "*" : "" }}</span> 
+            <label class="text-sm font-medium text-gray-700 " :for="name"> {{ label }} <span class="text-red-700 ">{{ required ? "* " : "" }}</span> 
                 <transition name="fade">
                     <span v-if="meta.validated && !meta.valid" class="text-red-700 ">({{ meta.errors[0] || "There is an issue with this field" }})</span>
                 </transition>
@@ -16,8 +16,8 @@
 				</div>
 				
 				<input v-else v-bind="field" :id="name" :placeholder :type="showPassword ? 'text' : 'password'" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
-                <button v-if="enableToggle" type="button" @click="togglePassword" class="z-20 flex items-center justify-center p-1 border bg-[#756145]/80 hover:bg-[#756145] w-11 rounded-xl group">
-                    <icon :name="showPassword ? 'ri:eye-off-fill' : 'ri:eye-fill'" size="1.2rem" class="bg-white opacity-80 group-hover:opacity-100"></icon>
+                <button v-if="enableToggle" :disabled type="button" @click="togglePassword" class="z-20 flex items-center justify-center p-1 border bg-[#756145]/80 hover:bg-[#756145] w-11 rounded-xl group disabled:opacity-50 disabled:hover:bg-[#756145]/80">
+                    <icon :name="showPassword ? 'ri:eye-off-fill' : 'ri:eye-fill'" size="1.2rem" :class="disabled ? ' opacity-80' : 'opacity-80 group-hover:opacity-100'" class="bg-white "></icon>
                 </button>
             </div>
         </div>

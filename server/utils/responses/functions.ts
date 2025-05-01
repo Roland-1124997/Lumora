@@ -1,4 +1,4 @@
-export const useReturnResponse = (event: H3Event, data: ApiResponse<Post[] | Group[] | User | permision>) => {
+export const useReturnResponse = (event: H3Event, data: ApiResponse<Post[] | Group[] | User | permision[] >) => {
     setResponseStatus(event, data.status.code)
     return { ...data }
 }

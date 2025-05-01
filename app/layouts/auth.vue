@@ -17,7 +17,5 @@
 </template>
 
 <script setup>
-
 	const { PWAInstalled } = useCheckPwa()
-
 </script>

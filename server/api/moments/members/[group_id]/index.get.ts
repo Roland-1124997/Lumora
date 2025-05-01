@@ -12,14 +12,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     ************************************************************************************
     */
 
-    const { error: permisionError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+    const { error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
     if (permisionError) return useReturnResponse(event, notFoundError)
 
-    const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
+    const { data: accepted } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single<Tables<"members">>()
     
     const { data, error } = !accepted 
-        ? await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id)
-        : await client.from("members").select("*").eq("group_id", group_id).neq("accepted", pending)
+        ? await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).overrideTypes<Array<Tables<"members">>>()
+        : await client.from("members").select("*").eq("group_id", group_id).neq("accepted", pending).overrideTypes<Array<Tables<"members">>>()
     
     if (error) return useReturnResponse(event, notFoundError)
 
@@ -29,14 +29,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const { data: users } = await useListUsers(server);
 
-    let usersData: any = data.map((data) => {
+    let usersData: Record<string, any> = data.map((data) => {
 
-        const author: any = users.users.find((user) => user.id === data.user_id);
+        const author: User | undefined = users.users.find((user) => user.id === data.user_id);
 
         return {
-            id: author.id,
-            name: user.id == author.id ? `${author.user_metadata.name} (You)` : author.user_metadata.name,
-            avatar: author.user_metadata.avatar_url || `/attachments/avatar/${author.id}`,
+            id: author?.id,
+            name: user.id == author?.id ? `${author?.user_metadata.name} (You)` : author?.user_metadata.name,
+            avatar: author?.user_metadata.avatar_url || `/attachments/avatar/${author?.id}`,
             accepted: data.accepted,
             Permissions: {
                 can_edit_group: data.can_edit_group,
@@ -47,7 +47,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         }
     })
 
-    if (currentSearch) usersData = usersData.filter((user: any) => {
+    if (currentSearch) usersData = usersData.filter((user: Record<string, any>) => {
         return user.name.toLowerCase().includes(currentSearch)
     })
 

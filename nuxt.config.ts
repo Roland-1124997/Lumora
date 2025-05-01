@@ -93,7 +93,8 @@ export default defineNuxtConfig({
       sameSite: 'lax',
       httpOnly: true,
       secure: false
-    }
+    },
+    types: "./server/utils/supabase/types/database.types.ts"
   },
 
   routeRules: {

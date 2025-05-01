@@ -5,10 +5,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	const { group_id } = getRouterParams(event);
 
-	const { data: permissions, error: permisionError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+	const { data: permissions, error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
 	if (permisionError) return useReturnResponse(event, notFoundError)
 
-	const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
+	const { data: accepted } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single<Tables<"members">>()
 
 	if (!accepted) return useReturnResponse(event, {
 		status: {
@@ -20,7 +20,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		data: []
 	});
 
-	const { data, error }: any = await client.from("invite_links").select("*").eq("group_id", group_id)
+	const { data: links, error } = await client.from("invite_links").select("*").eq("group_id", group_id).overrideTypes<Array<Tables<"invite_links">>>()
 	if (error) return useReturnResponse(event, internalServerError)
 
 	/*
@@ -28,7 +28,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	*/
 
 	const formated = await Promise.all(
-		data.map(async (data: Record<string, any>) => {
+		links.map(async (data: Record<string, any>) => {
 			return {
 				...data,
 				permision: {
@@ -36,7 +36,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 				},
 			};
 		})
-	);
+	) as [{
+		created_at: string, expiresAt: string, code: string, uses: number | null, 
+		group_id: string, id: string, user_id: string, permision: { delete: boolean }
+	}]
 
 	return useReturnResponse(event, {
 		status: {

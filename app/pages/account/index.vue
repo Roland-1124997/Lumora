@@ -2,11 +2,11 @@
 	<div>
 		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
 			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
-				<button :disabled="disabled || loading" @click="clickButton" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+				<button :disabled="disabled || loading" @click="clickButton" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-[#756145] hover:bg-gray-50 border disabled:opacity-50 border-[#756145] rounded-xl">
 					<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
 					<span v-else>Update profile</span>
 				</button>
-				<button :disabled="disabled || loading_password" @click="clickPasswordButton" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+				<button :disabled="disabled || loading_password" @click="clickPasswordButton" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-[#756145] hover:bg-gray-50 border disabled:opacity-50 border-[#756145] rounded-xl">
 					<icon v-if="loading_password" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
 					<span v-else>Update password</span>
 				</button>
@@ -22,10 +22,11 @@
 						<button ref="hidden" class="sr-only"></button>
 					</div>
 					<p class="mb-3 text-sm text-gray-500">Update your account information and profile picture.</p>
+					<p class="mb-3 -mt-3 text-sm text-red-700" v-if="disabled"> Disabled you are signed in with {{ user.data.provider }}</p>
 					<hr class="mb-2" />
 					<div class="flex flex-col w-full gap-2">
-						<FieldInput :disabled="disabled || loading" name="username" label="Display name" required :initalvalue="username" />
-						<FieldInputEmail :disabled="disabled || loading" name="email" label="Email" required :initalvalue="email" />
+						<FieldInput :disabled="disabled || loading" name="username" label="Display name" :required="!disabled" :initalvalue="username" />
+						<FieldInputEmail :disabled="disabled || loading" name="email" label="Email" :required="!disabled" :initalvalue="email" />
 					</div>
 				</Form>
 			</div>
@@ -36,11 +37,12 @@
 						<button ref="hidden-password" class="sr-only"></button>
 					</div>
 					<p class="mb-3 text-sm text-gray-500">Change your password to keep your account secure.</p>
+					<p class="mb-3 -mt-3 text-sm text-red-700" v-if="disabled"> Disabled you are signed in with {{ user.data.provider }}</p>
 					<hr class="mb-2" />
 					<div>
 						<div class="flex flex-col w-full gap-2">
-							<FieldInputPassword :disabled="disabled || loading_password" name="New_password" label="New Password" rerender enableToggle />
-							<FieldInputPassword :disabled="disabled || loading_password" name="Confirm_password" label="Confirm Password" rerender enableToggle />
+							<FieldInputPassword :disabled="disabled || loading_password" name="New_password" label="New Password" :required="!disabled" rerender enableToggle />
+							<FieldInputPassword :disabled="disabled || loading_password" name="Confirm_password" label="Confirm Password" :required="!disabled" rerender enableToggle />
 						</div>
 					</div>
 				</Form>
@@ -52,7 +54,7 @@
 					</div>
 					<p class="mb-3 text-sm text-gray-500">Irreversible and destructive actions.</p>
 					<hr class="mb-2" />
-					<button @click="createDeleteFunction" class="w-full p-3 text-left border border-black border-dashed rounded-md">
+					<button @click="createDeleteFunction" class="w-full p-3 text-left text-red-700 border-2 border-red-300 border-dashed rounded-md bg-red-50">
 						<div class="font-bold">Delete Account</div>
 						<div class="text-xs opacity-70">Permanently delete your account and all of your data. This action cannot be undone.</div>
 					</button>

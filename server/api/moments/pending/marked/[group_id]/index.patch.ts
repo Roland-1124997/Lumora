@@ -12,10 +12,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
-	const { data, error }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).single()
+	const { data, error } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).single<Tables<'members'>>()
 	if (error) return useReturnResponse(event, notFoundError);
 
-	const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", group_id).single()
+	const { data: settings, error: settingError } = await client.from("group_settings").select("*").eq("group_id", group_id).single<Tables<'group_settings'>>()
 	if (settingError) return useReturnResponse(event, internalServerError)
 
 	if (settings.owner_id != user.id && !data.can_edit_group) return useReturnResponse(event, forbiddenError)
@@ -36,7 +36,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		}
 
 		else {
-			const { data: updateData, error: updateError }: any = await server.from("posts").update({ Accepted: true }).eq("id", key).select().single()
+			const { data: updateData, error: updateError } = await server.from("posts").update({ Accepted: true }).eq("id", key).select().single<Tables<"posts">>()
 			if (updateError) return useReturnResponse(event, internalServerError);
 
 			await server.from("groups").update({

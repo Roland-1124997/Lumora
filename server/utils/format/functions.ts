@@ -9,11 +9,11 @@ export const useFormatListGroup = async (server: SupabaseClient, data: Record<st
         const { data: attention } = await server.rpc('should_show_group_notification', {
             p_user_id: user.id,
             p_group_id: data.id
-        })
+        }).single<Boolean>()
 
-        const { data: member }: any = await server.from("members").select("*").eq("group_id", data.id).eq("user_id", user.id).single()
-        const { data: settings }: any = await server.from("group_settings").select("*").eq("group_id", data.id).single()
-        const { count }: any = await server.from("posts").select("*", { count: "exact" }).eq("Accepted", false).eq("group_id", data.id)
+        const { data: member } = await server.from("members").select("*").eq("group_id", data.id).eq("user_id", user.id).single<Tables<"members">>()
+        const { data: settings } = await server.from("group_settings").select("*").eq("group_id", data.id).single<Tables<"group_settings">>()
+        const { count } = await server.from("posts").select("*", { count: "exact" }).eq("Accepted", false).eq("group_id", data.id)
     
 
         return {
@@ -21,11 +21,11 @@ export const useFormatListGroup = async (server: SupabaseClient, data: Record<st
             name: data.name,
             description: data.description,
             last_active: data.last_active,
-            last_action: !member.accepted? 'Pending' : data.last_action,
-            needs_attention: settings.needs_review && (settings.owner_id == user.id || member.can_edit_group) && count > 0 ? true : !member.accepted ? false : attention,
+            last_action: !member?.accepted? 'Pending' : data.last_action,
+            needs_attention: settings?.needs_review && (settings.owner_id == user.id || member?.can_edit_group) && count && count > 0 ? true : !member?.accepted ? false : attention,
             last_photo_posted_by: {
-                name: !member.accepted ? null : (isOwner ? `${author?.user_metadata?.name} (You)` : author?.user_metadata?.name),
-                url: !member.accepted ? null : (author?.user_metadata.avatar_url || "/profile.jpg")
+                name: !member?.accepted ? null : (isOwner ? `${author?.user_metadata?.name} (You)` : author?.user_metadata?.name),
+                url: !member?.accepted ? null : (author?.user_metadata.avatar_url || "/profile.jpg")
             },
             media: {
                 type: "image",
@@ -75,10 +75,10 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
 
     const { data: users } = await useListUsers(server);
 
-    const { data: permissions }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
-    const { data: liked } = await client.from("liked_posts").select("id").eq("post_id", data.id).eq("user_id", user.id).single()
+    const { data: permissions } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
+    const { data: liked } = await client.from("liked_posts").select("id").eq("post_id", data.id).eq("user_id", user.id).single<Tables<"liked_posts">>()
 
-    const author: any = users.users.find((user) => user.id === data.author_id);
+    const author: User | undefined = users.users.find((user) => user.id === data.author_id);
 
     return {
         id: data.id,

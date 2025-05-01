@@ -1,7 +1,7 @@
 <template>
     <field :name="name" v-slot="{ field, meta }: any">
         <div class="space-y-2">
-            <label class="text-sm font-medium text-gray-700 " :for="name"> {{ label }} <span class="text-red-700 ">{{ required ? "*" : "" }}</span> 
+            <label class="text-sm font-medium text-gray-700 " :for="name"> {{ label }} <span class="text-red-700 ">{{ required ? "* " : "" }}</span> 
                 <transition name="fade">
                     <span v-if="meta.validated && !meta.valid" class="text-red-700 ">({{ meta.errors[0] || "There is an issue with this field" }})</span>
                 </transition>

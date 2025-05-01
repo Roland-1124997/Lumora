@@ -4,18 +4,19 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if (!user) return useReturnResponse(event, unauthorizedError);
 
     const { invite_id, invite_code } = getRouterParams(event);
-    const { data, error }: any = await client.from("invite_links").select("*").eq("id", invite_id).eq("code", invite_code).single()
+    const { data, error } = await client.from("invite_links").select("*").eq("id", invite_id).eq("code", invite_code).single<Tables<"invite_links">>()
 
     if (error) return useReturnResponse(event, notFoundError)
 
     if (data.expiresAt && new Date() > new Date(data.expiresAt)) return useReturnResponse(event, ResourceGoneError);
-    if (parseInt(data.uses) == 0) return useReturnResponse(event, ResourceGoneError)
+    if (data.uses == 0) return useReturnResponse(event, ResourceGoneError)
+
 
     /*
     ************************************************************************************
     */
 
-    const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", data.group_id).single()
+    const { data: settings, error: settingError } = await client.from("group_settings").select("*").eq("group_id", data.group_id).single<Tables<"group_settings">>()
     if (settingError) return useReturnResponse(event, internalServerError)
 
     if (settings.auto_accept_new_members) {
@@ -27,14 +28,13 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     ************************************************************************************
     */
 
-    const { error: memberError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", data.group_id).single()
+    const { error: memberError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", data.group_id).single<Tables<"members">>()
 
     if (memberError?.details?.includes("0 rows")) {
         
-        const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", data.group_id).single()
+        const { data: settings, error: settingError } = await client.from("group_settings").select("*").eq("group_id", data.group_id).single<Tables<"group_settings">>()
         if (settingError) return useReturnResponse(event, internalServerError)
 
-        
         const { error} = await client.from("members").insert({
             group_id: data.group_id,
             user_id: user.id,
@@ -45,7 +45,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         })
 
         if (error) return useReturnResponse(event, internalServerError)
-        const count = parseInt(data.uses) - 1;
+        const count = data.uses ? data.uses - 1 : null;
 
         const { error: updateError } = await server.from("invite_links").update({
             uses: data.uses ? `${count}` : null

@@ -30,10 +30,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
-	const { data: permissions, error: permisionError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).eq("accepted", true).single()
+	const { data: permissions, error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).eq("accepted", true).single<Tables<"members">>()
 	if (permisionError) return useReturnResponse(event, notFoundError)
 
-	const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", group_id).single()
+	const { data: settings, error: settingError } = await client.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>()
 	if (settingError) return useReturnResponse(event, notFoundError)
 
 	if (!settings.everyone_can_create_link && !permissions.can_edit_group) return useReturnResponse(event, forbiddenError)

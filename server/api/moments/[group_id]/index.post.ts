@@ -9,21 +9,21 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	if (!user) return useReturnResponse(event, unauthorizedError);
 
 	const { group_id } = getRouterParams(event);
-	const { data: accepted }: any = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single()
+	const { data: accepted } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single<Tables<"members">>()
 	
 	const { request, files, error } = await useValidateMultipartFormData(event, schema)
 	if (error) return useReturnResponse(event, error)
 
 	if (!accepted) return useReturnResponse(event, unauthorizedError)
 
-	const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", group_id).single()
+	const { data: settings, error: settingError } = await client.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>()
 	if (settingError) return useReturnResponse(event, internalServerError)
 
 	/*
 	************************************************************************************
 	*/
 
-	const posts: any = []
+	const posts: Array<Tables<"posts">> | any = []
 
 	for (const file of files) {
 		const imageId = crypto.randomUUID();
@@ -34,7 +34,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 		const { data, error } = await client.from("posts").insert({
 			url: image.path, group_id: group_id, Accepted: !settings.needs_review
-		}).select().single();
+		}).select().single<Tables<"posts">>();
 
 		if (error) return useReturnResponse(event, internalServerError);
 		posts.push(data);
@@ -52,8 +52,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 		if (errorGroup) return useReturnResponse(event, internalServerError)
 	}
-
-	
 
 	/*
 	************************************************************************************

@@ -20,7 +20,7 @@ export default defineSupabaseEventHandler(async (event, user, client) => {
 	const { data, error } = await client.from("groups").insert({
 		description: request.description,
 		name: request.name
-	}).select("*").single();
+	}).select("*").single<Tables<"groups">>();
 
 	if (error) return useReturnResponse(event, internalServerError);
 

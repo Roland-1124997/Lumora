@@ -55,10 +55,12 @@ export interface permision {
     delete: boolean
 }
 
+
+
 export interface ApiResponse<T> {
     status: Status;
     meta?: Meta; 
     pagination?: Pagination;
-    data?: T | null | Record<string, unknown>; 
+    data?: T | null | Record<string, any>; 
     error?: ErrorResponse; 
 }

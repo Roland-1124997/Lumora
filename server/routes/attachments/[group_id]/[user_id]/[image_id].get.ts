@@ -5,7 +5,7 @@ export default defineSupabaseEventHandler(async(event, user, client, server) => 
     
     const { group_id, user_id, image_id } = getRouterParams(event)
 
-    const { error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+    const { error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
     if (permisionError) return useReturnResponse(event, unauthorizedError)
     
     const filePath = client.storage.from("images").getPublicUrl(`${group_id}/${user_id}/${image_id}`).data.publicUrl

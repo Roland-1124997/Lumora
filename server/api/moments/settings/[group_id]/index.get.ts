@@ -3,14 +3,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if (!user) return useReturnResponse(event, unauthorizedError);
 
     const { group_id } = getRouterParams(event);
-    const { data, error } = await client.from("groups").select("*").eq("id", group_id).single()
+    const { data, error } = await client.from("groups").select("*").eq("id", group_id).single<Tables<"groups">>()
 
     if (error) return useReturnResponse(event, notFoundError);
 
-    const { data: permissions, error: permisionError }: any = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single()
+    const { data: permissions, error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
     if (permisionError) return useReturnResponse(event, unauthorizedError)
 
-    const { data: settings, error: settingError }: any = await client.from("group_settings").select("*").eq("group_id", group_id).single()
+    const { data: settings, error: settingError } = await client.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>()
     if (settingError) return useReturnResponse(event, internalServerError)
 
     /*
@@ -56,7 +56,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             last_active: data.last_active,
             permision: {
                 change: data.owner_id === user.id,
-                delete: permissions?.can_delete_group || permissions?.user_id === data.author_id,
+                delete: permissions?.can_delete_group || permissions?.user_id === data.owner_id,
                 create: permissions?.can_edit_group || settings?.everyone_can_create_link || false,
                 edit: permissions?.can_edit_group
             },

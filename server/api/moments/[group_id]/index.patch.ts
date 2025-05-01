@@ -34,7 +34,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
-	const { data, error: settingError }: any = await server.from("group_settings").update({
+	const { error: settingError }: any = await server.from("group_settings").update({
 		needs_review: request.configuration.reviewPosts,
 		everyone_can_create_link: request.configuration.createLinks,
 		auto_accept_new_members: request.configuration.autoAccept,
