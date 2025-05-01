@@ -84,7 +84,7 @@
 		$fetch(requestUrl, {
 			method: method as "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
 			body: values,
-			signal: abortController.value.signal,
+			signal: abortController.value?.signal,
 		})
 			.then((response) => {
 				onSuccess({ response, actions });
