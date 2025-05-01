@@ -21,8 +21,8 @@
 						<h1 class="font-bold">Profile</h1>
 						<button ref="hidden" class="sr-only"></button>
 					</div>
+					<p class="text-sm text-red-700" v-if="disabled"> Disabled you are signed in with {{ user.data.provider }}</p>
 					<p class="mb-3 text-sm text-gray-500">Update your account information and profile picture.</p>
-					<p class="mb-3 -mt-3 text-sm text-red-700" v-if="disabled"> Disabled you are signed in with {{ user.data.provider }}</p>
 					<hr class="mb-2" />
 					<div class="flex flex-col w-full gap-2">
 						<FieldInput :disabled="disabled || loading" name="username" label="Display name" :required="!disabled" :initalvalue="username" />
@@ -36,8 +36,8 @@
 						<h1 class="font-bold">Password</h1>
 						<button ref="hidden-password" class="sr-only"></button>
 					</div>
+					<p class="text-sm text-red-700" v-if="disabled"> Disabled you are signed in with {{ user.data.provider }}</p>
 					<p class="mb-3 text-sm text-gray-500">Change your password to keep your account secure.</p>
-					<p class="mb-3 -mt-3 text-sm text-red-700" v-if="disabled"> Disabled you are signed in with {{ user.data.provider }}</p>
 					<hr class="mb-2" />
 					<div>
 						<div class="flex flex-col w-full gap-2">
