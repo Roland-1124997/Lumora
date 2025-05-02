@@ -1,20 +1,23 @@
 <template>
 	<div>
 		<div class="flex items-center gap-2 mb-3 -mt-4">
-			<FieldInputSearch :update="handleSearch" uri="/api/moments" url="/moments" />
+			<FieldInputSearch :disabled="searchLoading" :update="handleSearch" uri="/api/moments" url="/moments" />
 
 			<button @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:attachment-2" size="1.4em" />
 			</button>
+			<button :disabled="searchLoading" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+					<icon :class="searchLoading ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
+			</button>
 			<button @click="createFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-				<icon name="ri:add-circle-line" size="1.4em" />
+				<icon name="ri:image-circle-ai-line" size="1.4em" />
 			</button>
 		</div>
 		<hr class="mb-3" />
 
 		<section v-if="List.length >= 1 && !searchLoading" @scroll="updateScrollPercentage" v-bind="containerProps" class="overflow-y-auto h-[80vh]">
 			<div v-bind="wrapperProps" class="flex flex-col w-full gap-3">
-				<div :id="`${index}`" class="last:pb-[9.6rem]" v-for="(content, index) in List" :key="index">
+				<div :id="content.id " class="last:pb-[9.6rem]" v-for="(content, index) in List" :key="content.id ">
 					<LazyCardGroup :content />
 				</div>
 			</div>
@@ -22,7 +25,7 @@
 		</section>
 
 		<UtilsSearchIndicator v-else :loading="searchLoading">
-			<icon class="text-gray-500" name="rivet-icons:sad" size="5em" />
+			<icon class="text-gray-500" name="ri:emotion-sad-line" size="5em" />
 
 			<h1 class="md:w-[30vw] text-center text-balance mt-5 border-b pb-4">
 				<span v-if="searched"> No results found. Try a different search term or check for any typos in your query. </span>
@@ -33,7 +36,7 @@
 					<icon name="ri:attachment-2" size="1.4em" />
 				</button>
 				<button @click="createFunction()" class="flex items-center justify-center w-full gap-2 px-4 py-2 font-medium text-gray-700 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100">
-					<Icon name="ri:add-circle-line" class="w-4 h-4" />
+					<Icon name="ri:image-circle-ai-line" class="w-4 h-4" />
 					Create Group
 				</button>
 			</div>
@@ -71,7 +74,7 @@
 
 	const List: any = ref([]);
 	const loading = ref(false);
-
+	
 	const totalPages = ref(0);
 	const Page = ref(1);
 
@@ -107,6 +110,24 @@
 		if (error.value) List.value = [];
 	};
 
+
+	const handleManualReload = async () => {
+
+		Page.value = 1;
+		searchLoading.value = true;
+
+		await makeRequest(`/api/moments?search=${searchTerm.value}`);
+
+		if (data.value) {
+			List.value = data.value.data;
+			totalPages.value = data.value.pagination?.total || 0;
+		}
+
+		setTimeout(() => {
+			searchLoading.value = false;
+		}, 1500)
+	}
+
 	/*
 	 ************************************************************************************
 	 */
@@ -122,7 +143,7 @@
 			loading.value = true;
 			Page.value += 1;
 
-			await makeRequest(`/api/moments?search=${searchTerm.value}`);
+			await makeRequest(`/api/moments?page=${Page.value}&search=${searchTerm.value}`);
 
 			if (data.value && Array.isArray(data.value.data)) {
 				new Promise((resolve) => setTimeout(resolve, 500));

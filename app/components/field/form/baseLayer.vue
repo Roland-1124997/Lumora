@@ -3,7 +3,7 @@
 		<slot :errors="errors"></slot>
 		<div class="flex items-center justify-between w-full gap-2">
 			<div v-if="resize" :class="!loading ? 'opacity-50' : ''" @click="hanleMinimizeModal" class="flex items-center justify-center w-fit px-4 h-12 text-base font-semibold text-[#756145] border border-[#756145]/80 rounded-xl hover:border-[#756145]">
-				<Icon name="uil:arrows-resize-h" size="2em"></Icon>
+				<Icon name="ri:merge-cells-horizontal" size="2em"></Icon>
 			</div>
 			<button :disabled="loading" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-[#756145]/80 rounded-xl hover:bg-[#756145]">
 				<UtilsLoader :loading :label :numberCount="3" />

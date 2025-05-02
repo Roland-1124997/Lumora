@@ -4,24 +4,24 @@
 
 			<div class="items-center hidden gap-2 md:flex ">
 				<button :disabled="!has_pinned || List.length < 1 || reload" @click="approvePinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-					<icon name="ri:check-line" size="1.2em" />
-					<span> Approve all</span>
+					<icon name="ri:checkbox-circle-line" size="1.2em" />
+					<span> Approve ({{ pinned_count }})</span>
 				</button>
 
 				<button :disabled="!has_pinned || List.length < 1 || reload" @click="rejectPinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-					<icon name="ri:close-line" size="1.2em" />
-					<span> Reject all </span>
+					<icon name="ri:indeterminate-circle-line" size="1.2em" />
+					<span> Reject all ({{ pinned_count }})</span>
 				</button>
 			</div>
 
 			<button :disabled="!has_pinned || List.length < 1 || reload" @click="approvePinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-				<icon name="ri:check-line" size="1.2em" />
-				<span> Approve all</span>
+				<icon name="ri:checkbox-circle-line" size="1.2em" />
+				<span> Approve ({{ pinned_count }})</span>
 			</button>
 
 			<button :disabled="!has_pinned || List.length < 1 || reload" @click="rejectPinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-				<icon name="ri:close-line" size="1.2em" />
-				<span> Reject all </span>
+				<icon name="ri:indeterminate-circle-line" size="1.2em" />
+				<span> Reject ({{ pinned_count }}) </span>
 			</button>
 			
 			<div class="flex items-center gap-2 ">
@@ -29,7 +29,7 @@
 					<icon :class="List.length < 1 || reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 				<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-					<icon name="ri:information-line" size="1.4em" />
+					<icon name="ri:settings-3-fill" size="1.4em" />
 				</NuxtLink>
 				
 			</div>
@@ -65,13 +65,13 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Group",
+		title: "Lumora - Pending group queue",
 		description: "View shared photos and stories in this Lumora group. Connect, comment, and be inspired.",
 		ogTitle: "Lumora - Explore This Group",
 		ogDescription: "Dive into the latest posts and moments shared in this Lumora group.",
 		ogImage: "/apple-touch-icon.png",
 		ogUrl: "/",
-		twitterTitle: "Lumora - Group",
+		twitterTitle: "Lumora - Pending group queue",
 		twitterDescription: "Discover photos and connect with members in this Lumora group.",
 		twitterImage: "/apple-touch-icon.png",
 		twitterCard: "summary",
@@ -102,6 +102,10 @@
 	const { setItemToStart } = useGroupStore();
 	const { getPinnedList, clearPinned } = usePinStore();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
+
+	const pinned_count = computed(() => {
+		return getPinnedList(group_id).details.length;
+	});
 
 	const has_pinned = computed(() => {
 		return getPinnedList(group_id).details.length > 0;
@@ -197,6 +201,7 @@
 		const handleApproveSuccess = async ({ response }: SuccessResponse<Post>) => {
 		
 			await handleReload();
+			clearPinned(group_id)
 			if(data.value) setItemToStart(group_id, {
 				...image, has_been_accepted: true,
 			});
@@ -233,6 +238,7 @@
 		
 		const handleRejectSuccess = async ({ response }: SuccessResponse<Post>) => { 
 			await handleReload()
+			clearPinned(group_id)
 
 			addToast({
 				message: `Image rejected successfully!`,
@@ -307,6 +313,7 @@
 		
 		const handleAllRejectSuccess = async ({ response }: SuccessResponse<Post>) => { 
 			await handleReload()
+			clearPinned(group_id)
 
 			addToast({
 				message: `Images rejected successfully!`,

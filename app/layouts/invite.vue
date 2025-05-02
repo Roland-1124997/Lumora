@@ -5,7 +5,7 @@
 				<button @click="handleBack()" class="flex items-center justify-center gap-2">
 					<icon name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>
 					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
-						<span>invitations</span>
+						<span>Invitations</span>
 					</h1>
 				</button>
 				<ClientOnly>
@@ -27,8 +27,6 @@
 			</div>
 		</main>
 
-		<!-- <UtilsToast/> -->
-		
 	</div>
 </template>
 

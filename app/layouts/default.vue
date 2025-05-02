@@ -8,7 +8,7 @@
 						<span v-if="$route.path == '/moments'">Lumora</span>
 						<span v-else-if="$route.name?.includes('settings-group_id')">Settings</span>
 						<span v-else-if="$route.name?.includes('pending-queue-group_id')">Pending queue</span>
-						<span v-else-if="$route.name?.includes('invitations-id')">Invitations</span>
+						<span v-else-if="$route.name?.includes('audit-logs-group_id')">Audit logs</span>
 						<span v-else-if="$route.name?.includes('-group_id')">{{ group }}</span>
 						<span v-else>{{ $route.name?.charAt(0).toUpperCase() + $route.name?.slice(1) }} </span>
 					</h1>

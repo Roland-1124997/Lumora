@@ -4,8 +4,12 @@
 			<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
 				<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
 					<FieldInputSearch v-if="content?.accepted" class="hidden md:flex" placeholder="Search member..." :disabled="!content?.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
-
-					<button v-if="content?.permision?.create && content?.accepted" @click="CreateLink" :disabled="loading" class="flex w-full md:w-40 items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl"><span> Create link </span></button>
+					<NuxtLink v-if="content?.permision?.edit" :to="`/moments/audit-logs/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+						<Icon name="ri:book-marked-fill" size="1.4rem"/>
+					</NuxtLink>
+					<button v-if="content?.permision?.create && content?.accepted" @click="CreateLink" :disabled="loading" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+						<Icon name="ri:attachment-2" size="1.4rem"/>
+					</button>
 					<button :disabled="loading" @click="clickButton" v-if="content?.permision?.edit" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 						<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
 						<span v-else> Update group</span>
@@ -95,17 +99,17 @@
 												<p v-else class="text-sm text-gray-500 text">Pending</p>
 											</div>
 											<div v-if="content?.permision?.change" class="flex items-center gap-2">
-												<button @click="createUpdateFunction(member?.id)" v-if="member?.accepted" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
-													<Icon name="ri:settings-2-line" size="1.3rem" />
+												<button v-if="member?.accepted" @click="createUpdateFunction(member?.id)" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
+													<Icon name="ri:edit-circle-line" size="1.3rem" />
 												</button>
 												<button v-else @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
-													<Icon name="ri:checkbox-line" size="1.3rem" />
+													<Icon name="ri:checkbox-circle-line" size="1.3rem" />
 												</button>
 												<button v-if="member?.accepted" @click="KickMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
-													<Icon name="ri:delete-bin-2-line" size="1.3rem" />
+													<Icon name="ri:close-circle-line" size="1.3rem" />
 												</button>
 												<button v-else @click="RejectMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
-													<Icon name="ri:checkbox-indeterminate-line" size="1.3rem" />
+													<Icon name="ri:indeterminate-circle-line" size="1.3rem" />
 												</button>
 											</div>
 										</div>
@@ -172,7 +176,7 @@
 									</td>
 									<td class="flex justify-center gap-2 p-3 text-center">
 										<button :class="!link?.permision?.delete ? ' opacity-30' : 'text-red-500 hover:text-red-700'" :disabled="!link?.permision?.delete" @click="handleDeleteInviteLink(link)" class="transition">
-											<Icon name="ri:delete-bin-2-line" size="1.3rem" />
+											<Icon name="ri:close-circle-line" size="1.3rem" />
 										</button>
 									</td>
 								</tr>
@@ -228,7 +232,7 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Group Settings",
+		title: "Lumora - Group settings",
 		description: "Manage your group details, privacy settings, and member access on Lumora.",
 		ogTitle: "Lumora - Customize Your Group",
 		ogDescription: "Edit your group name, description, visibility, and more. Keep your photo group exactly how you want it.",

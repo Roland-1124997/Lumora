@@ -12,7 +12,7 @@
 										<div v-if="modalStatus.loading" class="h-full bg-[#756145]/80 loading-bar rounded-full"></div>
 									</div>
 									<button class="mt-1 " @click="closeModal">
-										<Icon name="uil:multiply" size="1.4em"></Icon>
+										<Icon name="ri:close-circle-line" size="1.4em"></Icon>
 									</button>
 								</div>
 							</div>
@@ -29,7 +29,7 @@
 								<div class="flex items-center justify-between mb-2">
 									<h1 class="text-3xl font-bold">{{ modalStatus.name }}</h1>
 									<button @click="closeModal">
-										<Icon name="pajamas:close-xs" size="2em"></Icon>
+										<Icon name="ri:close-fill" size="2em"></Icon>
 									</button>
 								</div>
 								<slot></slot>

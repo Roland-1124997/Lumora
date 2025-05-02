@@ -10,7 +10,7 @@
 			<div v-else>
 				<div v-if="success" class="p-4 -mt-24">
 					<div class="flex flex-col items-center mb-6">
-						<icon class="text-gray-500" name="rivet-icons:happy" size="5em" />
+						<icon class="text-gray-500" name="ri:emotion-line" size="5em" />
 						<h2 class="mt-4 text-2xl font-bold text-center">Invitation Valid!</h2>
 						<p class="mt-2 text-center text-gray-500">You're invited to join this group.</p>
 					</div>
@@ -35,7 +35,7 @@
 
 				<div v-if="failed" class="p-4 -mt-24">
 					<div class="flex flex-col items-center mb-6">
-						<icon class="text-gray-500" name="rivet-icons:sad" size="5em" />
+						<icon class="text-gray-500" name="ri:emotion-sad-line" size="5em" />
 						<h2 class="mt-4 text-2xl font-bold text-center">Invitation Invalid</h2>
 						<p class="mt-2 text-center text-gray-500">The invitation has expired or isn't valid</p>
 					</div>

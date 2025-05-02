@@ -8,7 +8,7 @@
 						<UtilsCounter :count="content.likes.count" />
 					</button>
 					<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-						<Icon name="ri:delete-bin-5-line" size="1.2rem" />
+						<Icon name="ri:close-circle-line" size="1.2rem" />
 					</button>
 					<a target="_parent" download :href="content?.media?.url" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Download</a>
 					<button @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
@@ -27,7 +27,7 @@
 						</button>
 
 						<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-							<Icon name="ri:delete-bin-5-line" size="1.2rem" />
+							<Icon name="ri:close-circle-line" size="1.2rem" />
 						</button>
 
 						<a v-if="!PWAInstalled" target="_parent" download :href="content?.media?.url" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Download</a>
@@ -69,7 +69,7 @@
 						<div class="flex items-center justify-center gap-2">
 							<textarea v-model="comment" placeholder="Leave an message" ref="editable" class="w-full resize-none p-4 bg-gray-100 rounded-xl outline-none appearance-none h-[3.5rem] focus:border focus:border-black"></textarea>
 							<button class="flex items-center justify-center p-[0.85rem] text-sm text-white bg-[#756145]/90 rounded-xl">
-								<Icon name="ri:send-plane-fill" size="1.5rem" />
+								<Icon name="ri:send-plane-fill" size="1.4rem" />
 							</button>
 						</div>
 					</form>

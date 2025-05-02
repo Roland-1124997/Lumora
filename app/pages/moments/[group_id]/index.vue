@@ -3,33 +3,33 @@
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
 			<div class="items-center hidden gap-2 md:flex">
 				<button :disabled="!accepted" @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-					<icon name="ri:add-circle-line" size="1.4em" />
+					<icon name="ri:image-circle-ai-line" size="1.4em" />
 					<span> Create posts </span>
 				</button>
-				<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex items-center justify-center w-fit gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex items-center justify-center gap-2 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
 					<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit ">
-						{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}
+						<span class="-mt-[0.10rem] ">{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}</span>
 					</span>
-					<span> Queue</span>
+					<icon name="ri:folder-received-fill" size="1.4em" />
 				</NuxtLink>
 			</div>
 
 			<button :disabled="!accepted" @click="createUploadFunction()" class="flex md:hidden items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-				<icon name="ri:add-circle-line" size="1.4em" />
+				<icon name="ri:image-circle-ai-line" size="1.4em" />
 				<span> Create posts </span>
 			</button>
-			<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex md:hidden items-center justify-center w-full max-w-[5.9rem] gap-1 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<NuxtLink :to="`/moments/pending-queue/${group_id}`" v-if="need_approval && has_permisons" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
 				<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit ">
-					{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}
+					<span class="-mt-[0.10rem] ">{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}</span>
 				</span>
-				<span> Queue </span>
+				<icon name="ri:folder-received-fill" size="1.4em" />
 			</NuxtLink>
 			<div class="flex items-center gap-2">
 				<button :disabled=" List.length < 1 || reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="List.length < 1 || reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 				<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-					<icon name="ri:information-line" size="1.4em" />
+					<icon name="ri:settings-3-fill" size="1.4em" />
 				</NuxtLink>
 			</div>
 		</div>
