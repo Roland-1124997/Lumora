@@ -164,7 +164,7 @@
 										</div>
 										<span v-else-if="isLinkExpired(link)" class="px-2 py-1 ml-2 text-xs font-semibold text-red-600 bg-red-100 rounded">Expired</span>
 
-										<span v-else>{{ useDateFormat(link.expiresAt, "MM-DD HH:mm") }}</span>
+										<span v-else>{{ useDateFormat(link.expiresAt, "DD-MM HH:mm") }}</span>
 									</td>
 									<td class="p-3 font-semibold text-center text-gray-600">
 										<div v-if="getRemainingUses(link) === null">

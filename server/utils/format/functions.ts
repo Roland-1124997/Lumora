@@ -48,7 +48,9 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
             const deleted = authorName === null ;
 
             if (!data?.user_left || !deleted) {
-                fetch(author?.user_metadata.avatar_url || `/attachments/avatar/${data?.author?.id || data?.author_id}`).catch()
+                fetch(author?.user_metadata.avatar_url || `/attachments/avatar/${data?.author?.id || data?.author_id}`).catch(() => {
+                    
+                })
             }
 
             return {

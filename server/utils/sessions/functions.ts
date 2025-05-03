@@ -15,7 +15,9 @@ export const useSetSessionData =  (user: User | null) => {
 
     if(user) {
 
-        fetch(user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`).catch()
+        fetch(user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`).catch(() => {
+            
+        })
         
         return {
             id: user.id as string,
