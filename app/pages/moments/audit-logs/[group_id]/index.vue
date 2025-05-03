@@ -82,13 +82,13 @@
 
 	const FilterByActionOptions = [
 		{ label: "All actions", value: "all" },
-		{ label: "Group actions", value: "group" },
+		{ label: "Group", value: "group" },
 		{ label: "Messages", value: "message" },
 		{ label: "Moderation", value: "moderation" },
 	];
 
 	const FilterByTimeOptions = [
-		{ label: "Last 24 hours", value: 1 },
+		{ label: "Last day", value: 1 },
 		{ label: "Last 7 days", value: 7 },
 		{ label: "Last 30 days", value: 30 },
 		{ label: "Last 90 days", value: 90 },
