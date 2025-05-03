@@ -10,15 +10,15 @@
 
 <script setup lang="ts">
 
-	const { name, initalvalue } = defineProps({
+	const { name, initialValue } = defineProps({
 		name: { type: String, default: "box" },
 		label: { type: String, required: true },
-        initalvalue: { type: String, default: "" }
+        initialValue: { type: String, default: "" }
 	});
 
     const { value } = useField<boolean>(`${name}`);
     
-    watch(() => initalvalue, (newValue) => {
+    watch(() => initialValue, (newValue) => {
 		value.value = newValue ? true : false;
 	}, {immediate: true});
     

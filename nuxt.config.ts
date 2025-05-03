@@ -21,9 +21,9 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@vite-pwa/nuxt',
     "@vee-validate/nuxt",
-    "@pinia/nuxt",
     "@nuxtjs/supabase",
     "nuxt-scheduler",
+    "@pinia/nuxt",
   ],
 
   nitro: {

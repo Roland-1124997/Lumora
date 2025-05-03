@@ -11,14 +11,24 @@ export const useDeleteSession = async (client: SupabaseClient) => {
     return await client.auth.signOut();
 }
 
-export const useSetSessionData = (user: User | null) => {
-    return user ? {
-        id: user.id as string,
-        name: user.user_metadata.name || "Anymouses" as string,
-        avatar: user.user_metadata.avatar_url || `/attachments/avatar/${user.id}` as string,
-        email: user.user_metadata.email || user.email as string,
-        provider: user.app_metadata.provider
-    } : null;
+export const useSetSessionData =  (user: User | null) => {
+
+    if(user) {
+
+        fetch(user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`).catch()
+        
+        return {
+            id: user.id as string,
+            name: user.user_metadata.name || "Anymouses" as string,
+            avatar: user.user_metadata.avatar_url || `/attachments/avatar/${user.id}` as string,
+            email: user.user_metadata.email || user.email as string,
+            provider: user.app_metadata.provider
+        }
+
+    }
+
+    return null
+
 }
 
 export const useSessionExists = async (event: H3Event, client: SupabaseClient) => {

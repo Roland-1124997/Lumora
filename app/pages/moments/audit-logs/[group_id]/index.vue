@@ -1,29 +1,39 @@
 <template>
-	<div class="flex flex-col items-center justify-center flex-1 h-screen p-4">
-		<div class="w-full max-w-md space-y-10 text-center">
-			<div class="relative">
-				<h1 class="lf:text-[11.25em] text-[#756145] text-[10.55em] font-bold leading-none tracking-tighter">501</h1>
-				<div class="absolute inset-0 flex items-center justify-center opacity-15">
-					<div class="w-64 h-64 bg-black rounded-full rounde"></div>
+	<div>
+		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
+			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
+				<FieldInputSearch class="hidden md:flex" uri="/api/moments" placeholder="Search logs..." :url="$route.path" :update="() => {}" />
+
+				<div class="relative w-full space-y-2 md:w-1/4">
+					<button @click="isActionDropdownOpen = !isActionDropdownOpen" class="flex items-center justify-between gap-2 pl-3 p-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-full">
+						{{ FilterByActionOptions.find((option) => option.value === actions)?.label }}
+						<icon :name="isActionDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem" />
+					</button>
+					<ul v-if="isActionDropdownOpen" class="absolute left-0 z-50 w-full mt-1 overflow-scroll bg-white border rounded-md shadow-xl">
+						<li v-for="option in FilterByActionOptions" :key="option.value" @click=" actions = option.value; isActionDropdownOpen = false;" class="p-2 border-b cursor-pointer hover:bg-gray-100">
+							{{ option.label }}
+						</li>
+					</ul>
 				</div>
-			</div>
 
-			<div class="pt-16 space-y-4 lg:pt-8">
-				<h2 class="text-2xl text-[#756145] font-semibold">{{ useStatusCodes["501"].message }}</h2>
-				<p class="text-gray-600 text-balance">{{ useStatusCodes["501"].statusMessage }}</p>
-			</div>
+				<div class="relative w-full space-y-2 md:w-1/4">
+					<button @click="isTimeDropdownOpen = !isTimeDropdownOpen" class="flex items-center justify-between p-2 pl-3 gap-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-full">
+						{{ FilterByTimeOptions.find((option) => option.value === time)?.label }}
+						<icon :name="isTimeDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem" />
+					</button>
+					<ul v-if="isTimeDropdownOpen" class="absolute left-0 z-50 w-full mt-1 overflow-scroll bg-white border shadow-md rounded-xl">
+						<li v-for="option in FilterByTimeOptions" :key="option.value" @click="time = option.value; isTimeDropdownOpen = false;" class="p-2 border-b cursor-pointer hover:bg-gray-100">
+							{{ option.label }}
+						</li>
+					</ul>
+				</div>
 
-			<div class="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
-				<button @click="handleError('/moments')" class="flex items-center gap-2 px-4 py-2 font-medium text-white rounded-lg bg-[#756145]/80 hover:bg-[#756145] btn-primary">
-					<Icon name="ri:home-2-fill" class="w-4 h-4" />
-					Back to Home
+				<button @click="() => {}" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+					<icon :class="false ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
-
-				<button @click="handleError('/back')" class="flex items-center gap-2 px-4 py-2 font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100">
-					<Icon name="material-symbols:arrow-back-ios-new-rounded" class="w-4 h-4" />
-					Previous
-				</button>
 			</div>
+			<FieldInputSearch class="md:hidden" uri="/api/moments" placeholder="Search logs..." :url="$route.path" :update="() => {}" />
+			<hr class="pb-3 mt-3" />
 		</div>
 	</div>
 </template>
@@ -56,12 +66,33 @@
 	 ************************************************************************************
 	 */
 
-	const { PWAInstalled } = inject<any>("PWA");
+	const time = ref(7);
+	const actions = ref("all");
 
-	const handleError = (to: string) => {
-		if (to == "/back") return useRouter().back();
-		return clearError({ redirect: to });
-	};
+	const isActionDropdownOpen = ref(false);
+	const isTimeDropdownOpen = ref(false);
+
+	watch(isActionDropdownOpen, (value) => {
+        if (value && isTimeDropdownOpen.value) isTimeDropdownOpen.value = false;
+    });
+
+	watch(isTimeDropdownOpen, (value) => {
+        if (value && isActionDropdownOpen.value) isActionDropdownOpen.value = false;
+    });
+
+	const FilterByActionOptions = [
+		{ label: "All actions", value: "all" },
+		{ label: "Group actions", value: "group" },
+		{ label: "Messages", value: "message" },
+		{ label: "Moderation", value: "moderation" },
+	];
+
+	const FilterByTimeOptions = [
+		{ label: "Last 24 hours", value: 1 },
+		{ label: "Last 7 days", value: 7 },
+		{ label: "Last 30 days", value: 30 },
+		{ label: "Last 90 days", value: 90 },
+	];
 
 	/*
 	 ************************************************************************************

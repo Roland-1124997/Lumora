@@ -64,14 +64,16 @@
 		else if (option.key === "can_edit_group") member.value.can_edit_group = option.value;
 	};
 
-    await $fetch(requestUrl)
-        .then((response: any) => {
-            permissions.value = response.data.permissions.options;
-            member.value = response.data;
-        })
-        .catch((error) => {
-            onError(error.response.data);
-        });
+	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ maxAttempts: 1, throwOnError: false });
+
+	await makeRequest(requestUrl, { sessions: true });
+
+	if(data.value) {
+		permissions.value = data.value.data.permissions.options;
+        member.value = data.value.data;
+	}
+
+	if(error.value) onError(error.value.data)
 
     const schema = toTypedSchema(
         zod.object(permissions.value.reduce((acc, option) => {

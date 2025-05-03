@@ -2,15 +2,21 @@
 	<div>
 		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
 			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
-				<button :disabled="disabled || loading" @click="clickButton" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-[#756145] hover:bg-gray-50 border disabled:opacity-50 border-[#756145] rounded-xl">
-					<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
-					<span v-else>Update profile</span>
+				<button :disabled="disabled || loading" @click="clickButton" class="flex items-center justify-center w-full gap-2 p-2 md:px-4 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
+					<icon v-if="loading" class="animate-spin" size="1.50rem" name="ri:refresh-line" />
+					<span class="flex items-center justify-center gap-2" v-else>
+						<icon size="1.2rem" name="ri:user-fill" />
+						Update
+					</span>
 				</button>
-				<button :disabled="disabled || loading_password" @click="clickPasswordButton" class="flex w-full md:w-40 items-center justify-center gap-2 p-[0.35rem] px-2 text-sm text-[#756145] hover:bg-gray-50 border disabled:opacity-50 border-[#756145] rounded-xl">
-					<icon v-if="loading_password" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
-					<span v-else>Update password</span>
+				<button :disabled="disabled || loading_password" @click="clickPasswordButton" class="flex items-center justify-center w-full gap-2 p-2 md:px-4 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
+					<icon v-if="loading_password" class="animate-spin" size="1.50rem" name="ri:refresh-line" />
+					<span class="flex items-center justify-center gap-2" v-else>
+						<icon size="1.2rem" name="ri:lock-password-fill" />
+						Update
+					</span>
 				</button>
-				<button @click="logout" class="flex w-32 md:w-44 items-center justify-center gap-2 p-[0.35rem] px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Logout</button>
+				<button @click="logout" class="flex w-full md:w-32 items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Logout</button>
 			</div>
 			<hr class="pb-3 mt-3" />
 		</div>
@@ -25,8 +31,8 @@
 					<p class="mb-3 text-sm text-gray-500">Update your account information and profile picture.</p>
 					<hr class="mb-2" />
 					<div class="flex flex-col w-full gap-2">
-						<FieldInput :disabled="disabled || loading" name="username" label="Display name" :required="!disabled" :initalvalue="username" />
-						<FieldInputEmail :disabled="disabled || loading" name="email" label="Email" :required="!disabled" :initalvalue="email" />
+						<FieldInput :disabled="disabled || loading" name="username" label="Display name" :required="!disabled" :initialValue="username" />
+						<FieldInputEmail :disabled="disabled || loading" name="email" label="Email" :required="!disabled" :initialValue="email" />
 					</div>
 				</Form>
 			</div>

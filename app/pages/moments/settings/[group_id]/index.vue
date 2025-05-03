@@ -11,7 +11,7 @@
 						<Icon name="ri:attachment-2" size="1.4rem"/>
 					</button>
 					<button :disabled="loading" @click="clickButton" v-if="content?.permision?.edit" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-						<icon v-if="loading" class="animate-spin" size="1.2rem" name="ri:refresh-line" />
+						<icon v-if="loading" class="animate-spin" size="1.25rem" name="ri:refresh-line" />
 						<span v-else> Update group</span>
 					</button>
 					<button v-if="content?.permision?.delete" @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
@@ -99,7 +99,7 @@
 												<p v-else class="text-sm text-gray-500 text">Pending</p>
 											</div>
 											<div v-if="content?.permision?.change" class="flex items-center gap-2">
-												<button v-if="member?.accepted" @click="createUpdateFunction(member?.id)" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1">
+												<button v-if="member?.accepted" @click="createUpdateFunction(member?.id)" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1 text-black/70 hover:text-black">
 													<Icon name="ri:edit-circle-line" size="1.3rem" />
 												</button>
 												<button v-else @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
@@ -164,7 +164,7 @@
 										</div>
 										<span v-else-if="isLinkExpired(link)" class="px-2 py-1 ml-2 text-xs font-semibold text-red-600 bg-red-100 rounded">Expired</span>
 
-										<span v-else>{{ useDateFormat(link.expiresAt, "MMM-DD HH:mm") }}</span>
+										<span v-else>{{ useDateFormat(link.expiresAt, "MM-DD HH:mm") }}</span>
 									</td>
 									<td class="p-3 font-semibold text-center text-gray-600">
 										<div v-if="getRemainingUses(link) === null">

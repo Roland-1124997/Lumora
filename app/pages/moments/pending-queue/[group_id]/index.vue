@@ -3,23 +3,23 @@
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
 
 			<div class="items-center hidden gap-2 md:flex ">
-				<button :disabled="!has_pinned || List.length < 1 || reload" @click="approvePinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled="!has_pinned || List.length < 1 || reload" @click="approvePinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
 					<icon name="ri:checkbox-circle-line" size="1.2em" />
 					<span> Approve ({{ pinned_count }})</span>
 				</button>
 
-				<button :disabled="!has_pinned || List.length < 1 || reload" @click="rejectPinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled="!has_pinned || List.length < 1 || reload" @click="rejectPinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
 					<icon name="ri:indeterminate-circle-line" size="1.2em" />
 					<span> Reject all ({{ pinned_count }})</span>
 				</button>
 			</div>
 
-			<button :disabled="!has_pinned || List.length < 1 || reload" @click="approvePinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<button :disabled="!has_pinned || List.length < 1 || reload" @click="approvePinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
 				<icon name="ri:checkbox-circle-line" size="1.2em" />
 				<span> Approve ({{ pinned_count }})</span>
 			</button>
 
-			<button :disabled="!has_pinned || List.length < 1 || reload" @click="rejectPinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+			<button :disabled="!has_pinned || List.length < 1 || reload" @click="rejectPinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
 				<icon name="ri:indeterminate-circle-line" size="1.2em" />
 				<span> Reject ({{ pinned_count }}) </span>
 			</button>

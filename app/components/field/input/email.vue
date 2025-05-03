@@ -21,17 +21,17 @@
 </template>
 
 <script setup lang="ts">
-	const { name, initalvalue } = defineProps({
+	const { name, initialValue } = defineProps({
 		name: { type: String, required: true },
 		label: { type: String, default: "Email" },
 		placeholder: { type: String, default: "" },
 		required: { type: Boolean, default: false },
 		disabled: { type: Boolean, default: false },
-		initalvalue: { type: String, default: "" },
+		initialValue: { type: String, default: "" },
 	});
 
 	const { value } = useField<string>(`${name}`);
-	value.value = initalvalue;
+	value.value = initialValue;
 
 </script>
 

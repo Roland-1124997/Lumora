@@ -1,11 +1,11 @@
 export const usePinStore = defineStore('pin', () => {
 
     const pinned = ref<Record<string, string[]>>({});
-    const details = ref<Record<string, any[]>>({}); // Zorg dat details een array bevat
+    const details = ref<Record<string, any[]>>({}); 
 
     const setPinned = (group_id: string, content: { id: string; [key: string]: any }) => {
         if (!pinned.value[group_id]) pinned.value[group_id] = [];
-        if (!details.value[group_id]) details.value[group_id] = []; // Controleer of details bestaat
+        if (!details.value[group_id]) details.value[group_id] = [];
 
         const index = pinned.value[group_id].indexOf(content.id);
 
@@ -31,7 +31,7 @@ export const usePinStore = defineStore('pin', () => {
 
     const clearPinned = (group_id: string) => {
         if (pinned.value[group_id]) delete pinned.value[group_id];
-        if (details.value[group_id]) delete details.value[group_id]; // Verwijder ook details
+        if (details.value[group_id]) delete details.value[group_id]; 
     };
 
     return {

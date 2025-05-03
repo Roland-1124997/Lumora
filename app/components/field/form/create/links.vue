@@ -10,7 +10,10 @@
 								<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "There is an issue with this field" }}) </span>
 							</transition>
 						</label>
-						<div @click="isDropdownOpen = !isDropdownOpen" class="w-full p-2 bg-white border rounded-md cursor-pointer">{{ expiryOptions.find(o => o.value === newLinkExpiry)?.label }}</div>
+						<div @click="isDropdownOpen = !isDropdownOpen" class="flex items-center justify-between w-full p-2 pl-3 bg-white border rounded-md cursor-pointer">
+							{{ expiryOptions.find(o => o.value === newLinkExpiry)?.label }}
+							<icon :name="isDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem"/>
+						</div>
 						<ul v-if="isDropdownOpen" class="absolute left-0 z-50 w-full mt-1 overflow-scroll bg-white border rounded-md shadow-md">
 							<li v-for="option in expiryOptions" :key="option.value" @click="newLinkExpiry = option.value; isDropdownOpen = false" class="p-2 border-b cursor-pointer hover:bg-gray-100">{{ option.label }}</li>
 						</ul>
@@ -25,7 +28,10 @@
 							</transition>
 						</label>
 						<input/>
-						<div @click="isUsageDropdownOpen = !isUsageDropdownOpen" class="w-full p-2 bg-white border rounded-md cursor-pointer">{{ usageOptions.find(o => o.value === newLinkUsageLimit)?.label }}</div>
+						<div @click="isUsageDropdownOpen = !isUsageDropdownOpen" class="flex items-center justify-between w-full p-2 pl-3 bg-white border rounded-md cursor-pointer">
+							{{ usageOptions.find(o => o.value === newLinkUsageLimit)?.label }}
+							<icon :name="isUsageDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem"/>
+						</div>
 						<ul v-if="isUsageDropdownOpen" class="absolute left-0 z-50 w-full h-[5.25rem] mt-1 overflow-scroll bg-white border rounded-md shadow-md">
 							<li v-for="option in usageOptions" :key="option.value" @click="newLinkUsageLimit = option.value; isUsageDropdownOpen = false" class="p-2 border-b cursor-pointer hover:bg-gray-100">{{ option.label }}</li>
 						</ul>
