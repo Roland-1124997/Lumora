@@ -4,13 +4,13 @@
 			<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
 				<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
 					<FieldInputSearch v-if="content?.accepted" class="hidden md:flex" placeholder="Search member..." :disabled="!content?.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
-					<NuxtLink v-if="content?.permision?.edit" :to="`/moments/audit-logs/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+					<NuxtLink v-if="content?.permision?.edit" :to="`/moments/logbook/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
 						<Icon name="ri:book-marked-fill" size="1.4rem"/>
 					</NuxtLink>
 					<button v-if="content?.permision?.create && content?.accepted" @click="CreateLink" :disabled="loading" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
 						<Icon name="ri:attachment-2" size="1.4rem"/>
 					</button>
-					<button :disabled="loading" @click="clickButton" v-if="content?.permision?.edit" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+					<button :disabled="loading" @click="clickButton" v-if="content?.permision?.change" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 						<icon v-if="loading" class="animate-spin" size="1.25rem" name="ri:refresh-line" />
 						<span v-else> Update group</span>
 					</button>
@@ -42,7 +42,7 @@
 								</label>
 
 								<div class="flex gap-2">
-									<input :disabled="!content?.permision?.edit || loading" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" :value="name" type="text" ref="nameData" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none disabled:bg-gray-50 rounded-xl" />
+									<input :disabled="!content?.permision?.change || loading" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" :value="name" type="text" ref="nameData" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none disabled:bg-gray-50 rounded-xl" />
 								</div>
 							</div>
 						</field>
@@ -56,7 +56,7 @@
 									</transition>
 								</label>
 								<div class="flex gap-2">
-									<textarea :disabled="!content?.permision?.edit || loading" v-bind="field" placeholder="Describe what your group is about!" id="description" :value="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none disabled:bg-gray-50 max-h-24 min-h-24 rounded-xl"></textarea>
+									<textarea :disabled="!content?.permision?.change || loading" v-bind="field" placeholder="Describe what your group is about!" id="description" :value="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none disabled:bg-gray-50 max-h-24 min-h-24 rounded-xl"></textarea>
 								</div>
 							</div>
 						</field>
@@ -335,7 +335,7 @@
 	const getRemainingUses = (link: any) => link.uses;
 
 	const handleDeleteInviteLink = async (invite: any) => {
-		await $fetch(`/api/moments/invitations/${group_id}/${invite.id}`, { method: "delete" })
+		await $fetch(`/api/moments/invitations/${group_id}/${invite.id}?token=${invite.code}`, { method: "delete" })
 			.then(() => {
 				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== invite.id);
 				addToast({
@@ -489,7 +489,7 @@
 	};
 
 	const handleInviteError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to join the group! Please try again later."] });
+		actions.setErrors({ message: ["An error occurred, unable to create invite! Please try again later."] });
 	};
 
 	/*

@@ -25,8 +25,8 @@
 			</button>
 			
 			<div class="flex items-center gap-2 ">
-				<button :disabled="List.length < 1 || reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-					<icon :class="List.length < 1 || reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
+				<button :disabled=" reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+					<icon :class=" reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 				<NuxtLink :to="`/moments/settings/${group_id}`" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon name="ri:settings-3-fill" size="1.4em" />

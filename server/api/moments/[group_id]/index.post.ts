@@ -37,7 +37,26 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		}).select().single<Tables<"posts">>();
 
 		if (error) return useReturnResponse(event, internalServerError);
+
 		posts.push(data);
+
+		/*
+		************************************************************************************
+		*/
+
+		const { error: logError } = await server.from("logbook").insert({
+			message: settings.needs_review ? 'Submitted an image for review' : 'Added a photo to the group',
+			performed_by_id: user.id,
+			action_type: "created",
+			group_id: group_id,
+			context: {
+				type: "image",
+				size: `${(buffer.length / (1024 * 1024)).toFixed(2)} Mbs`
+			}
+		})
+
+		if (logError) return useReturnResponse(event, internalServerError)
+
 	}
 
 	/*

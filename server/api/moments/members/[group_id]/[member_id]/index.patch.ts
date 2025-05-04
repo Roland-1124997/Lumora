@@ -11,6 +11,16 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { error: user_left_error } = await server.from("posts").update({ user_left: false }).eq("author_id", member_id).eq("group_id", group_id).select("*")
     if (user_left_error) return useReturnResponse(event, internalServerError)
 
+    const { error: logError } = await server.from("logbook").insert({
+        message: "Accepted :member: join request",
+        performed_by_id: user.id,
+        target_user_id: member_id,
+        action_type: "created",
+        group_id: group_id,
+    })
+
+    if (logError) return useReturnResponse(event, internalServerError)
+
     return useReturnResponse(event, {
         status: {
             success: true,

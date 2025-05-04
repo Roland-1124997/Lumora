@@ -109,3 +109,13 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
 }
 
 export const useListUsers = async (server: SupabaseClient) => await server.auth.admin.listUsers();
+
+export const getUpdatedValue = <T>(newValue: T, oldValue: T): T | undefined => {
+    return newValue === oldValue ? undefined : newValue;
+}
+
+
+export const replaceWithTarget = (message: string, target: string, replace: string = ":member:"): string => {
+    if (!message || !target) return message;
+    return message.replace(new RegExp(replace, "g"), `${target}s`);
+}

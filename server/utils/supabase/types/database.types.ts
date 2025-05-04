@@ -190,6 +190,47 @@ export type Database = {
                     },
                 ]
             }
+            logbook: {
+                Row: {
+                    action_type: string
+                    message: string,
+                    context: Json | null
+                    group_id: string
+                    id: string
+                    performed_by_id: string
+                    target_user_id: string | null
+                    timestamp: string
+                }
+                Insert: {
+                    action_type: string
+                    message: string,
+                    context?: Json | null
+                    group_id: string
+                    id?: string
+                    performed_by_id: string
+                    target_user_id?: string | null
+                    timestamp?: string
+                }
+                Update: {
+                    action_type?: string
+                    message: string,
+                    context?: Json | null
+                    group_id?: string
+                    id?: string
+                    performed_by_id?: string
+                    target_user_id?: string | null
+                    timestamp?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "logbook_group_id_fkey"
+                        columns: ["group_id"]
+                        isOneToOne: false
+                        referencedRelation: "groups"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
             members: {
                 Row: {
                     accepted: boolean | null
@@ -518,6 +559,3 @@ export const Constants = {
         Enums: {},
     },
 } as const
-
-
-

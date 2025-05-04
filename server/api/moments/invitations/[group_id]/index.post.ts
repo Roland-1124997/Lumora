@@ -43,15 +43,28 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	*/
 
 	const token = Math.random().toString(36).substring(2, 8).toUpperCase();
+	const expires = new Date(new Date().setDate(new Date().getDate() + parseInt(request.LinkExpiry)))
 		
-	const { error } = await client.from("invite_links").insert({
+	const { data, error } = await client.from("invite_links").insert({
 		group_id: group_id,
 		code: token,
-		expiresAt: new Date(new Date().setDate(new Date().getDate() + parseInt(request.LinkExpiry))),
+		expiresAt: expires,
 		uses: parseInt(request.UsageLimit),
-	});
+	}).select().single<Tables<"invite_links">>();
 
 	if (error) return useReturnResponse(event, internalServerError)
+
+	const { error: logError } = await server.from("logbook").insert({
+		message: `Created an new invite link`,
+		performed_by_id: user.id,
+		action_type: "created",
+		group_id: group_id,
+		context: {
+			token: token
+		},
+	})
+
+	if (logError) return useReturnResponse(event, internalServerError)
 
 	/*
 	************************************************************************************

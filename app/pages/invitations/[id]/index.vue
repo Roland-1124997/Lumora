@@ -97,7 +97,7 @@
 			.finally( async() =>{
 
 				await new Promise((resolve) => setTimeout(resolve, 2000));
-        if (result.value?.status?.joined) {
+				if (result.value?.status?.joined) {
 					if (result.value.status.redirect) navigateTo(result.value.status.redirect);
 				} 
 				else loading.value = false;

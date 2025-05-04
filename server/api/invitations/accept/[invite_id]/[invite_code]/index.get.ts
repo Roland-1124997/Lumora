@@ -53,6 +53,18 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
         if (updateError) return useReturnResponse(event, internalServerError)
 
+        const { error: logError } = await server.from("logbook").insert({
+            message: settings.auto_accept_new_members ? "Joined the group" : 'Requested to join the group',
+            performed_by_id: user.id,
+            action_type: "created",
+            group_id: data.group_id,
+            context: {
+                token: invite_code,
+            }
+        })
+
+        if (logError) return useReturnResponse(event, internalServerError)
+
         return useReturnResponse(event, {
             status: {
                 success: true,
