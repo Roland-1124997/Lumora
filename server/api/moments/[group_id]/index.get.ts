@@ -9,6 +9,13 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	const pending = query.pending ? query.pending.toLowerCase() : false;
 
+	if(page == 1) {
+		await server.rpc('upsert_user_group_visit', {
+			p_user_id: user.id,
+			p_group_id: group_id
+		})
+	}
+
 	/*
 	************************************************************************************
 	*/

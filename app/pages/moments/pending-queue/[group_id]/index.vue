@@ -143,7 +143,7 @@
 		if (options.reload) Page.value = 1;
 		if (options.update) Page.value += 1;
 
-		await makeRequest(`/api/moments/${group_id}?page=${Page.value}&pending=true`, { sessions: options.reload || options.update });
+		await makeRequest(`/api/moments/${group_id}?page=${Page.value}&pending=true`);
 
 		if (data.value) {
 			const response = processPostsApiResponse(data);
@@ -350,7 +350,7 @@
 		reload.value = true;
 		
 		while (page.value <= totalPages.value) {
-			await makeRequest(`/api/moments/${group_id}?page=${page.value}&pending=true`, { sessions: true });
+			await makeRequest(`/api/moments/${group_id}?page=${page.value}&pending=true`);
 
 			if (data.value) {
 				const response = processPostsApiResponse(data);

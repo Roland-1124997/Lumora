@@ -84,7 +84,7 @@
 	const searched = ref(!!query.search);
 
 	const { addToast } = useToast();
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Group[]>>({ maxAttempts: 2, throwOnError: false });
+	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Group[]>>({ throwOnError: false });
 
 	/*
 	 ************************************************************************************

@@ -99,7 +99,7 @@
 
 	const { updateGroupValue } = inject<any>("group");
 	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
+	const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>();
 
 	/*
 	 ************************************************************************************
@@ -136,7 +136,7 @@
 		if (options.reload) Page.value = 1;
 		if (options.update) Page.value += 1;
 
-		await makeRequest(`/api/moments/${group_id}?page=${Page.value}`, { sessions: options.reload || options.update });
+		await makeRequest(`/api/moments/${group_id}?page=${Page.value}`);
 
 		if (data.value) {
 			const response = processPostsApiResponse(data);
@@ -169,14 +169,15 @@
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
 
-	await $fetch(`/api/moments/pending/${group_id}`)
-		.then((response) => {
-			accepted.value = response.data.accepted;
-			need_approval.value = response.data.need_approval;
-			has_permisons.value = response.data.has_permisons;
-			posts_count_need_approval.value = response.data.posts_count_need_approval;
-		})
-		.catch((error) => {});
+
+	await makeRequest(`/api/moments/pending/${group_id}`);
+
+	if(data.value) {
+		accepted.value = data.value.data.accepted;
+		need_approval.value = data.value.data.need_approval;
+		has_permisons.value = data.value.data.has_permisons;
+		posts_count_need_approval.value = data.value.data.posts_count_need_approval;
+	}
 
 	/*
 	 ************************************************************************************
@@ -231,7 +232,7 @@
 		reload.value = true;
 
 		while (page.value <= totalPages.value) {
-			await makeRequest(`/api/moments/${group_id}?page=${page.value}`, { sessions: true });
+			await makeRequest(`/api/moments/${group_id}?page=${page.value}`);
 
 			if (data.value) {
 				const response = processPostsApiResponse(data);

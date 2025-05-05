@@ -365,9 +365,9 @@
 		searchLoading.value = true;
 		activeTab.value = tab;
 
-		const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ maxAttempts: 1, throwOnError: false });
+		const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ throwOnError: false });
 
-		await makeRequest(`/api/moments/members/${group_id}?pending=${tab == "requests"}`, { sessions: true });
+		await makeRequest(`/api/moments/members/${group_id}?pending=${tab == "requests"}`);
 		if (data.value) memberList.value = data.value.data;
 		if (error.value) memberList.value = [];
 
@@ -379,7 +379,7 @@
 	const reloadInvite = async () => {
 		InviteLoading.value = true;
 
-		await makeRequest(`/api/moments/invitations/${group_id}`, { sessions: true });
+		await makeRequest(`/api/moments/invitations/${group_id}`);
 		if (data.value) inviteLinks.value = data.value.data;
 
 		setTimeout(() => {
@@ -391,7 +391,7 @@
 	 ************************************************************************************
 	 */
 
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>({ maxAttempts: 1, throwOnError: true });
+	const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>();
 
 	await makeRequest(`/api/moments/settings/${group_id}`);
 	if (data.value) {

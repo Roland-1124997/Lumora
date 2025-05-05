@@ -11,7 +11,7 @@
     const term = ref<string>(`${query.search || ""}`);
     const loading = ref<boolean>(false);
     
-    const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ maxAttempts: 1, throwOnError: false });
+    const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ throwOnError: false });
 
     const { uri, url, update } = defineProps<{
         update: (data: any, error: any, loading: boolean) => void;

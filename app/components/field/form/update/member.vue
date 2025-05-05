@@ -64,9 +64,9 @@
 		else if (option.key === "can_edit_group") member.value.can_edit_group = option.value;
 	};
 
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ maxAttempts: 1, throwOnError: false });
+	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ throwOnError: false });
 
-	await makeRequest(requestUrl, { sessions: true });
+	await makeRequest(requestUrl);
 
 	if(data.value) {
 		permissions.value = data.value.data.permissions.options;

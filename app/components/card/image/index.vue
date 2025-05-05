@@ -40,6 +40,7 @@
 					<img v-if="loaded && targetIsVisible" :src="content.author.url" alt="image" class="object-cover w-full h-full " />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
 				</div>
+
 				<div class="">
 					<p class="text-sm font-semibold text-gray-800 truncate">
 						{{ content.author.name }}
@@ -49,7 +50,7 @@
 							{{ content.group.name }}
 						</p>
 						<p class="text-xs text-gray-400 truncate md:text-sm">
-							{{ useTimeAgo(content.updated_at || content.created_at).value }}
+							{{ useTimeAgo(content.accepted_at ).value }}
 						</p>
 					</div>
 				</div>

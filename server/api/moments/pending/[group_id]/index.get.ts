@@ -13,12 +13,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	const { data, error } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).single<Tables<'members'>>()
 	if (error) return useReturnResponse(event, notFoundError);
 
-	
-	await server.rpc('upsert_user_group_visit', {
-		p_user_id: user.id,
-		p_group_id: group_id
-	})
-
 	const { data: settings, error: settingError } = await client.from("group_settings").select("*").eq("group_id", group_id).single<Tables<'group_settings'>>()
 	if (settingError) return useReturnResponse(event, internalServerError)
 

@@ -148,7 +148,7 @@
 
 	const logs = ref()
 
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ maxAttempts: 1, throwOnError: true });
+	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>();
 
 	await makeRequest(`/api/moments/logbook/${group_id}`);
 

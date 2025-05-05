@@ -57,6 +57,7 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
                 id: data.id,
                 created_at: data.created_at,
                 updated_at: data.updated_at,
+                accepted_at: data.accepted_at,
                 has_liked: data.has_liked || false,
                 has_left: data.user_left || false,
                 has_been_accepted: data.accepted,
@@ -113,7 +114,6 @@ export const useListUsers = async (server: SupabaseClient) => await server.auth.
 export const getUpdatedValue = <T>(newValue: T, oldValue: T): T | undefined => {
     return newValue === oldValue ? undefined : newValue;
 }
-
 
 export const replaceWithTarget = (message: string, target: string, replace: string = ":member:"): string => {
     if (!message || !target) return message;

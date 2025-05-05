@@ -42,6 +42,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			const { data: updateData, error: updateError } = await server.from("posts").update({ Accepted: true }).eq("id", key).select().single<Tables<"posts">>()
 			if (updateError) return useReturnResponse(event, internalServerError);
 
+			await server.rpc('accept_post', { p_id: key });
 			await server.from("groups").update({
 				last_photo_posted_by: updateData.author_id,
 				last_action: "Approved"
