@@ -2,7 +2,7 @@
 	<div>
 		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
 			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
-				<FieldInputSearch :disabled="searchLoading" class="hidden md:flex" :uri="`/api/moments/logbook/${group_id}`" placeholder="Search logs..." :update="handleSearch" />
+				<FieldInputSearch :disabled="searchLoading" class="hidden md:flex" :uri="`/api/moments/logbook/${group_id}?action=${actions}&timestamp=${time}`" placeholder="Search logs..." :update="handleSearch" />
 
 				<div class="relative w-full space-y-2 md:w-1/4">
 					<button :disabled="searchLoading" @click="isActionDropdownOpen = !isActionDropdownOpen" class="flex items-center justify-between gap-2 pl-3 p-2 text-white bg-[#756145] border border-[#756145] disabled:opacity-90 rounded-xl w-full">
@@ -32,14 +32,14 @@
 					<icon :class="searchLoading ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 			</div>
-			<FieldInputSearch :disabled="searchLoading " class="md:hidden" :uri="`/api/moments/logbook/${group_id}`" placeholder="Search logs..." :update="handleSearch" />
+			<FieldInputSearch :disabled="searchLoading " class="md:hidden" :uri="`/api/moments/logbook/${group_id}?action=${actions}&timestamp=${time}`" placeholder="Search logs..." :update="handleSearch" />
 			<hr class="pb-3 mt-3" />
 		</div>
-		<div class="relative ">
+		<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="relative ">
 			<div v-if="!searchLoading && logs.length >= 1" >
 				<div class="relative">
 					<div v-if="!searchLoading && logs.length >= 1" class="absolute top-0 z-20 w-1 h-full bg-gray-100 left-6"></div>
-					<div v-for="(logs, index) in logs" :key="logs.date" class="mb-2">
+					<div v-for="(group, groupIndex) in logs" :key="logs.date" class="mb-2">
 						<div :class=" PWAInstalled ? 'top-[13.85vh] md:top-[7.95vh]' : 'top-[13.4vh] md:top-[7.95vh]'" class="sticky z-30 flex items-center justify-between px-4 py-3 mb-3 text-lg font-bold text-gray-700 border rounded-xl bg-gray-50">
 							<div class="z-30 flex items-center justify-center gap-2">
 								<div class="flex z-30 justify-center flex-shrink-0 w-8 -ml-[0.35rem]">
@@ -47,19 +47,19 @@
 										<Icon name="ri:time-line" size="1.4rem"/>
 									</div>
 								</div>
-								<h2 class="">{{ logs.date }}</h2>
+								<h2 class="">{{ group.date }}</h2>
 							</div>
-							<h3 class="text-sm font-normal text-gray-400 ">Count({{ logs.items.length }})</h3>
+							<h3 class="text-sm font-normal text-gray-400 ">Count({{ group.items.length }})</h3>
 						</div>
 						<ul class="space-y-4">
 							<div class="absolute top-0 z-20 w-1 h-full bg-gray-100 left-6"></div>
-							<li :class="PWAInstalled ? 'last:pb-32' : 'last:pb-20'" v-for="(log, index) in logs.items" :key="log.id" class="relative flex items-start gap-3 md:gap-4">
+							<li v-for="(log, logIndex) in group.items" :key="log.id" class="relative flex items-start gap-3 md:gap-4">
 								<div class="z-20 flex justify-center flex-shrink-0 w-8 ml-[0.65rem]">
 									<div class="flex items-center justify-center bg-white border-2 rounded-full w-9 h-9 aspect-square border-gray-50 ">
 										<Icon :class="`${actionStyles[log.action_type].color}`" :name="actionStyles[log.action_type].icon" size="1.8rem" />
 									</div>
 								</div>
-								<div :ref="index === logs.items.length - 2 ? 'target' : ''" class="flex-1 rounded-xl">
+								<div :ref="groupIndex === logs.length - 1 && logIndex === group.items.length - 2 ? 'target' : ''" class="flex-1 rounded-xl">
 									<CardLog :content="log"	/>
 								</div>
 							</li>
@@ -255,9 +255,6 @@
 
 	const handleSearch = (data: any, error: any, loading: boolean, term: string) => {
 
-		time.value = 7;
-		actions.value = "all";
-
 		Page.value = 1
 		
 		searchLoading.value = loading;
@@ -275,7 +272,7 @@
 	const handleManualReload = async () => {
 		searchLoading.value = true;
 		Page.value = 1
-		await makeRequest(`/api/moments/logbook/${group_id}?search=${searchTerm.value}`);
+		await makeRequest(`/api/moments/logbook/${group_id}?action=${actions.value}&timestamp=${time.value}&search=${searchTerm.value}`);
 
 		if(data.value) {
 			logs.value = data.value.data
@@ -288,20 +285,5 @@
 		}, 1500)
 	}
 
-
-
-
-
-
-	
-
 </script>
 
-<style scoped>
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.3s ease;
-}
-.fade-enter-from, .fade-leave-to {
-    opacity: 0;
-}
-</style>
