@@ -14,7 +14,7 @@
     const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ throwOnError: false });
 
     const { uri, url, update } = defineProps<{
-        update: (data: any, error: any, loading: boolean) => void;
+        update: (data: any, error: any, loading: boolean, term?: any) => void;
         disabled?: boolean,
         placeholder?: string;
         url?: string;
@@ -36,7 +36,7 @@
 
 
     watch(loading, () => {
-        update(data, error, loading.value);
+        update(data, error, loading.value, term.value);
     });
 
 </script>

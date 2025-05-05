@@ -5,13 +5,43 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const { group_id } = getRouterParams(event);
 
-    const { data: permissions, error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
+    const query: query = getQuery(event);
+    const { items, page, start, end } = useMakePagination(100, query);
+
+    const { error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
     if (permisionError) return useReturnResponse(event, notFoundError)
 
-    const { data: logs, error } = await server.from("logbook").select("*").eq("group_id", group_id).order("timestamp", { ascending: false }).overrideTypes<Array<Tables<"logbook">>>()
-    if (error) return useReturnResponse(event, notFoundError)
+    /*
+    ************************************************************************************
+    */
 
     const { data: users } = await useListUsers(server);
+
+    const logbookQuery = server.from("logbook").select("*", { count: "exact" }).eq("group_id", group_id).order("timestamp", { ascending: false }).range(start, end)
+
+    if (query.action || query.timestamp) {
+        logbookQuery.match(query.action && query.action !== "all" ? { action_type: query.action } : {})
+            .gte("timestamp", query.timestamp ? new Date(new Date().setDate(new Date().getDate() - query.timestamp)).toISOString() : "1970-01-01T00:00:00.000Z");
+    }
+
+    if (query.search) {
+
+        const { data, error } = await client.from("members").select("*").eq("group_id", group_id).overrideTypes<Array<Tables<"members">>>()
+        if (error) return useReturnResponse(event, notFoundError)
+
+        const members = data.map((member: Tables<"members">) => users.users.find((user: User) => user.id === member.user_id));
+        const targetUser: User | undefined = members.find((user: User | undefined) => user?.user_metadata.name.toLowerCase().includes(query.search.toLowerCase()));
+
+        logbookQuery.eq("performed_by_id", targetUser?.id)
+    }
+
+    const { count, data: logs, error } = await logbookQuery.overrideTypes<Array<Tables<"logbook">>>();
+
+    if (error) return useReturnResponse(event, notFoundError);
+
+    /*
+    ************************************************************************************
+    */
 
     const formated = await Promise.all(
         logs.map(async (data: Record<string, any>) => {
@@ -37,6 +67,28 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         })
     )
 
+    const groupedByDate = formated.reduce((acc: Record<string, any[]>, item: any) => {
+        const itemDate = new Date(item.timestamp);
+        let dateKey: string;
+
+        if (isToday(itemDate)) dateKey = "Today";
+        else if (isYesterday(itemDate)) dateKey = "Yesterday";
+        else dateKey = formatDate(itemDate);
+        if (!acc[dateKey]) acc[dateKey] = [];
+
+        acc[dateKey].push(item);
+        return acc;
+    }, {});
+
+    const groupedByDateArray = Object.entries(groupedByDate).map(([date, items]) => ({
+        date,
+        items,
+    }));
+
+    /*
+    ************************************************************************************
+    */
+
     return useReturnResponse(event, {
         status: {
             success: true,
@@ -44,7 +96,11 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             message: "Ok",
             code: 200
         },
-        data: formated
+        pagination: {
+            page,
+            total: Math.ceil((count ?? 1) / items),
+        },
+        data: groupedByDateArray
     });
 })
 

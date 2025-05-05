@@ -6,6 +6,8 @@ export interface query {
     search: string,
     page: string,
     pending: string,
+    action: "all" | "created" | "deleted" | "updated";
+    timestamp: 1 | 7 | 30 | 90;
 }
 export interface MultiPartData {
     name?: string;

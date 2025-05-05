@@ -119,3 +119,38 @@ export const replaceWithTarget = (message: string, target: string, replace: stri
     if (!message || !target) return message;
     return message.replace(new RegExp(replace, "g"), `${target}s`);
 }
+
+
+export const isToday = (date: string | Date) => {
+    const today = new Date();
+    const parsedDate = typeof date === "string" ? new Date(date) : date;
+
+    return (
+        parsedDate.getDate() === today.getDate() &&
+        parsedDate.getMonth() === today.getMonth() &&
+        parsedDate.getFullYear() === today.getFullYear()
+    );
+};
+
+export const isYesterday = (date: string | Date) => {
+    const yesterday = new Date();
+    const parsedDate = typeof date === "string" ? new Date(date) : date;
+
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    return (
+        parsedDate.getDate() === yesterday.getDate() &&
+        parsedDate.getMonth() === yesterday.getMonth() &&
+        parsedDate.getFullYear() === yesterday.getFullYear()
+    );
+};
+
+export const formatDate = (date: string | Date) => {
+    const parsedDate = typeof date === "string" ? new Date(date) : date;
+
+    return parsedDate.toLocaleDateString("en-UK", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+    });
+};
