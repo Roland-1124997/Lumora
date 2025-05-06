@@ -37,44 +37,14 @@
 		</div>
 		<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="relative ">
 			<div v-if="!searchLoading && logs.length >= 1" >
-				<div class="relative">
-					<div v-if="!searchLoading && logs.length >= 1" class="absolute top-0 z-20 w-1 h-full bg-gray-100 left-6"></div>
-					<div v-for="(group, groupIndex) in logs" :key="logs.date" class="mb-2">
-						<div :class=" PWAInstalled ? 'top-[13.85vh] md:top-[7.95vh]' : 'top-[13.4vh] md:top-[7.95vh]'" class="sticky z-30 flex items-center justify-between px-4 py-3 mb-3 text-lg font-bold text-gray-700 border rounded-xl bg-gray-50">
-							<div class="z-30 flex items-center justify-center gap-2">
-								<div class="flex z-30 justify-center flex-shrink-0 w-8 -ml-[0.35rem]">
-									<div class="flex items-center justify-center w-8 h-8 text-white bg-[#756145] border-2 border-gray-100 rounded-full">
-										<Icon name="ri:time-line" size="1.4rem"/>
-									</div>
-								</div>
-								<h2 class="">{{ group.date }}</h2>
-							</div>
-							<h3 class="text-sm font-normal text-gray-400 ">Count({{ group.items.length }})</h3>
-						</div>
-						<ul class="space-y-4">
-							<div class="absolute top-0 z-20 w-1 h-full bg-gray-100 left-6"></div>
-							<li v-for="(log, logIndex) in group.items" :key="log.id" class="relative flex items-start gap-3 md:gap-4">
-								<div class="z-20 flex justify-center flex-shrink-0 w-8 ml-[0.65rem]">
-									<div class="flex items-center justify-center bg-white border-2 rounded-full w-9 h-9 aspect-square border-gray-50 ">
-										<Icon :class="`${actionStyles[log.action_type].color}`" :name="actionStyles[log.action_type].icon" size="1.8rem" />
-									</div>
-								</div>
-								<div :ref="groupIndex === logs.length - 1 && logIndex === group.items.length - 2 ? 'target' : ''" class="flex-1 rounded-xl">
-									<CardLog :content="log"	/>
-								</div>
-							</li>
-						</ul>
-					</div>
-				</div>
+				<UtilsTimeline  :loading="searchLoading" :content="logs" :onLastItemVisible/>
 			</div>
 			<UtilsSearchIndicator v-else :loading="searchLoading">
 				<icon class="text-gray-500" name="ri:emotion-sad-line" size="5em" />
-
 				<h1 class="md:w-[30vw] text-center text-balance mt-5 pb-4">
 					<span v-if="searched"> No results found. Try a different search term or check for any typos in your query. </span>
 					<span v-else> No logs found for the selected action. Try selecting a different action filter or ensure logs exist for this action. </span>
 				</h1>
-				
 			</UtilsSearchIndicator>
 		</div>
 	</div>
@@ -126,34 +96,31 @@
 	*/
 
 	const loading = ref(false)
-	const target = ref(null);
-	const targetIsVisible = useElementVisibility(target);
 
-	watch(targetIsVisible, async (value) => {
-		if(value) {
-			if (Page.value >= totalPages.value || loading.value) return;
+	const onLastItemVisible = async () => {
+		if (Page.value >= totalPages.value || loading.value) return;
 
-			loading.value = true;
-			Page.value += 1;
+		loading.value = true;
+		Page.value += 1;
 
-			await makeRequest(`/api/moments/logbook/${group_id}?page=${Page.value}&action=${actions.value}&timestamp=${time.value}&search=${searchTerm.value}`);
+		await makeRequest(`/api/moments/logbook/${group_id}?page=${Page.value}&action=${actions.value}&timestamp=${time.value}&search=${searchTerm.value}`);
 
-			if (data.value && Array.isArray(data.value.data)) {
+		if (data.value && Array.isArray(data.value.data)) {
 			
-				data.value.data.forEach((newItem) => {
+			data.value.data.forEach((newItem) => {
 					
-					const existingGroup = logs.value.find((group: any) => group.date === newItem.date);
+				const existingGroup = logs.value.find((group: any) => group.date === newItem.date);
 
-					if (existingGroup) existingGroup.items.push(...newItem.items);
-					else logs.value.push(newItem);
-				});
+				if (existingGroup) existingGroup.items.push(...newItem.items);
+				else logs.value.push(newItem);
+			});
 
-				totalPages.value = data.value.pagination?.total || 0;
-			}
-
-			loading.value = false;
+			totalPages.value = data.value.pagination?.total || 0;
 		}
-	})
+
+		loading.value = false;
+	}
+
 
 	/*
 	************************************************************************************
@@ -188,12 +155,6 @@
 		{ label: "Last 30 days", value: 30 },
 		{ label: "Last 90 days", value: 90 },
 	];
-
-	const actionStyles: any = {
-		created: { icon: "ri:checkbox-circle-fill", color: "bg-green-500" },
-		deleted: { icon: "ri:close-circle-fill", color: "bg-red-500" },
-		updated: { icon: "ri:information-2-fill", color: "bg-blue-500" },
-	};
 
 	/*
 	 ************************************************************************************

@@ -193,30 +193,30 @@ export type Database = {
             logbook: {
                 Row: {
                     action_type: string
-                    message: string,
                     context: Json | null
                     group_id: string
                     id: string
+                    message: string | null
                     performed_by_id: string
                     target_user_id: string | null
                     timestamp: string
                 }
                 Insert: {
                     action_type: string
-                    message: string,
                     context?: Json | null
                     group_id: string
                     id?: string
+                    message?: string | null
                     performed_by_id: string
                     target_user_id?: string | null
                     timestamp?: string
                 }
                 Update: {
                     action_type?: string
-                    message: string,
                     context?: Json | null
                     group_id?: string
                     id?: string
+                    message?: string | null
                     performed_by_id?: string
                     target_user_id?: string | null
                     timestamp?: string
@@ -272,6 +272,7 @@ export type Database = {
             posts: {
                 Row: {
                     Accepted: boolean | null
+                    accepted_at: string | null
                     author_id: string | null
                     created_at: string | null
                     group_id: string | null
@@ -283,6 +284,7 @@ export type Database = {
                 }
                 Insert: {
                     Accepted?: boolean | null
+                    accepted_at?: string | null
                     author_id?: string | null
                     created_at?: string | null
                     group_id?: string | null
@@ -294,6 +296,7 @@ export type Database = {
                 }
                 Update: {
                     Accepted?: boolean | null
+                    accepted_at?: string | null
                     author_id?: string | null
                     created_at?: string | null
                     group_id?: string | null
@@ -389,6 +392,10 @@ export type Database = {
             [_ in never]: never
         }
         Functions: {
+            accept_post: {
+                Args: { p_id: string }
+                Returns: undefined
+            }
             get_group_with_posts: {
                 Args: {
                     group_id_param: string
