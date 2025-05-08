@@ -54,6 +54,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		action_type: request.has_been_accepted ? "created" : "deleted",
 		group_id: group_id,
 		context: {
+			id: `${image_id.split("-")[0]}-${postData.author_id?.split("-")[4]}`,
 			type: "image",
 		}
 	})

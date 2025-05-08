@@ -50,13 +50,13 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			action_type: "created",
 			group_id: group_id,
 			context: {
+				id: `${data.id.split("-")[0]}-${user.id.split("-")[4]}`,
 				type: "image",
-				size: `${(buffer.length / (1024 * 1024)).toFixed(2)} Mbs`
+				size: `${(file.data.length / (1024 * 1024)).toFixed(2)} Mb`,
 			}
 		})
 
 		if (logError) return useReturnResponse(event, internalServerError)
-
 	}
 
 	/*

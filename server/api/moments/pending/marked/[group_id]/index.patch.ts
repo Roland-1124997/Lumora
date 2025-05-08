@@ -58,6 +58,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			action_type: value ? "created" : "deleted",
 			group_id: group_id,
 			context: {
+				id: `${key.split("-")[0]}-${postData.author_id?.split("-")[4]}`,
 				type: "image",
 			}
 		})
