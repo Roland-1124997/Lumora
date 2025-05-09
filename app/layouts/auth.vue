@@ -4,18 +4,18 @@
 			<header class="space-y-6">
 				<div class="flex items-center space-x-2">
 					<div class="p-2 bg-[#F3EEE7] rounded-lg">
-						<NuxtImg src="/icons/Lumora-OP0.svg" class="h-8 mix-blend-luminosity"></NuxtImg>
+						<NuxtImg preload="high" src="/icons/Lumora-OP0.svg" alt="Lumora" class="h-8 mix-blend-luminosity" />
 					</div>
 					<span class="text-2xl font-semibold">Lumora</span>
 				</div>
 			</header>
-            <main class="w-full h-full max-w-lg mx-auto space-y-8">
-                <slot></slot>
-            </main>
+			<main class="w-full h-full max-w-lg mx-auto space-y-8">
+				<slot></slot>
+			</main>
 		</div>
 	</div>
 </template>
 
 <script setup>
-	const { PWAInstalled } = useCheckPwa()
+	const { PWAInstalled } = useCheckPwa();
 </script>

@@ -8,7 +8,7 @@
 				<div v-else class="relative w-full h-full overflow-hidden">
 					<div class="flex w-full h-full transition-transform duration-500 ease-in-out" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
 						<div v-for="(thumb, index) in files" :key="index" class="h-full min-w-full">
-							<NuxtImg @click="clearPreviews()" :src="thumb" class="object-cover w-full h-full rounded-xl" />
+							<img @click="clearPreviews()" :src="thumb" :alt="`Image-${index}`" class="object-cover w-full h-full rounded-xl" />
 						</div>
 					</div>
 					<div v-if="currentSlide > 0" @click="prevSlide" class="absolute left-0 flex items-center justify-center p-2 py-4 text-white transform -translate-y-1/2 bg-black bg-opacity-50 cursor-pointer top-1/2">

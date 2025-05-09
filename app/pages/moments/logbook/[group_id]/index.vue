@@ -5,7 +5,7 @@
 				<FieldInputSearch :disabled="searchLoading" class="hidden md:flex" :uri="`/api/moments/logbook/${group_id}?action=${actions}&timestamp=${time}`" placeholder="Search logs..." :update="handleSearch" />
 
 				<div class="relative w-full space-y-2 md:w-1/4">
-					<button :disabled="searchLoading" @click="isActionDropdownOpen = !isActionDropdownOpen" class="flex items-center justify-between gap-2 pl-3 p-2 text-white bg-[#756145] border border-[#756145] disabled:opacity-90 rounded-xl w-full">
+					<button :disabled="searchLoading" id="filterByAction" title="filterByAction" @click="isActionDropdownOpen = !isActionDropdownOpen" class="flex items-center justify-between gap-2 pl-3 p-2 text-white bg-[#756145] border border-[#756145] disabled:opacity-90 rounded-xl w-full">
 						{{ FilterByActionOptions.find((option) => option.value === actions)?.label }}
 						<icon :name="isActionDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem" />
 					</button>
@@ -17,7 +17,7 @@
 				</div>
 
 				<div class="relative w-full space-y-2 md:w-1/4">
-					<button :disabled="searchLoading" @click="isTimeDropdownOpen = !isTimeDropdownOpen" class="flex items-center justify-between p-2 pl-3 gap-2 text-white bg-[#756145] border border-[#756145] disabled:opacity-90 rounded-xl w-full">
+					<button :disabled="searchLoading" id="filterByTime" title="filterByTime" @click="isTimeDropdownOpen = !isTimeDropdownOpen" class="flex items-center justify-between p-2 pl-3 gap-2 text-white bg-[#756145] border border-[#756145] disabled:opacity-90 rounded-xl w-full">
 						{{ FilterByTimeOptions.find((option) => option.value === time)?.label }}
 						<icon :name="isTimeDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem" />
 					</button>
@@ -28,7 +28,7 @@
 					</ul>
 				</div>
 
-				<button :disabled="searchLoading" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+				<button :disabled="searchLoading" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="searchLoading ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 			</div>

@@ -2,14 +2,14 @@
 	<div ref="target" class="pb-2 border-b h-fit md:h-16">
 		<NuxtLink :to="`/moments/${content.id}`" class="flex items-center space-x-3">
 			<div class="flex items-center justify-center w-12 h-12 overflow-hidden bg-gray-200 rounded-full">
-				<img v-if="loaded && targetIsVisible" :src="content.media.url" alt="image" class="object-cover w-full h-full" />
+				<img v-if="loaded && targetIsVisible" :src="content.media.url" :alt="content.name" class="object-cover w-full h-full" />
 				<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1.4em" />
 			</div>
 			<div class="flex-1 pl-3 border-l">
 				<div class="flex items-center justify-between">
 					<div class="flex items-center gap-2 mb-1">
-						<h3 class="text-lg font-semibold">{{ content.name }}</h3>
-						<icon v-if="content.needs_attention" name="ri:error-warning-fill" size="1.6rem" class="text-red-600 " />
+						<h1 class="text-lg font-semibold">{{ content.name }}</h1>
+						<icon v-if="content.needs_attention" name="ri:error-warning-fill" size="1.6rem" class="text-red-600" />
 					</div>
 
 					<p v-if="content.last_action != 'Pending'" class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>

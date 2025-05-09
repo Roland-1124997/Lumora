@@ -4,7 +4,7 @@
 			<div class="py-3 mt-5 border-y h-fit">
 				<div class="">
 					<div class="flex items-center gap-3 p-2 px-3 text-sm font-semibold text-gray-900 rounded bg-gray-50">
-						<img :src="member.avatar || '/profile.jpg'" class="w-10 h-10 rounded-full" />
+						<img  :src="member.avatar || '/profile.jpg'" :alt="member.name" class="w-10 h-10 rounded-full" />
 						<div class="pl-2 border-l border-black">
 							<h1 class="-mb-1 font-bold">{{ member.name }}</h1>
 							<p v-if="member.can_edit_group" class="text-sm text-gray-500">Admin</p>

@@ -14,7 +14,7 @@
 					<button @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 				</div>
 				<div :class="loaded ? 'bg-black' : ' bg-gray-200'" class="relative flex items-center justify-center w-full h-full min-h-[51vh] max-h-[78vh] md:h-[78vh] overflow-hidden border rounded-lg">
-					<img v-if="loaded" :src="content?.media?.url" class="object-contain w-full h-full" />
+					<img v-if="loaded" :src="content?.media?.url" :alt="content.id" class="object-contain w-full h-full" />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="5em" />
 				</div>
 			</pane>
@@ -50,7 +50,7 @@
 					<div :class="paneRight <= 38.5 ? 'grid-cols-2' : 'grid-cols-3'" class="grid gap-2 mt-4">
 						<div v-for="content in content.related" class="flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
 							<NuxtLink v-if="loaded" :to="`/moments/${group_id}/${content.post_data.id}`">
-								<img :src="content.post_data?.media?.url" class="object-cover w-full h-full aspect-square" />
+								<img :src="content.post_data?.media?.url" :alt="content.post_data?.media?.id" class="object-cover w-full h-full aspect-square" />
 							</NuxtLink>
 							<div v-else class="flex items-center justify-center flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
 								<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />

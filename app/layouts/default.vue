@@ -149,7 +149,7 @@
 	const router = useRouter();
 	const route = useRoute();
 
-	const { data, send, open, close } = useWebSocket(`wss://${location.host}/sockets`)
+	const { data, send, open, close } = useWebSocket(`wss://${location?.host || ""}/sockets`)
 	const { removeData } = useGroupStore();
 
 	watch(data, (value => {

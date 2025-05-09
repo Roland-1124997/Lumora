@@ -11,11 +11,11 @@
 					</div>
 					<h2>{{ group.date }}</h2>
 				</div>
-				<h3 class="text-sm font-normal text-gray-400">Count({{ group.items.length }})</h3>
+				<h3 class="text-sm font-normal text-gray-600">Count({{ group.items.length }})</h3>
 			</div>
-			<ul class="z-40 space-y-4">
+			<div class="z-40 space-y-4">
 				<div class="absolute top-0 z-20 w-1 h-full bg-gray-100 left-6"></div>
-				<li v-for="(log, logIndex) in group.items" :key="log.id" class="relative flex items-start gap-3 md:gap-4">
+				<div v-for="(log, logIndex) in group.items" :key="log.id" class="relative flex items-start gap-3 md:gap-4">
 					<div class="z-30 flex justify-center flex-shrink-0 w-8 ml-[0.65rem]">
 						<div class="flex items-center justify-center bg-white border-2 rounded-full w-9 h-9 aspect-square border-gray-50">
 							<Icon :class="actionStyles[log.action_type].color" :name="actionStyles[log.action_type].icon" size="1.8rem" />
@@ -24,8 +24,8 @@
 					<div :ref="groupIndex === content.length - 1 && logIndex === group.items.length - 2 ? 'reference' : ''" class="flex-1 rounded-xl">
 						<CardLog :content="log" />
 					</div>
-				</li>
-			</ul>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>

@@ -3,13 +3,13 @@
 		<div class="flex items-center gap-2 mb-3 -mt-4">
 			<FieldInputSearch :disabled="searchLoading" :update="handleSearch" uri="/api/moments" url="/moments" />
 
-			<button @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+			<button id="createLink" title="createLink" @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:attachment-2" size="1.4em" />
 			</button>
-			<button :disabled="searchLoading" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+			<button :disabled="searchLoading" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="searchLoading ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 			</button>
-			<button @click="createFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+			<button id="createGroup" title="createGroup" @click="createFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:image-circle-ai-line" size="1.4em" />
 			</button>
 		</div>

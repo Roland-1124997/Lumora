@@ -4,18 +4,18 @@
 			<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
 				<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
 					<FieldInputSearch v-if="content?.accepted" class="hidden md:flex" placeholder="Search member..." :disabled="!content?.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
-					<NuxtLink v-if="content?.permision?.edit" :to="`/moments/logbook/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
-						<Icon name="ri:book-marked-fill" size="1.4rem"/>
+					<NuxtLink v-if="content?.permision?.edit" aria-label="logbook" :to="`/moments/logbook/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+						<Icon name="ri:book-marked-fill" size="1.4rem" />
 					</NuxtLink>
-					<button v-if="content?.permision?.create && content?.accepted" @click="CreateLink" :disabled="loading" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
-						<Icon name="ri:attachment-2" size="1.4rem"/>
+					<button v-if="content?.permision?.create && content?.accepted" id="CreateLink" title="CreateLink"  @click="CreateLink" :disabled="loading" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+						<Icon name="ri:attachment-2" size="1.4rem" />
 					</button>
-					<button :disabled="loading" @click="clickButton" v-if="content?.permision?.change" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+					<button :disabled="loading" id="updateSettings" title="updateSettings" @click="clickButton" v-if="content?.permision?.change" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 						<icon v-if="loading" class="animate-spin" size="1.25rem" name="ri:refresh-line" />
 						<span v-else> Update group</span>
 					</button>
-					<button v-if="content?.permision?.delete" @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
-					<button v-else @click="leaveGroup" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave group<span class="hidden md:flex"></span></button>
+					<button v-if="content?.permision?.delete" id="deleteGroup" title="deleteGroup"  @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
+					<button v-else id="leaveGroup" title="leaveGroup" @click="leaveGroup" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave group<span class="hidden md:flex"></span></button>
 				</div>
 				<FieldInputSearch v-if="content?.accepted" class="md:hidden" placeholder="Search member..." :disabled="!content.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
 				<hr class="pb-3 mt-3" />
@@ -26,7 +26,7 @@
 					<Form :validation-schema="schema" v-slot="{ meta, errors }: any" @submit="handleSubmit">
 						<div class="flex items-center justify-between mb-1">
 							<h1 class="font-bold">Group details</h1>
-							<button ref="hidden" :disabled="loading" v-if="content?.permision?.edit" class="sr-only"></button>
+							<button ref="hidden" id="hidden" title="hidden" :disabled="loading" v-if="content?.permision?.edit" class="sr-only"></button>
 						</div>
 						<p class="mb-3 text-sm text-gray-500">Update the group information.</p>
 
@@ -66,7 +66,7 @@
 				<div class="p-4 border rounded-xl">
 					<div class="flex items-center justify-between -mb-1">
 						<h1 class="font-bold">Members</h1>
-						<button @click="setActiveTab(activeTab)" :disabled="searchLoading" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+						<button @click="setActiveTab(activeTab)" id="reloadMembers" title="reloadMembers" :disabled="searchLoading" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 							<icon :class="searchLoading ? ' animate-spin' : ''" name="ri:refresh-line" size="1.1em" />
 						</button>
 					</div>
@@ -87,7 +87,7 @@
 						<div class="">
 							<div v-if="!searchLoading" v-for="member in memberList" :key="member.id" class="w-full gap-4 p-2 border-b border-gray-100 min-h-16 hover:bg-gray-50">
 								<div class="flex items-center gap-4">
-									<img :src="member.avatar || '/profile.jpg'" class="rounded-full w-11 h-11" />
+									<img :src="member.avatar || '/profile.jpg'" :alt="member.name" class="rounded-full w-11 h-11" />
 									<div class="w-full pl-3 border-l border-gray-100">
 										<div class="flex items-center justify-between w-full">
 											<div>
@@ -99,16 +99,16 @@
 												<p v-else class="text-sm text-gray-500 text">Pending</p>
 											</div>
 											<div v-if="content?.permision?.change" class="flex items-center gap-2">
-												<button v-if="member?.accepted" @click="createUpdateFunction(member?.id)" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1 text-black/70 hover:text-black">
+												<button id="updateMembers" title="updateMembers"  v-if="member?.accepted" @click="createUpdateFunction(member?.id)" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1 text-black/70 hover:text-black">
 													<Icon name="ri:edit-circle-line" size="1.3rem" />
 												</button>
-												<button v-else @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+												<button v-else id="acceptMember" title="acceptMember" @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
 													<Icon name="ri:checkbox-circle-line" size="1.3rem" />
 												</button>
-												<button v-if="member?.accepted" @click="KickMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+												<button id="kickMember" title="kickMember" v-if="member?.accepted" @click="KickMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
 													<Icon name="ri:close-circle-line" size="1.3rem" />
 												</button>
-												<button v-else @click="RejectMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
+												<button id="rejectMember" title="rejectMember" v-else @click="RejectMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-red-500 hover:text-red-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
 													<Icon name="ri:indeterminate-circle-line" size="1.3rem" />
 												</button>
 											</div>
@@ -206,8 +206,8 @@
 							<div class="grid items-center gap-2">
 								<div v-for="option in section.options" :key="option.key" class="flex items-center justify-between">
 									<p>{{ option.label }}</p>
-									<label class="cursor-pointer">
-										<input :disabled="!content?.permision?.change || loading" type="checkbox" v-model="option.value" class="sr-only" />
+									<label :for="option.key" class="cursor-pointer">
+										<input :disabled="!content?.permision?.change || loading" type="checkbox" :name="option.key" :id="option.key" :aria-labelledby="option.key" v-model="option.value" class="sr-only" />
 										<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ ' bg-yellow-800': option.value && content?.permision?.edit && !loading, 'bg-gray-300 cursor-not-allowed': (!content?.permision?.edit || loading) && !option.value, 'bg-yellow-900 cursor-not-allowed': option.value && (!content?.permision?.edit || loading) }">
 											<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': option.value }"></div>
 										</div>
@@ -653,7 +653,6 @@
 	 ************************************************************************************
 	 */
 
-	
 	const createUpdateFunction = (id: string) => {
 		updateModalValue({
 			open: true,
@@ -702,9 +701,6 @@
 			duration: 5000,
 		});
 	};
-
-
-	
 
 	/*
 	 ************************************************************************************
