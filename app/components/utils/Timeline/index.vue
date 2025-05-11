@@ -28,7 +28,7 @@
 				
 			</div>
 		</div>
-		<div class="flex justify-end w-full mt-3">
+		<div v-if="!hidden" class="flex justify-end w-full mt-3">
 			<button :disabled="loading" id="loadMoreItems" title="loadMoreItems" @click="loadMoreItems" class="flex w-[78vw] md:w-[68vw] items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 				<icon v-if="loading" class="animate-spin" size="1.25rem" name="ri:refresh-line" />
 				<span v-else> Load more logs</span>
@@ -43,7 +43,8 @@
 	const { onLastItemVisible } = defineProps<{
 		onLastItemVisible: () => Promise<void>
 		content: Array<any>
-		loading: boolean
+		loading: boolean,
+		hidden: boolean,
 	}>()
 
 	const { PWAInstalled } = inject<any>("PWA");

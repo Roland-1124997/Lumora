@@ -37,7 +37,7 @@
 		</div>
 		<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="relative ">
 			<div v-if="!searchLoading && logs.length >= 1" >
-				<UtilsTimeline  :loading="searchLoading" :content="logs" :onLastItemVisible/>
+				<UtilsTimeline :loading="searchLoading" :content="logs" :hidden="Page >= totalPages" :onLastItemVisible/>
 			</div>
 			<UtilsSearchIndicator v-else :loading="searchLoading">
 				<icon class="text-gray-500" name="ri:emotion-sad-line" size="5em" />
