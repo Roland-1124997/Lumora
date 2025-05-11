@@ -21,7 +21,7 @@
 							<Icon :class="actionStyles[log.action_type].color" :name="actionStyles[log.action_type].icon" size="1.8rem" />
 						</div>
 					</div>
-					<div :ref="groupIndex === content.length - 1 && logIndex === group.items.length - 2 ? 'reference' : ''" class="flex-1 rounded-xl">
+					<div :ref="groupIndex === content.length - 1 && logIndex === group.items.length - 1 ? 'reference' : ''" class="flex-1 rounded-xl">
 						<CardLog :content="log" />
 					</div>
 				</div>
