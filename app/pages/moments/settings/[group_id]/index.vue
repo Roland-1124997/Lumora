@@ -392,6 +392,8 @@
 	 */
 
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>();
+	const { updateGroupValue } = inject<any>("group");
+
 
 	await makeRequest(`/api/moments/settings/${group_id}`);
 	if (data.value) {
@@ -400,6 +402,9 @@
 		config.value = data.value.data.configuration;
 		description.value = data.value.data.description;
 		activeTab.value = data.value.data.accepted ? "members" : "requests";
+
+		updateGroupValue(name.value)
+
 	}
 
 	setTimeout(async () => {

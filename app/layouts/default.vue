@@ -4,11 +4,11 @@
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<button @click="$route.path !== '/moments' ? handleBack() : ''" class="flex items-center justify-center gap-2">
 					<icon v-if="$route.path !== '/moments'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>
-					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-60 md:w-fit">
+					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-52 md:w-fit">
 						<span v-if="$route.path == '/moments'">Lumora</span>
-						<span v-else-if="$route.name?.includes('settings-group_id')">Settings</span>
-						<span v-else-if="$route.name?.includes('pending-queue-group_id')">Pending queue</span>
-						<span v-else-if="$route.name?.includes('logbook-group_id')">Logbook</span>
+						<span v-else-if="$route.name?.includes('settings-group_id')">{{ group }}/<span class="text-sm text-gray-600">Settings</span></span>
+						<span v-else-if="$route.name?.includes('pending-queue-group_id')">{{ group }}/<span class="text-sm text-gray-600">Queue</span></span>
+						<span v-else-if="$route.name?.includes('logbook-group_id')"> {{ group }}/<span class="text-sm text-gray-600">Logbook</span></span>
 						<span v-else-if="$route.name?.includes('-group_id')">{{ group }}</span>
 						<span v-else>{{ $route.name?.charAt(0).toUpperCase() + $route.name?.slice(1) }} </span>
 					</h1>
@@ -38,8 +38,8 @@
 				:onSuccess="modal.onSuccess"
 				:resize="modal.resize"
 				v-model="modal"
-				
-				/>
+			/>
+
 			<FieldFormDeleteGroup v-if="modal.type.includes('Group')"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
@@ -56,8 +56,8 @@
 				:onSuccess="modal.onSuccess" 
 				:resize="modal.resize" 
 				v-model="modal"
-				
-				/>
+			/>
+			
 			<FieldFormCreateLinks v-if="modal.type == 'links'"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
@@ -66,6 +66,7 @@
 				:resize="modal.resize" 
 				v-model="modal"
 			/>
+
 			<FieldFormDeleteConfirm v-if="modal.type.includes('negative')"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
@@ -75,6 +76,7 @@
 				:resize="modal.resize" 
 				v-model="modal"
 			/>
+
 			<FieldFormJoinLink v-if="modal.type == 'join'"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
@@ -83,6 +85,7 @@
 				:resize="modal.resize" 
 				v-model="modal"
 			/>
+			
 			<FieldFormJoinConfirm v-if="modal.type == 'join:group'"
 				:callback="closeModal"
 				:requestUrl="modal.requestUrl" 
@@ -137,6 +140,25 @@
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
+
+	const modalComponents = {
+		"Create": 'FieldFormCreateGroup',
+		'delete:group': 'FieldFormDeleteGroup',
+		"images": 'FieldFormCreateImage',
+		"link": 'FieldFormCreateLinks',
+		"negative": 'FieldFormDeleteConfirm',
+		"join": 'FieldFormJoinLink',
+		'join:group': 'FieldFormJoinConfirm',
+		'update:member': 'FieldFormUpdateMember',
+		'image:update': 'FieldFormUpdateConfirm',
+		'images:multiple': 'FieldFormUpdateMultipleConfirm',
+	}
+
+	const resolveModalComponent = computed(() => {
+		const type = modal.value?.type
+		if (!type) return null
+		return Object.entries(modalComponents).find(([key]) => type.includes(key))?.[1] || null
+	})
 
 	const group = ref()
 	

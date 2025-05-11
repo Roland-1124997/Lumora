@@ -11,6 +11,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
     if (permisionError) return useReturnResponse(event, notFoundError)
 
+    const { data, error: groupError } = await client.from("groups").select("*").single<Tables<"groups">>()
+    if (groupError) return useReturnResponse(event, notFoundError)
+    
+
     /*
     ************************************************************************************
     */
@@ -81,8 +85,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     }, {});
 
     const groupedByDateArray = Object.entries(groupedByDate).map(([date, items]) => ({
-        date,
-        items,
+        date, items,
     }));
 
     /*
@@ -95,6 +98,11 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             refresh: true,
             message: "Ok",
             code: 200
+        },
+        meta: {
+            id: data.id as string,
+            name: data.name as string,
+            description: data.description as string,
         },
         pagination: {
             page,

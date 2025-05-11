@@ -162,12 +162,16 @@
 
 	const logs: any = ref([])
 	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>();
+	const { updateGroupValue } = inject<any>("group");
 
+		
 	await makeRequest(`/api/moments/logbook/${group_id}?action=${actions.value}&timestamp=${time.value}&search=${searchTerm.value}`);
 			
 	if(data.value) {
 		logs.value = data.value.data
 		totalPages.value = data.value.pagination?.total || 0;
+
+		updateGroupValue(data.value.meta?.name);
 	}
 	
 	if(error.value) logs.value = []

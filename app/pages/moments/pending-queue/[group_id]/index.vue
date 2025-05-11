@@ -15,7 +15,7 @@
 			</div>
 
 			<button :disabled="!has_pinned || List.length < 1 || reload" id="approvePinned" title="approvePinned" @click="approvePinned" class="flex md:hidden items-center justify-center w-full gap-1 p-2 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
-				<icon name="ri:checkbox-circle-line" size="1.2em" />
+				<icon v-if="pinned_count <= 10" name="ri:checkbox-circle-line" size="1.2em" />
 				<span> Approve ({{ pinned_count }})</span>
 			</button>
 

@@ -23,26 +23,22 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
-	const posts: Array<Tables<"posts">> | any = []
-
-	for (const file of files) {
+	const posts: Array<Tables<"posts">> = []
+	await Promise.all(files.map(async (file) => {
 		const imageId = crypto.randomUUID();
-		const buffer = await processImage(file);
+		const buffer = await runImageWorker(file); 
 
 		const { data: image, error: storageError } = await uploadImage(client, group_id, user.id, imageId, buffer);
-		if (storageError) return useReturnResponse(event, internalServerError);
+		if (storageError) throw new Error(storageError.message);
 
 		const { data, error } = await client.from("posts").insert({
-			url: image.path, group_id: group_id, Accepted: !settings.needs_review
+			url: image.path,
+			group_id: group_id,
+			Accepted: !settings.needs_review
 		}).select().single<Tables<"posts">>();
 
-		if (error) return useReturnResponse(event, internalServerError);
-
+		if (error) throw new Error(error.message);
 		posts.push(data);
-
-		/*
-		************************************************************************************
-		*/
 
 		const { error: logError } = await server.from("logbook").insert({
 			message: settings.needs_review ? 'Submitted an image for review' : 'Added a photo to the group',
@@ -54,11 +50,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 				type: "image",
 				size: `${(file.data.length / (1024 * 1024)).toFixed(2)} Mb`,
 			}
-		})
+		});
 
-		if (logError) return useReturnResponse(event, internalServerError)
-	}
-
+		if (logError) throw new Error(logError.message);
+	}))
+	
+	.catch((error) => {
+		return useReturnResponse(event, internalServerError);
+	})
+	
 	/*
 	************************************************************************************
 	*/
@@ -84,9 +84,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			code: 200
 		},
 		meta: {
-			id: posts[0].group_id,
-			name: posts[0].name,
-			description: posts[0].description
+			id: posts[0].group_id as string,
 		},
 		data: await useFormatGroup(server, posts, user)
 	});
