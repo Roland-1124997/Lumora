@@ -5,7 +5,7 @@ export const processImage = async (file: FormDataItem) => {
 
     if (Buffer.isBuffer(file.data)) buffer = file.data;
     else if (typeof file.data === "string") buffer = Buffer.from(file.data, "utf-8"); 
-    else if (Array.isArray(file.data))  buffer = Buffer.from(file.data); 
+    else if (file.data instanceof Uint8Array || Array.isArray(file.data)) buffer = Buffer.from(file.data);
     else throw new Error("Unsupported data type for file.data");
     
     return await sharp(buffer).rotate().webp({ quality: 10 }).toBuffer();

@@ -24,10 +24,11 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	*/
 
 	const posts: Array<Tables<"posts">> = []
-	try {
+	
 	await Promise.all(files.map(async (file) => {
 		const imageId = crypto.randomUUID();
-		const buffer = await runImageWorker(file); 
+
+		const buffer = await processImage(file); 
 
 		const { data: image, error: storageError } = await uploadImage(client, group_id, user.id, imageId, buffer);
 		if (storageError) throw new Error(storageError.message);
@@ -56,18 +57,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		if (logError) throw new Error(logError.message);
 	}))
 
-	}
-
-	catch(error) {
-		console.log(error)
+	.catch((error) => {
 		return useReturnResponse(event, internalServerError);
-	}
-
-	
-	
-	// .catch((error) => {
-	// 	return useReturnResponse(event, internalServerError);
-	// })
+	})
 	
 	/*
 	************************************************************************************
