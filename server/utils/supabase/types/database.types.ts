@@ -57,6 +57,7 @@ export type Database = {
                     auto_accept_new_members: boolean | null
                     created_at: string
                     everyone_can_create_link: boolean | null
+                    can_mod_own_pending: boolean | null,
                     group_id: string | null
                     id: string
                     needs_review: boolean | null
@@ -67,6 +68,7 @@ export type Database = {
                     auto_accept_new_members?: boolean | null
                     created_at?: string
                     everyone_can_create_link?: boolean | null
+                    can_mod_own_pending: boolean | null,
                     group_id?: string | null
                     id?: string
                     needs_review?: boolean | null
@@ -75,6 +77,7 @@ export type Database = {
                 }
                 Update: {
                     auto_accept_new_members?: boolean | null
+                    can_mod_own_pending: boolean | null,
                     created_at?: string
                     everyone_can_create_link?: boolean | null
                     group_id?: string | null

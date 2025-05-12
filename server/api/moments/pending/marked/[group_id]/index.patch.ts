@@ -29,6 +29,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		const { data: postData, error: postError } = await server.from("posts").select("*").eq("id", key).select().single<Tables<"posts">>()
 		if (postError) return useReturnResponse(event, internalServerError);
 
+		if (!settings.can_mod_own_pending && user.id == postData.author_id) return useReturnResponse(event, forbiddenError)
+
 		if (!value) {
 			await client.from('posts').delete().eq('id', key)
 

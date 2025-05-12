@@ -24,6 +24,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
                 options: [
                     { key: "reviewPosts", label: "Posts need to be reviewed", value: settings.needs_review || false },
                     { key: "autoAccept", label: "Auto accept new members", value: settings.auto_accept_new_members || false },
+                    { key: "canModOwnPending", label: "Can handle own pending posts", value: settings.can_mod_own_pending || false },
                     { key: "createLinks", label: "Anyone can create links", value: settings.everyone_can_create_link || false },
                 ],
             },

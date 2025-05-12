@@ -11,7 +11,7 @@
 					<UtilsCounter :count="comments" />
 				</button>
 			</div>
-			<div v-else-if="methods" class="relative z-40 flex items-center justify-start gap-2 p-2">
+			<div v-else-if="methods && (!content.author.is_owner || content.can_mod_own_pending)" class="relative z-40 flex items-center justify-start gap-2 p-2">
 				<button @click="pinImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon :name="pinned ? 'ri:unpin-line' : 'ri:pushpin-line'" size="1.2em" />
 				</button>
@@ -22,25 +22,22 @@
 					<icon name="ri:close-line" size="1.2em" />
 				</button>
 			</div>
-
 			<NuxtLink v-if="content.has_been_accepted && loaded && targetIsVisible" :to="content.url ? content.url : `${$route.path}/${content.id}`">
 				<img :src="content.media.url" :alt="content.id" class="object-cover aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
 			</NuxtLink>
 			<div v-else-if="!content.has_been_accepted && loaded && targetIsVisible">
-				<img :src="content.media.url" :alt="content.id" class="object-cover aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
+				<img :src="content.media.url" :alt="content.id" :class=" (!content.author.is_owner || content.can_mod_own_pending) ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full h-full aspect-square" />
 			</div>
 			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
 			</div>
 		</div>
-
 		<div class="py-2">
 			<div class="flex items-center gap-2">
 				<div class="flex items-center justify-center overflow-hidden bg-gray-200 rounded-full w-7 h-7">
 					<img v-if="loaded && targetIsVisible" :src="content.author.url" :alt="content.id" class="object-cover w-full h-full" />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
 				</div>
-
 				<div class="">
 					<p class="text-sm font-semibold text-gray-800 truncate">
 						{{ content.author.name }}

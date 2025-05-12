@@ -46,6 +46,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			"Posts need to be reviewed": getUpdatedValue(request.configuration.reviewPosts, data.needs_review),
 			"Anyone can create links": getUpdatedValue(request.configuration.createLinks, data.everyone_can_create_link),
 			"Auto accept new members": getUpdatedValue(request.configuration.autoAccept, data.auto_accept_new_members),
+			"Can handle own pending posts": getUpdatedValue(request.configuration.canModOwnPending, data.can_mod_own_pending),
 			"Social interactions": getUpdatedValue(request.configuration.socialInteractions, data.social_interactions),
 		}).filter(([_, value]) => value !== undefined) 
 	);
@@ -78,6 +79,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	const { error: settingError } = await server.from("group_settings").update({
 		needs_review: request.configuration.reviewPosts,
+		can_mod_own_pending: request.configuration.canModOwnPending,
 		everyone_can_create_link: request.configuration.createLinks,
 		auto_accept_new_members: request.configuration.autoAccept,
 		social_interactions: request.configuration.socialInteractions

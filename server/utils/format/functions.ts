@@ -58,6 +58,7 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
                 created_at: data.created_at,
                 updated_at: data.updated_at,
                 accepted_at: data.accepted_at,
+                can_mod_own_pending: data.can_mod_own_pending,
                 has_liked: data.has_liked || false,
                 has_left: data.user_left || false,
                 has_been_accepted: data.accepted,

@@ -34,11 +34,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		return useReturnResponse(event, notFoundError)
 	}
 
+	const { data: settings, error: settingsError } = await server.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>()
+	if (settingsError) return useReturnResponse(event, notFoundError)
+
 	/*
 	************************************************************************************
 	*/
 
 	if (pending) {
+		if (!settings.needs_review) return useReturnResponse(event, notFoundError);
 		if (!accepted?.can_edit_group) return useReturnResponse(event, forbiddenError);
 	}
 
