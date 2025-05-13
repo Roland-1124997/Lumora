@@ -20,10 +20,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	************************************************************************************
 	*/
 
+	const { data: settings, error: settingsError } = await server.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>()
+	if (settingsError) return useReturnResponse(event, notFoundError)
+
 	const { data: accepted } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single<Tables<"members">>()
 
 	const { data: media, error } = await client.rpc("get_group_with_posts", {
-		group_id_param: group_id, limit_param: items, page_param: page, user_id_param: user.id, include_accepted_param: !pending
+		group_id_param: group_id, limit_param: items, page_param: page, user_id_param: user.id, 
+		include_accepted_param: !pending, include_can_mod_own_pending_param: !settings.can_mod_own_pending
 	}).single<{
 		group_id: string; name: string; thumbnail: string; last_active: string; last_photo_posted_by: string; 
 		owner_id: string; description: string; total_count: number; posts: Post[];
@@ -33,9 +37,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		if (error.details?.includes("0 rows")) return useReturnResponse(event, notFoundError)
 		return useReturnResponse(event, notFoundError)
 	}
-
-	const { data: settings, error: settingsError } = await server.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>()
-	if (settingsError) return useReturnResponse(event, notFoundError)
 
 	/*
 	************************************************************************************

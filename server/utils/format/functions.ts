@@ -54,8 +54,6 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
                 });
             }
 
-            if (!data.accepted && !data.can_mod_own_pending && isOwner) return undefined; 
-
             return {
                 id: data.id,
                 created_at: data.created_at,
@@ -78,7 +76,7 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
                 },
             };
         })
-    )).filter(Boolean);
+    ))
 };
 
 export const useFormatMediaData = async (server: SupabaseClient, client: SupabaseClient, data: Record<string, any>, related: Record<string, any>, group_id: string, user: User) => {
