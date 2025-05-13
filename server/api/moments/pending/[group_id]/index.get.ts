@@ -1,5 +1,3 @@
-import { Database } from "../../../../utils/supabase/types/database.types";
-
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
 
 	if (!user) return useReturnResponse(event, unauthorizedError);
