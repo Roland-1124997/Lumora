@@ -272,12 +272,23 @@
 	const handleSuccess = async ({ response }: SuccessResponse<Post>) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
+		if(need_approval.value) {
+			
+			await makeRequest(`/api/moments/pending/${group_id}`);
 
-		if(need_approval.value) return addToast({ 
-			message: "Your image has been submitted for approval.", 
-			type: "success", 
-			duration: 5000 
-		});
+			if(data.value) {
+				accepted.value = data.value.data.accepted;
+				need_approval.value = data.value.data.need_approval;
+				has_permisons.value = data.value.data.has_permisons;
+				posts_count_need_approval.value = data.value.data.posts_count_need_approval;
+			}
+			
+			return addToast({ 
+				message: "Your image has been submitted for approval.", 
+				type: "success", 
+				duration: 5000 
+			});
+		}
 		
 		else addToast({ 
 			message: "Your image has been posted successfully.", 

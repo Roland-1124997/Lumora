@@ -30,7 +30,6 @@ export default defineNuxtConfig({
     experimental: {
       websocket: true,
     },
-    //preset: 'node'
   },
 
   runtimeConfig: {

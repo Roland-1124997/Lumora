@@ -16,8 +16,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	const { data: settings, error: settingError } = await client.from("group_settings").select("*").eq("group_id", group_id).single<Tables<'group_settings'>>()
 	if (settingError) return useReturnResponse(event, internalServerError)
 
-	const { count } = await client.from("posts").select("*", { count: "exact" }).eq("Accepted", false).eq("group_id", group_id)
-	if (settingError) return useReturnResponse(event, internalServerError)
+	const postsQuery = client.from("posts").select("*", { count: "exact" }).eq("Accepted", false).eq("group_id", group_id)
+	if (!settings.can_mod_own_pending) postsQuery.neq("author_id", user.id)
+
+	const { count } = await postsQuery.overrideTypes<Array<Tables<"posts">>>();
 
 	/*
 	************************************************************************************

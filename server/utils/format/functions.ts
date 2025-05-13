@@ -13,14 +13,16 @@ export const useFormatListGroup = async (server: SupabaseClient, data: Record<st
 
         const { data: member } = await server.from("members").select("*").eq("group_id", data.id).eq("user_id", user.id).single<Tables<"members">>()
         const { data: settings } = await server.from("group_settings").select("*").eq("group_id", data.id).single<Tables<"group_settings">>()
-        const { count } = await server.from("posts").select("*", { count: "exact" }).eq("Accepted", false).eq("group_id", data.id)
-    
+        
+        const postsQuery = server.from("posts").select("*", { count: "exact" }).eq("Accepted", false).eq("group_id", data.id)
+        if (!settings?.can_mod_own_pending) postsQuery.neq("author_id", user.id)
+
+        const { count } = await postsQuery.overrideTypes<Array<Tables<"posts">>>();
 
         return {
             id: data.id,
             name: data.name,
             description: data.description,
-            last_active: data.last_active,
             last_action: !member?.accepted? 'Pending' : data.last_action,
             needs_attention: settings?.needs_review && (settings.owner_id == user.id || member?.can_edit_group) && count && count > 0 ? true : !member?.accepted ? false : attention,
             last_photo_posted_by: {
@@ -39,26 +41,26 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
 
     const { data: users } = await useListUsers(server);
 
-    return await Promise.all(
+    return (await Promise.all(
         data.map(async (data: Record<string, any>) => {
             const author: User | undefined = user ? undefined : users.users.find((user: User) => user.id === data.author.id);
             const isOwner = user ? data.author_id == user.id : data.author.is_owner;
             const authorName = user ? user.user_metadata.name : author?.user_metadata.name || null;
 
-            const deleted = authorName === null ;
+            const deleted = authorName === null;
 
             if (!data?.user_left || !deleted) {
                 fetch(author?.user_metadata.avatar_url || `/attachments/avatar/${data?.author?.id || data?.author_id}`).catch(() => {
-                    
-                })
+                });
             }
+
+            if (!data.accepted && !data.can_mod_own_pending && isOwner) return undefined; 
 
             return {
                 id: data.id,
                 created_at: data.created_at,
                 updated_at: data.updated_at,
                 accepted_at: data.accepted_at,
-                can_mod_own_pending: data.can_mod_own_pending,
                 has_liked: data.has_liked || false,
                 has_left: data.user_left || false,
                 has_been_accepted: data.accepted,
@@ -76,7 +78,7 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
                 },
             };
         })
-    );
+    )).filter(Boolean);
 };
 
 export const useFormatMediaData = async (server: SupabaseClient, client: SupabaseClient, data: Record<string, any>, related: Record<string, any>, group_id: string, user: User) => {
