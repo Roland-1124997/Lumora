@@ -27,7 +27,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	const { data: media, error } = await client.rpc("get_group_with_posts", {
 		group_id_param: group_id, limit_param: items, page_param: page, user_id_param: user.id, 
-		include_accepted_param: !pending, include_can_mod_own_pending_param: !settings.can_mod_own_pending
+		include_accepted_param: !pending, include_can_mod_own_pending_param: pending ? !settings.can_mod_own_pending : false
 	}).single<{
 		group_id: string; name: string; thumbnail: string; last_active: string; last_photo_posted_by: string; 
 		owner_id: string; description: string; total_count: number; posts: Post[];
