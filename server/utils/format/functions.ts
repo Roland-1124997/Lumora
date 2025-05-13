@@ -23,6 +23,7 @@ export const useFormatListGroup = async (server: SupabaseClient, data: Record<st
             id: data.id,
             name: data.name,
             description: data.description,
+            last_active: data.last_active,
             last_action: !member?.accepted? 'Pending' : data.last_action,
             needs_attention: settings?.needs_review && (settings.owner_id == user.id || member?.can_edit_group) && count && count > 0 ? true : !member?.accepted ? false : attention,
             last_photo_posted_by: {
