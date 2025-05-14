@@ -56,6 +56,28 @@
 			<div class="p-4 border rounded-xl">
 				<div>
 					<div class="flex items-center justify-between mb-1">
+					<h1 class="font-bold">Security</h1>
+					</div>
+					<p class="mb-3 text-sm text-gray-500">Enhance the security of your account.</p>
+					<hr class="mb-2" />
+					<button class="flex items-center justify-between w-full p-3 text-left border-2 border-dashed rounded-md ">
+						<div>
+							<div class="font-bold">Enable Multi-Factor</div>
+							<div class="text-xs opacity-70">Add an extra layer of security</div>
+						</div>
+						<label for="mfa" class="cursor-pointer">
+							<input type="checkbox" name="mfa" id="mfa" aria-labelledby="mfa" v-model="mfa_active" class="sr-only" />
+							<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ ' bg-yellow-800': mfa_active, 'bg-gray-300 ':  !mfa_active, }">
+								<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': mfa_active }"></div>
+							</div>
+						</label>
+					</button>
+				</div>
+			</div>
+
+			<div class="p-4 border rounded-xl">
+				<div>
+					<div class="flex items-center justify-between mb-1">
 						<h1 class="font-bold">Danger zone</h1>
 					</div>
 					<p class="mb-3 text-sm text-gray-500">Irreversible and destructive actions.</p>
@@ -119,6 +141,7 @@
 
 	const user = await store.getSession();
 
+	const mfa_active = ref(user.data.factors)
 	const username = ref(user.data.name);
 	const email = ref(user.data.email);
 	const disabled = ref(user.data.provider !== "email");
@@ -135,15 +158,14 @@
 	);
 
 	const schema_password = toTypedSchema(
-		zod
-			.object({
-				New_password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
-				Confirm_password: zod.string({ message: "This field is required" }),
-			})
-			.refine((data) => data.New_password === data.Confirm_password, {
-				message: "Passwords do not match",
-				path: ["Confirm_password"],
-			})
+		zod.object({
+			New_password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
+			Confirm_password: zod.string({ message: "This field is required" }),
+		})
+		.refine((data) => data.New_password === data.Confirm_password, {
+			message: "Passwords do not match",
+			path: ["Confirm_password"],
+		})
 	);
 
 	/*
@@ -237,6 +259,49 @@
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
+		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+
+
+	
+	watch(mfa_active, async (value) => {
+		if(value) {
+			updateModalValue({
+				open: true,
+				type: "create:totp",
+				name: "Authentication",
+				requestUrl: ``,
+				onSuccess: () => {},
+				onError: () => {},
+			});
+		} else {
+			updateModalValue({
+				open: true,
+				type: "negative:totp",
+				name: "Authentication",
+				requestUrl: `/api/auth/totp`,
+				onSuccess: handleDeleteMFASuccess,
+				onError: handleDeleteMFAError,
+			});
+		}
+	})
+
+	const handleDeleteMFASuccess = async () => {
+		setTimeout(() => {
+			addToast({
+				message: `MFA disabled successfully.`,
+				type: "success",
+				duration: 5000,
+			});
+		}, 800);
+	};
+
+	const handleDeleteMFAError = async ({ error, actions }: ErrorResponse) => {
 		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
 	};
 

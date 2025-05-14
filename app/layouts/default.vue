@@ -125,6 +125,16 @@
 				v-model="modal"
 			/>
 
+			<FieldFormCreateTotp v-if="modal.type.includes('create:totp')"
+				:callback="closeModal"
+				:requestUrl="modal.requestUrl" 
+				:onError="modal.onError" 
+				:onSuccess="modal.onSuccess"  
+				:type="modal.type"
+				:resize="modal.resize" 
+				v-model="modal"
+			/>
+
 		</ModalBaselayer>
 	</div>
 </template>

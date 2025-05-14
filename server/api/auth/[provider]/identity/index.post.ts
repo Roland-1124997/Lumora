@@ -7,7 +7,7 @@ export default defineEventHandler( async (event) => {
     ************************************************************************************
     */
 
-    const { error } = await client.auth.signInWithIdToken({
+    const { data, error } = await client.auth.signInWithIdToken({
         provider: provider,
         token: credential,
     });
@@ -19,6 +19,16 @@ export default defineEventHandler( async (event) => {
             details: error,
         }
     })
+
+
+    if (data.user.factors) return useReturnResponse(event, {
+        status: {
+            success: true,
+            redirect: "/auth/totp",
+            message: "Ok",
+            code: 200
+        }
+    });
 
     /*
     ************************************************************************************

@@ -18,13 +18,14 @@ export const useSetSessionData =  (user: User | null) => {
         fetch(user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`).catch(() => {
             
         })
-        
+
         return {
             id: user.id as string,
             name: user.user_metadata.name || "Anymouses" as string,
             avatar: user.user_metadata.avatar_url || `/attachments/avatar/${user.id}` as string,
             email: user.user_metadata.email || user.email as string,
-            provider: user.app_metadata.provider
+            provider: user.app_metadata.provider,
+            factors: user.factors ? true : false
         }
 
     }

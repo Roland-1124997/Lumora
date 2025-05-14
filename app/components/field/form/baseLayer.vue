@@ -5,7 +5,7 @@
 			<div v-if="resize" :class="!loading ? 'opacity-50' : ''" @click="hanleMinimizeModal" class="flex items-center justify-center w-fit px-2 h-12 text-base font-semibold text-[#756145] border border-[#756145]/80 rounded-xl hover:border-[#756145]">
 				<Icon name="ri:expand-diagonal-2-line" size="2em"></Icon>
 			</div>
-			<button :disabled="loading" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-[#756145]/80 rounded-xl hover:bg-[#756145]">
+			<button v-if="label" :disabled="loading" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-[#756145]/80 rounded-xl hover:bg-[#756145]">
 				<UtilsLoader :loading :label :numberCount="3" />
 			</button>
 		</div>
@@ -19,7 +19,7 @@
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },
 		schema: { type: Object, required: true },
-		label: { type: String, required: true },
+		label: { type: String, required: false },
 		resize: { type: Boolean, default: false },
 	});
 

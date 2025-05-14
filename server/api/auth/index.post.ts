@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
   const client = await serverSupabaseClient(event);
 
-  const { error } = await client.auth.signInWithPassword({
+  const { data, error } = await client.auth.signInWithPassword({
     email: request.email, password: request.password
   });
 
@@ -42,6 +42,15 @@ export default defineEventHandler(async (event) => {
     }
   });
 
+  if (data.user.factors) return useReturnResponse(event, {
+    status: {
+      success: true,
+      redirect: "/auth/totp",
+      message: "Ok",
+      code: 200
+    }
+  });
+  
   /*
   ************************************************************************************
   */
