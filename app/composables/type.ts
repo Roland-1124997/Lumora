@@ -77,6 +77,7 @@ export interface ErrorResponse {
     };
     actions: {
         setErrors: (errors: Record<string, string[]>) => void;
+        resetForm: () => void;
     };
 }
 

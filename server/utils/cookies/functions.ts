@@ -17,7 +17,7 @@ export const useGetCookies = (event: H3Event) => {
 export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | null) => {
     if (session) {
         setCookie(event, "sb-access-token", session.access_token, {
-            maxAge: 60 * 10, // Cookie valid for 10 minutes
+            maxAge: 60 * 30, // Cookie valid for 30 minutes
             httpOnly: true,
         });
 

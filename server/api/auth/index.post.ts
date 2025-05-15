@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     const session_id = crypto.randomUUID()
 
     setCookie(event, "sb-mfa-token", session_id, {
-      maxAge: 60 * 10, // Cookie valid for 10 minutes
+      maxAge: 60 * 60 * 24 * 14, // Cookie valid for 14 days
       httpOnly: true,
     });
 

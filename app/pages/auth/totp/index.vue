@@ -5,8 +5,10 @@
 			<p class="text-base text-gray-500">Enter the 6-digit code from your authenticator</p>
 		</div>
 
-        <FieldFormTotp requestUrl="/api/auth/verify/topt/" :schema="schema" :onSuccess="handleSuccess" :onError="handleError" />
+        <FieldFormTotp requestUrl="/api/auth/verify/topt" :schema="schema" :onSuccess="handleSuccess" :onError="handleError" />
         <UtilsSeparator :line="true" />
+		
+		<p v-if="succeded" class="text-sm text-center text-gray-500 bottom-5">Not redirected yet? <NuxtLink class="font-bold text-[#817a70] hover:text-[#6e675d]" to="/moments">Tap here to speed things up!</NuxtLink></p>
     </div>
 </template>
 
@@ -20,6 +22,8 @@
 		middleware: "totp-redirecter"
 	});
 
+	const succeded = ref(false)
+
     const schema = toTypedSchema(
 		zod.object({
 			code: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(6, { message: "Must be at least 6 characters long" }).max(6, { message: "Must be at least 6 characters long" }),
@@ -27,15 +31,17 @@
 	);
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		await new Promise((resolve) => setTimeout(resolve, 500));
+		succeded.value = true
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (response.status.redirect) navigateTo(response.status.redirect);
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, 500));
 		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+		
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+		actions.resetForm()
 	};
-
-
-
+	
 </script>
