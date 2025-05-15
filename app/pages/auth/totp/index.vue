@@ -17,7 +17,7 @@
 
 	definePageMeta({
 		layout: "auth",
-		middleware: "authorized",
+		middleware: "totp-redirecter"
 	});
 
     const schema = toTypedSchema(
@@ -27,6 +27,7 @@
 	);
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
+		await new Promise((resolve) => setTimeout(resolve, 500));
 		if (response.status.redirect) navigateTo(response.status.redirect);
 	};
 

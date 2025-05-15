@@ -4,6 +4,9 @@ export const defineSupabaseEventHandler = (callback: (event: H3Event, user: User
         const client: SupabaseClient = await serverSupabaseClient(event);
         const server: SupabaseClient = serverSupabaseServiceRole(event)
 
+        const session = getCookie(event, "sb-mfa-token")
+        if (!!session) return useReturnResponse(event, unauthorizedError)
+
         const { data: user, error } = await useSessionExists(event, client);
         if (error) return useReturnResponse(event, unauthorizedError)
 

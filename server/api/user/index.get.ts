@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
                 message: "Ok",
                 code: 200
             },
-            data: useSetSessionData(data.user)
+            data: useSetSessionData(event, data.user)
         });
     }
 
@@ -26,6 +26,6 @@ export default defineEventHandler(async (event) => {
             message: "oK",
             code: 200
         },
-        data: useSetSessionData(data.user)
+        data: useSetSessionData(event, data.user)
     });
 });

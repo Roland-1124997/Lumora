@@ -1,7 +1,9 @@
 export default defineNuxtRouteMiddleware( async(to, from) => {
 
     const store = useSessionsStore()
-    const { error } = await store.getSession()
+    const { data, error } = await store.getSession()
+
+    if (data && data.mfa_needs_to_verfied) return navigateTo("/auth/totp")
     if(error) return navigateTo("/auth")
 
 })

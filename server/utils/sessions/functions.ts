@@ -11,7 +11,7 @@ export const useDeleteSession = async (client: SupabaseClient) => {
     return await client.auth.signOut();
 }
 
-export const useSetSessionData =  (user: User | null) => {
+export const useSetSessionData = (event: H3Event, user: User | null) => {
 
     if(user) {
 
@@ -19,13 +19,16 @@ export const useSetSessionData =  (user: User | null) => {
             
         })
 
+        const session = getCookie(event, "sb-mfa-token")
+
         return {
             id: user.id as string,
             name: user.user_metadata.name || "Anymouses" as string,
             avatar: user.user_metadata.avatar_url || `/attachments/avatar/${user.id}` as string,
             email: user.user_metadata.email || user.email as string,
             provider: user.app_metadata.provider,
-            factors: user.factors ? true : false
+            factors: user.factors ? true : false,
+            mfa_needs_to_verfied: user.factors ? (!session ? false : true) : undefined
         }
 
     }

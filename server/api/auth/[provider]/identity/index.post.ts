@@ -1,4 +1,4 @@
-export default defineEventHandler( async (event) => {
+export default defineEventHandler(async (event) => {
     const client = await serverSupabaseClient(event)
     const { credential } = await readBody(event)
     const { provider } = getRouterParams(event)
@@ -20,15 +20,27 @@ export default defineEventHandler( async (event) => {
         }
     })
 
+    if (data.user.factors) {
 
-    if (data.user.factors) return useReturnResponse(event, {
-        status: {
-            success: true,
-            redirect: "/auth/totp",
-            message: "Ok",
-            code: 200
-        }
-    });
+        const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
+        useSetCookies(event, session);
+
+        const session_id = crypto.randomUUID()
+
+        setCookie(event, "sb-mfa-token", session_id, {
+            maxAge: 60 * 10, // Cookie valid for 10 minutes
+            httpOnly: true,
+        });
+
+        return useReturnResponse(event, {
+            status: {
+                success: true,
+                redirect: "/auth/totp",
+                message: "Ok",
+                code: 200
+            }
+        });
+    }
 
     /*
     ************************************************************************************

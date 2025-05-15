@@ -17,6 +17,17 @@ export default defineEventHandler(async (event) => {
     });
 
     const client = await serverSupabaseClient(event);
+    const session_id = getCookie(event, "sb-mfa-token")
+
+    if (!session_id) return useReturnResponse(event, {
+        ...unauthorizedError,
+        error: {
+            type: "fields",
+            details: {
+                code: [ "Not enaled for this account" ],
+            }
+        }
+    });
 
     const { data: factors, error: factorError } = await client.auth.mfa.listFactors()
     if (factorError) return useReturnResponse(event, internalServerError)
@@ -43,6 +54,7 @@ export default defineEventHandler(async (event) => {
     const invite = getCookie(event, "invite_token");
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
 
+    deleteCookie(event, "sb-mfa-token");
     deleteCookie(event, "invite_token");
     useSetCookies(event, session);
 
