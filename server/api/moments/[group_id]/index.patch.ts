@@ -41,8 +41,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	const filteredContext = Object.fromEntries(
 		Object.entries({
-			description: getUpdatedValue(request.description, group.description),
-			name: getUpdatedValue(request.name, group.name),
+			"description": getUpdatedValue(request.description, group.description),
+			"name": getUpdatedValue(request.name, group.name),
 			"Posts need to be reviewed": getUpdatedValue(request.configuration.reviewPosts, data.needs_review),
 			"Anyone can create links": getUpdatedValue(request.configuration.createLinks, data.everyone_can_create_link),
 			"Auto accept new members": getUpdatedValue(request.configuration.autoAccept, data.auto_accept_new_members),

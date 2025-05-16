@@ -51,25 +51,22 @@ export const useFormatGroup = async (server: SupabaseClient, data: Record<string
             const deleted = authorName === null;
 
             if (!data?.user_left || !deleted) {
-                fetch(author?.user_metadata.avatar_url || `/attachments/avatar/${data?.author?.id || data?.author_id}`).catch(() => {
-                });
+                fetch(author?.user_metadata.avatar_url || `/attachments/avatar/${data?.author?.id || data?.author_id}`).catch(() => {});
             }
 
+            
             return {
                 id: data.id,
                 created_at: data.created_at,
                 updated_at: data.updated_at,
                 accepted_at: data.accepted_at,
-                has_liked: data.has_liked || false,
                 has_left: data.user_left || false,
                 has_been_accepted: data.accepted,
+                has_interactions: data.has_interactions,
                 author: {
                     name: data?.user_left || deleted ? "Unknown" : (isOwner ? `${authorName} (You)` : authorName),
                     url: data?.user_left || deleted ? `/profile.jpg` : (author?.user_metadata.avatar_url || user?.user_metadata.avatar_url || `/attachments/avatar/${data?.author?.id || data?.author_id}`),
                     is_owner: isOwner,
-                },
-                likes: {
-                    count: data.likes.count || 0,
                 },
                 media: {
                     type: "image",
@@ -87,12 +84,20 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
     const { data: permissions } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
     const { data: liked } = await client.from("liked_posts").select("id").eq("post_id", data.id).eq("user_id", user.id).single<Tables<"liked_posts">>()
 
+    const { data: settings } = await server.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>()
+    
+
     const author: User | undefined = users.users.find((user) => user.id === data.author_id);
 
     return {
         id: data.id,
         created_at: data.created_at,
-        has_liked: liked ? true : false,
+        has_interactions: !settings?.social_interactions ? null : {
+            has_liked: liked ? true : false,
+            likes: {
+                count: data.likes,
+            },
+        },
         author: {
             name: author?.user_metadata?.name || "Unknown",
             is_owner: data.author_id == user?.id,
@@ -100,9 +105,7 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
         permision: {
             can_delete_message: permissions?.can_delete_messages_all || permissions?.user_id === data.author_id
         },
-        likes: {
-            count: data.likes,
-        },
+        
         media: {
             type: "image",
             url: `/attachments/${data.url}`

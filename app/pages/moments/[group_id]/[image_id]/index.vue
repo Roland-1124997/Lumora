@@ -2,18 +2,18 @@
 	<div>
 		<splitpanes :horizontal="isMobile" class="w-full h-full" @resize="savePaneSize">
 			<pane :size="paneLeft" class="pl-3 -mt-4 border-l md:pr-3" min-size="50" max-size="70">
-				<div class="hidden w-full gap-2 mb-4 max-w-[35vw] md:flex">
-					<button v-if="!content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-						<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
-						<UtilsCounter :count="content.likes.count" />
+				<div class="hidden w-full gap-2 mb-4 md:flex">
+					<button v-if="!content.author.is_owner && content.has_interactions" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
+						<UtilsCounter :count="content.has_interactions.likes.count" />
 					</button>
 					<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 						<Icon name="ri:close-circle-line" size="1.2rem" />
 					</button>
-					<a target="_parent" download :href="content?.media?.url" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Download</a>
-					<button @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
+					<a target="_parent" download :href="content?.media?.url" class="flex w-full items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Download</a>
+					<button v-if="content.has_interactions" @click="focusEditable" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 				</div>
-				<div :class="loaded ? 'bg-black' : ' bg-gray-200'" class="relative flex items-center justify-center w-full h-full min-h-[51vh] max-h-[78vh] md:h-[78vh] overflow-hidden border rounded-lg">
+				<div ref="focus" :class="loaded ? 'bg-black' : ' bg-gray-200'" class="relative flex items-center justify-center w-full h-full min-h-[51vh] max-h-[78vh] md:h-[78vh] overflow-hidden border rounded-lg">
 					<img v-if="loaded" :src="content?.media?.url" :alt="content.id" class="object-contain w-full h-full" />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="5em" />
 				</div>
@@ -21,18 +21,18 @@
 			<pane :size="paneRight" class="pl-3 overflow-hidden border-l mb-36 md:mb-auto">
 				<div class="md:h-[82.5vh] overflow-scroll">
 					<div class="flex w-full gap-2 mt-4 mb-2 md:hidden">
-						<button v-if="!content.author.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
-							<UtilsCounter :count="content.likes.count" />
+						<button v-if="!content.author.is_owner && content.has_interactions" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
+							<UtilsCounter :count="content.has_interactions.likes.count" />
 						</button>
 
 						<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon name="ri:close-circle-line" size="1.2rem" />
 						</button>
 
-						<a v-if="!PWAInstalled" target="_parent" download :href="content?.media?.url" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Download</a>
-						<div v-else class="relative group">
-							<button disabled class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] disabled:opacity-50 rounded-xl">Download</button>
+						<a v-if="!PWAInstalled" target="_parent" download :href="content?.media?.url" class="flex w-full items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Download</a>
+						<div v-else class="relative w-full group">
+							<button disabled class="flex w-full items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] disabled:opacity-50 rounded-xl">Download</button>
 							<div class="absolute z-50 hidden px-4 py-1 text-xs text-center text-white transition duration-200 ease-in-out transform -translate-y-full bg-[#756145] rounded-md w-44 top-[6.35rem] group-hover:block">
 								<p class="text-center p-[0.45em]">
 									<span class="font-semibold text-balance"> Currently not supported on PWAs! </span>
@@ -40,7 +40,7 @@
 								<div class="absolute w-3 h-3 bg-[#756145] transform rotate-45 -top-[0.44em] left-5 -translate-x-1/2"></div>
 							</div>
 						</div>
-						<button @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
+						<button v-if="content.has_interactions" @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 					</div>
 
 					<hr class="mt-4 mb-2 md:hidden" />
@@ -64,8 +64,8 @@
 
 					<hr class="my-2 mt-4" />
 
-					<h2 class="mb-3 text-xl font-semibold">Comments</h2>
-					<form @submit.prevent="handleSumbitComments()">
+					<h2 v-if="content.has_interactions" class="mb-3 text-xl font-semibold">Comments</h2>
+					<form v-if="content.has_interactions" @submit.prevent="handleSumbitComments()">
 						<div class="flex items-center justify-center gap-2">
 							<textarea v-model="comment" placeholder="Leave an message" ref="editable" class="w-full resize-none p-4 bg-gray-100 rounded-xl outline-none appearance-none h-[3.5rem] focus:border focus:border-black"></textarea>
 							<button class="flex items-center justify-center p-[0.85rem] text-sm text-white bg-[#756145]/90 rounded-xl">
@@ -111,6 +111,9 @@
 	 */
 
 	const editableDiv = templateRef("editable");
+	const focus = ref(null)
+
+	onMounted(() => focus.value?.scrollIntoView({ behavior: 'auto' }))
 
 	const focusEditable = () => {
 		editableDiv.value.focus();
@@ -190,8 +193,9 @@
 		setTimeout(() => (isAnimating.value = false), 300);
 
 		await $fetch(`/api/moments/${group_id}/${content.value.id}`, { method: "PATCH" }).then((response) => {
-			content.value.likes.count = response.data.likes.count;
-			content.value.has_liked = response.data.has_liked;
+			
+			content.value.has_interactions.likes.count = response.data.likes.count;
+			content.value.has_interactions.has_liked = response.data.has_liked;
 
 			webSocket.send(
 				JSON.stringify({
@@ -199,14 +203,16 @@
 					group_id,
 					image_id: content.value.id,
 					likes: {
-						count: content.value.likes.count,
+						count: content.value.has_interactions.likes.count,
 					},
 				})
 			);
 
 			updateItemByMetaId(group_id, content.value.id, {
-				has_liked: content.value.has_liked,
-				likes: { count: content.value.likes.count },
+				has_interactions: {
+					has_liked: content.value.has_interactions.has_liked,
+					likes: { count: content.value.has_interactions.likes.count }
+				}
 			});
 		});
 	};

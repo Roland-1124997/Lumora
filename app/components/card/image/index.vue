@@ -1,7 +1,7 @@
 <template>
 	<div ref="target" class="border-b select-text">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 border md:h-52 rounded-xl">
-			<div v-if="content.has_been_accepted" class="relative z-40 flex items-center justify-start gap-2 p-2">
+			<div v-if="content.has_been_accepted && content.has_interactions" class="relative z-40 flex items-center justify-start gap-2 p-2">
 				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon :class="[liked ? 'text-red-600' : '', isAnimating ? 'animate-like' : '']" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2em" />
 					<UtilsCounter :count="hearts" />
@@ -23,12 +23,12 @@
 				</button>
 			</div>
 			<NuxtLink v-if="content.has_been_accepted && loaded && targetIsVisible" :to="content.url ? content.url : `${$route.path}/${content.id}`">
-				<img :src="content.media.url" :alt="content.id" class="object-cover aspect-square w-full h-full -mt-[2.86rem] md:-mt-[2.88rem]" />
+				<img :src="content.media.url" :alt="content.id" :class="content.has_interactions ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full aspect-square h-fulf" />
 			</NuxtLink>
 			<div v-else-if="!content.has_been_accepted && loaded && targetIsVisible">
-				<img :src="content.media.url" :alt="content.id" class="object-cover w-full h-full aspect-square -mt-[2.86rem] md:-mt-[2.88rem]" />
+				<img :src="content.media.url" :alt="content.id" :class="content.has_interactions ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full h-full aspect-square" />
 			</div>
-			<div class="flex items-center justify-center w-full h-full -mt-[2.83rem] md:-mt-[2.75rem]" v-else>
+			<div :class="content.has_interactions ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="flex items-center justify-center w-full h-full" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
 			</div>
 		</div>
@@ -69,10 +69,12 @@
 		methods: { type: Array, required: false },
 	});
 
-	hearts.value = content.likes.count;
-	liked.value = content.has_liked;
-	const isAnimating = ref(false);
+	if(content.has_interactions) {
+		hearts.value = content.has_interactions.likes.count;
+		liked.value = content.has_interactions.has_liked;
+	}
 
+	const isAnimating = ref(false);
 	const comments = ref(0);
 
 	watch(targetIsVisible, (value) => {
@@ -128,8 +130,10 @@
 				);
 
 				updateItemByMetaId(group_id, content.id, {
-					has_liked: liked.value,
-					likes: { count: hearts.value },
+					has_interactions: {
+						has_liked: liked.value,
+						likes: { count: hearts.value }
+					},
 				});
 			})
 			.catch(() => {
