@@ -1,5 +1,5 @@
 <template>
-	<FieldFormBaseLayer :requestUrl :onSuccess :onError :method :schema label="Confirm">
+	<FieldFormBaseLayer :requestUrl :onSuccess :onError :method :onReturn :schema label="Confirm">
 		<div class="space-y-4 md:pt-12">
 			<field name="code" v-slot="{ field, meta }: any">
 				<div class="space-y-2">
@@ -20,6 +20,15 @@
 		method: { type: String, default: "POST" },
 		schema: { type: Object, required: true },
 	});
+
+	const store = useSessionsStore();
+
+	const onReturn = () => {
+		$fetch("/api/auth/logout", { method: "POST" }).then((response) => {
+			store.clearSession();
+			navigateTo(response.status.redirect);
+		});
+	}
 </script>
 
 <style scoped>

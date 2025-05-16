@@ -2,8 +2,10 @@ const schema = zod.object({
     code: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(6, { message: "Must be at least 6 characters long" }).max(6, { message: "Must be at most 6 characters long" }),
 })
 
-export default defineEventHandler(async (event) => {
+export default defineSupabaseEventHandler(async (event, user, client, server) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (!user) return useReturnResponse(event, unauthorizedError);
 
     const request = await readBody(event);
     const { error: zodError } = await schema.safeParseAsync(request);
@@ -16,15 +18,14 @@ export default defineEventHandler(async (event) => {
         }
     });
 
-    const client = await serverSupabaseClient(event);
-    const session_id = getCookie(event, "sb-mfa-token")
+    const { error: sessionError } = await server.from("factor_sessions").select("*").eq("user_id", user.id).single()
 
-    if (!session_id) return useReturnResponse(event, {
+    if (sessionError) return useReturnResponse(event, {
         ...unauthorizedError,
         error: {
             type: "fields",
             details: {
-                code: [ "Not enaled for this account" ],
+                code: [ "Not enabled for this account" ],
             }
         }
     });
@@ -54,7 +55,8 @@ export default defineEventHandler(async (event) => {
     const invite = getCookie(event, "invite_token");
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
 
-    deleteCookie(event, "sb-mfa-token");
+    await server.from("factor_sessions").delete().eq("user_id", user.id)
+
     deleteCookie(event, "invite_token");
     useSetCookies(event, session);
 

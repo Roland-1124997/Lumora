@@ -23,7 +23,5 @@
 
 	const remember = useLocalStorage("user-email", undefined) as Ref<string | undefined>;
 
-	const initialValue = computed(() => {
-		return remember.value;
-	});
+	const initialValue = computed(() => remember.value);
 </script>

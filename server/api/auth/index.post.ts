@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
   */
 
   const client = await serverSupabaseClient(event);
+  const server = serverSupabaseServiceRole(event)
 
   const { data, error } = await client.auth.signInWithPassword({
     email: request.email, password: request.password
@@ -47,13 +48,10 @@ export default defineEventHandler(async (event) => {
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
     useSetCookies(event, session);
 
-    const session_id = crypto.randomUUID()
-
-    setCookie(event, "sb-mfa-token", session_id, {
-      maxAge: 60 * 60 * 24 * 14, // Cookie valid for 14 days
-      httpOnly: true,
-    });
-
+    await server.from("factor_sessions").insert({
+      user_id: data.user.id,
+    })
+    
     return useReturnResponse(event, {
         status: {
           success: true,

@@ -5,6 +5,11 @@
 			<div v-if="resize" :class="!loading ? 'opacity-50' : ''" @click="hanleMinimizeModal" class="flex items-center justify-center w-fit px-2 h-12 text-base font-semibold text-[#756145] border border-[#756145]/80 rounded-xl hover:border-[#756145]">
 				<Icon name="ri:expand-diagonal-2-line" size="2em"></Icon>
 			</div>
+
+			<div v-if="onReturn" @click="onReturn()" class="flex items-center h-12 gap-2 px-4 py-2 font-medium text-gray-700 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
+				<Icon name="material-symbols:arrow-back-ios-new-rounded" class="w-4 h-4" />
+			</div>
+			
 			<button v-if="label" :disabled="loading" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-[#756145]/80 rounded-xl hover:bg-[#756145]">
 				<UtilsLoader :loading :label :numberCount="3" />
 			</button>
@@ -17,6 +22,7 @@
 		callback: { type: Function, required: false },
 		onSuccess: { type: Function, required: true },
 		onError: { type: Function, required: true },
+		onReturn: { type: Function, required: false },
 		method: { type: String, default: "POST" },
 		schema: { type: Object, required: true },
 		label: { type: String, required: false },
@@ -56,9 +62,11 @@
 			return navigateTo(`/${requestUrl.split("/")[2]}/${values.invite_link}`);
 		}
 
-		const remember = useLocalStorage("user-email", undefined) as Ref<string | undefined>;
-		remember.value = values.remember ? values.email : undefined;
-		
+		if(values.remember) {
+			const remember = useLocalStorage("user-email", undefined) as Ref<string | undefined>;
+			remember.value = values.remember ? values.email : undefined;
+		}
+
 		if (values.thumbnail || values.images) {
 			const formData = new FormData();
 

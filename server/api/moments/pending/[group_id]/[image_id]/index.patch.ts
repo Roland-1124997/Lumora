@@ -1,4 +1,3 @@
-import { create } from "domain";
 
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
 

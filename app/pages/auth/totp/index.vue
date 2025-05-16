@@ -22,8 +22,9 @@
 		middleware: "totp-redirecter"
 	});
 
+	const store = useSessionsStore()
 	const succeded = ref(false)
-
+	
     const schema = toTypedSchema(
 		zod.object({
 			code: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(6, { message: "Must be at least 6 characters long" }).max(6, { message: "Must be at least 6 characters long" }),
@@ -31,10 +32,17 @@
 	);
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		succeded.value = true
+
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (response.status.redirect) navigateTo(response.status.redirect);
-	};
+
+		await $fetch('/api/user').then((response) => {
+			store.setSession(response.data, null)
+			succeded.value = true
+			navigateTo(response.status.redirect);
+		})
+		.catch(() => store.setSession(null, true))
+		
+	}
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 500));
