@@ -38,7 +38,7 @@
 		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
 				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
-					<LazyCardImage v-if="content" :content="content" />
+					<LazyCardImage v-if="content" :content="content" :has_interaction />
 					<LazyCardImageSkeleton v-else />
 				</div>
 			</div>
@@ -163,6 +163,7 @@
 	const need_approval = ref(false);
 	const has_permisons = ref(false);
 	const posts_count_need_approval = ref(0);
+	const has_interaction = ref(true)
 	const loading = ref(false);
 
 	const group: any = getGroupData(group_id);
@@ -176,6 +177,7 @@
 		accepted.value = data.value.data.accepted;
 		need_approval.value = data.value.data.need_approval;
 		has_permisons.value = data.value.data.has_permisons;
+		has_interaction.value = data.value.data.has_interaction;
 		posts_count_need_approval.value = data.value.data.posts_count_need_approval;
 	}
 

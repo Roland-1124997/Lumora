@@ -33,6 +33,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			accepted: data.accepted,
 			need_approval: settings.needs_review,
 			posts_count_need_approval: settings.needs_review && (settings.owner_id == user.id || data.can_edit_group) ? count : 0,
+			has_interaction: settings.social_interactions,
 			has_permisons: settings.owner_id == user.id || data.can_edit_group,
 		}
 	});
