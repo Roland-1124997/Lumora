@@ -113,8 +113,6 @@
 	const editableDiv = templateRef("editable");
 	const focus = ref(null)
 
-	onMounted(() => focus.value?.scrollIntoView({ behavior: 'auto' }))
-
 	const focusEditable = () => {
 		editableDiv.value.focus();
 	};
@@ -271,6 +269,10 @@
 	const isMobile = ref(window.innerWidth < 768);
 	const paneLeft = ref(60);
 	const paneRight = ref(60);
+
+	onMounted(() => {
+		if(isMobile.value) focus.value?.scrollIntoView({ behavior: 'auto' })
+	})
 
 	const updateScreenSize = () => {
 		isMobile.value = window.innerWidth < 768;
