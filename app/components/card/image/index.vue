@@ -26,7 +26,7 @@
 				<img :src="content.media.url" :alt="content.id" :class="has_interaction ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full aspect-square h-fulf" />
 			</NuxtLink>
 			<div v-else-if="!content.has_been_accepted && loaded && targetIsVisible">
-				<img :src="content.media.url" :alt="content.id" :class="(content.has_interactions && has_interaction) ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full h-full aspect-square" />
+				<img :src="content.media.url" :alt="content.id" :class="has_interaction ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full h-full aspect-square" />
 			</div>
 			<div :class="has_interaction ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="flex items-center justify-center w-full h-full" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
