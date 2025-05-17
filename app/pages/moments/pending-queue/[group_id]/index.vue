@@ -39,7 +39,7 @@
 		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class=" h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
 				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
-					<LazyCardImage v-if="content" :content="content" :methods="[() => approveImage(content), () => rejectImage(content)]"  />
+					<LazyCardImage v-if="content" :content="content" :methods="[() => approveImage(content), () => rejectImage(content)]" :has_interaction="true" />
 					<LazyCardImageSkeleton v-else />
 				</div>
 			</div>
