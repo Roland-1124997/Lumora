@@ -67,7 +67,7 @@
 	const { content, methods, has_interaction } = defineProps({
 		content: { type: Object, required: true },
 		methods: { type: Array, required: false },
-		has_interaction: { type: Boolean}
+		has_interaction: { type: Boolean, default: true}
 	});
 
 	if(content.has_interactions && has_interaction) {
