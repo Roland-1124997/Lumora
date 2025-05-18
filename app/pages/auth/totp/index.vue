@@ -8,7 +8,13 @@
         <FieldFormTotp requestUrl="/api/auth/verify/topt" :schema="schema" :onSuccess="handleSuccess" :onError="handleError" />
         <UtilsSeparator :line="true" />
 		
-		<p v-if="succeded" class="text-sm text-center text-gray-500 bottom-5">Not redirected yet? <NuxtLink class="font-bold text-[#817a70] hover:text-[#6e675d]" to="/moments">Tap here to speed things up!</NuxtLink></p>
+		<p v-if="succeded" class="text-sm text-center text-gray-500 bottom-5">
+			Not redirected yet? <NuxtLink class="font-bold text-[#817a70] hover:text-[#6e675d]" to="/moments">Tap here to speed things up!</NuxtLink>
+		</p>
+		<p v-else class="text-sm text-center text-gray-500 bottom-5">
+            <span class="font-bold text-[#817a70] hover:text-[#6e675d]">Quick tip:</span>
+            {{ tips[currentTip] }}
+        </p>
     </div>
 </template>
 
@@ -22,12 +28,27 @@
 		middleware: "totp-redirecter"
 	});
 
+	const tips = [
+		"If you are using a password manager, you can copy the code from your authenticator app and paste it.",
+		"Authenticator apps like Google Authenticator or Authy work offline.",
+		"Codes refresh every 30 seconds, so make sure to enter the latest one.",
+		"If you change phones, transfer your authenticator accounts before resetting your old device."
+	]
+
+    const currentTip = ref(0)
+
+    onMounted(() => {
+        setInterval(() => {
+            currentTip.value = (currentTip.value + 1) % tips.length
+        }, 15000)
+    })
+
 	const store = useSessionsStore()
 	const succeded = ref(false)
 	
     const schema = toTypedSchema(
 		zod.object({
-			code: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(6, { message: "Must be at least 6 characters long" }).max(6, { message: "Must be at least 6 characters long" }),
+			code: zod.string({ message: "Invalid TOPT code entered" }).nonempty({ message: "Invalid TOPT code entered" }).min(6, { message: "Incomplete TOPT code entered" }).max(6, { message: "Invalid TOPT code entered" }),
 		})
 	);
 
@@ -45,10 +66,9 @@
 	}
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
-		await new Promise((resolve) => setTimeout(resolve, 500));
 		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 		
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+		await new Promise((resolve) => setTimeout(resolve, 3000));
 		actions.resetForm()
 	};
 	
