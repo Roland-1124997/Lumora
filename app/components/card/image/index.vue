@@ -61,6 +61,8 @@
 	const targetIsVisible = useElementVisibility(target);
 
 	const hearts = ref(0);
+	const comments = ref(0);
+	
 	const liked = ref(false);
 	const loaded = ref(false);
 
@@ -71,13 +73,13 @@
 	});
 
 	if(content.has_interactions && has_interaction) {
+		comments.value = content.has_interactions.comments.count || 0;
 		hearts.value = content.has_interactions.likes.count;
 		liked.value = content.has_interactions.has_liked;
 	}
 
 	const isAnimating = ref(false);
-	const comments = ref(0);
-
+	
 	watch(targetIsVisible, (value) => {
 		if (value) {
 			setTimeout(() => {
@@ -102,6 +104,16 @@
 
 		if (data.image_id === content.id && data.group_id === group_id) {
 			hearts.value = data.likes.count;
+			comments.value = data.comments.count;
+
+			updateItemByMetaId(group_id, data.image_id, {
+				has_interactions: {
+					has_liked: liked.value,
+					likes: { count: hearts.value },
+					comments: { count: comments.value },
+				},
+			});
+
 		}
 	});
 
@@ -127,13 +139,17 @@
 						likes: {
 							count: hearts.value,
 						},
+						comments: {
+							count: comments.value,
+						},
 					})
 				);
 
 				updateItemByMetaId(group_id, content.id, {
 					has_interactions: {
 						has_liked: liked.value,
-						likes: { count: hearts.value }
+						likes: { count: hearts.value },
+						comments: { count: comments.value },
 					},
 				});
 			})

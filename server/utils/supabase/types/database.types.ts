@@ -52,12 +52,30 @@ export type Database = {
                 }
                 Relationships: []
             }
+            factor_sessions: {
+                Row: {
+                    created_at: string
+                    id: number
+                    user_id: string | null
+                }
+                Insert: {
+                    created_at?: string
+                    id?: number
+                    user_id?: string | null
+                }
+                Update: {
+                    created_at?: string
+                    id?: number
+                    user_id?: string | null
+                }
+                Relationships: []
+            }
             group_settings: {
                 Row: {
                     auto_accept_new_members: boolean | null
+                    can_mod_own_pending: boolean | null
                     created_at: string
                     everyone_can_create_link: boolean | null
-                    can_mod_own_pending: boolean | null,
                     group_id: string | null
                     id: string
                     needs_review: boolean | null
@@ -66,9 +84,9 @@ export type Database = {
                 }
                 Insert: {
                     auto_accept_new_members?: boolean | null
+                    can_mod_own_pending?: boolean | null
                     created_at?: string
                     everyone_can_create_link?: boolean | null
-                    can_mod_own_pending: boolean | null,
                     group_id?: string | null
                     id?: string
                     needs_review?: boolean | null
@@ -77,7 +95,7 @@ export type Database = {
                 }
                 Update: {
                     auto_accept_new_members?: boolean | null
-                    can_mod_own_pending: boolean | null,
+                    can_mod_own_pending?: boolean | null
                     created_at?: string
                     everyone_can_create_link?: boolean | null
                     group_id?: string | null
@@ -326,6 +344,7 @@ export type Database = {
                     created_at: string
                     group_id: string | null
                     id: string
+                    parent_id: string | null
                     post_id: string | null
                 }
                 Insert: {
@@ -334,6 +353,7 @@ export type Database = {
                     created_at?: string
                     group_id?: string | null
                     id?: string
+                    parent_id?: string | null
                     post_id?: string | null
                 }
                 Update: {
@@ -342,6 +362,7 @@ export type Database = {
                     created_at?: string
                     group_id?: string | null
                     id?: string
+                    parent_id?: string | null
                     post_id?: string | null
                 }
                 Relationships: [
@@ -406,6 +427,8 @@ export type Database = {
                     page_param: number
                     user_id_param: string
                     include_accepted_param: boolean
+                    include_can_mod_own_pending_param: boolean
+                    include_social_interactions_param: boolean
                 }
                 Returns: {
                     group_id: string

@@ -22,7 +22,8 @@
 			</div>
 
 			<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="flex flex-col gap-4 overflow-scroll">
-				<div class="p-4 border rounded-xl">
+				
+				<div v-if="content?.permision?.change" class="p-4 border rounded-xl">
 					<Form :validation-schema="schema" v-slot="{ meta, errors }: any" @submit="handleSubmit">
 						<div class="flex items-center justify-between mb-1">
 							<h1 class="font-bold">Group details</h1>
@@ -42,7 +43,7 @@
 								</label>
 
 								<div class="flex gap-2">
-									<input :disabled="!content?.permision?.change || loading" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" :value="name" type="text" ref="nameData" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none disabled:bg-gray-50 rounded-xl" />
+									<input :disabled="loading" placeholder="Enter a unique and catchy name!" v-bind="field" id="name" :value="name" type="text" ref="nameData" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none disabled:bg-gray-50 rounded-xl" />
 								</div>
 							</div>
 						</field>
@@ -56,7 +57,7 @@
 									</transition>
 								</label>
 								<div class="flex gap-2">
-									<textarea :disabled="!content?.permision?.change || loading" v-bind="field" placeholder="Describe what your group is about!" id="description" :value="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none disabled:bg-gray-50 max-h-24 min-h-24 rounded-xl"></textarea>
+									<textarea :disabled="loading" v-bind="field" placeholder="Describe what your group is about!" id="description" :value="description" type="text" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none resize-none disabled:bg-gray-50 max-h-24 min-h-24 rounded-xl"></textarea>
 								</div>
 							</div>
 						</field>
@@ -195,8 +196,8 @@
 						</table>
 					</div>
 				</div>
-
-				<div v-if="content?.accepted" class="p-4 mb-2 border rounded-xl">
+				
+				<div v-if="content?.permision?.change" class="p-4 mb-2 border rounded-xl">
 					<div class="">
 						<div v-for="(section, index) in config.sections" :key="index">
 							<h1 class="mb-1 font-bold" :class="{ 'mt-4': index > 0 }">{{ section.title }}</h1>

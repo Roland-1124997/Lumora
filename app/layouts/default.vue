@@ -151,25 +151,6 @@
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
 
-	const modalComponents = {
-		"Create": 'FieldFormCreateGroup',
-		'delete:group': 'FieldFormDeleteGroup',
-		"images": 'FieldFormCreateImage',
-		"link": 'FieldFormCreateLinks',
-		"negative": 'FieldFormDeleteConfirm',
-		"join": 'FieldFormJoinLink',
-		'join:group': 'FieldFormJoinConfirm',
-		'update:member': 'FieldFormUpdateMember',
-		'image:update': 'FieldFormUpdateConfirm',
-		'images:multiple': 'FieldFormUpdateMultipleConfirm',
-	}
-
-	const resolveModalComponent = computed(() => {
-		const type = modal.value?.type
-		if (!type) return null
-		return Object.entries(modalComponents).find(([key]) => type.includes(key))?.[1] || null
-	})
-
 	const group = ref()
 	
 	const modal = ref({

@@ -97,6 +97,9 @@ export const useFormatMediaData = async (server: SupabaseClient, client: Supabas
             likes: {
                 count: data.likes,
             },
+            comments: {
+                count: data.comments,
+            },
         },
         author: {
             name: author?.user_metadata?.name || "Unknown",

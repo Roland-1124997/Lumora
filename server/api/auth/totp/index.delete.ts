@@ -4,7 +4,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const { data: factors, error: factorError } = await client.auth.mfa.listFactors()
 
-    if (factorError) return useReturnResponse(event, internalServerError)
+    if ((factors && !factors.all[0]) || factorError) return useReturnResponse(event, internalServerError)
 
     await client.auth.mfa.unenroll({
         factorId: factors.all[0].id,

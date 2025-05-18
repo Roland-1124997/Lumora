@@ -73,6 +73,21 @@
 							</button>
 						</div>
 					</form>
+
+					<div v-if="content.has_interactions" class="mt-2">
+						<div v-for="comment in comments" class="flex items-start gap-2 p-2 border-b border-gray-200">
+							<img :src="comment.author.url" :alt="comment.author.name" class="object-cover w-10 h-10 border rounded-full" />
+							<div class="flex flex-col w-full">
+								<div class="flex items-center justify-between">
+									<div class="text-sm font-semibold text-gray-800">
+										{{ comment.author.name }}
+									</div>
+									<p class="text-xs text-gray-500">{{ useDateFormat(comment.created_at, "DD-MM-YY - HH:mm") }}</p>
+								</div>
+								<p class="mt-1 text-sm text-gray-700">{{ comment.content.text }}</p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</pane>
 		</splitpanes>
@@ -111,15 +126,10 @@
 	 */
 
 	const editableDiv = templateRef("editable");
-	const focus = ref(null)
+	const focus = ref(null);
 
 	const focusEditable = () => {
 		editableDiv.value.focus();
-	};
-
-	const comment = ref();
-	const handleSumbitComments = () => {
-		comment.value = null;
 	};
 
 	/*
@@ -139,15 +149,19 @@
 	const { PWAInstalled } = inject("PWA");
 
 	const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId } = useGroupStore();
+	const { makeRequest, data, error } = useRetryableFetch();
 
 	const { updateGroupValue } = inject("group");
+
+	/*
+	 ************************************************************************************
+	 */
+
 	const group_id = useRoute().params.group_id;
 	const image_id = useRoute().params.image_id;
+
 	const content = ref();
-
 	const group = getGroupData(group_id);
-
-	const { makeRequest, data, error } = useRetryableFetch();
 
 	await makeRequest(`/api/moments/${group_id}/${image_id}`);
 	if (error.value) removeItemByMetaId(group_id, image_id);
@@ -156,6 +170,51 @@
 		content.value = data.value.data;
 		updateGroupValue(data.value.meta.name);
 	}
+
+	const comments = ref([]);
+
+	setTimeout(async () => {
+		if (content.value.has_interactions) {
+			await makeRequest(`/api/moments/comments/${group_id}/${content.value.id}`);
+			if (data.value) comments.value = data.value.data;
+		}
+	}, 1000);
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const comment = ref();
+	const handleSumbitComments = async () => {
+		await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment: comment.value } }).then(async (response) => {
+			comment.value = null;
+
+			await makeRequest(`/api/moments/comments/${group_id}/${content.value.id}`);
+			if (data.value) comments.value = data.value.data;
+
+			webSocket.send(
+				JSON.stringify({
+					type: "update",
+					group_id,
+					image_id: content.value.id,
+					likes: {
+						count: content.value.has_interactions.likes.count,
+					},
+					comments: {
+						count: response.data.comments,
+					},
+				})
+			);
+
+			updateItemByMetaId(group_id, content.value.id, {
+				has_interactions: {
+					has_liked: content.value.has_interactions.has_liked,
+					likes: { count: content.value.has_interactions.likes.count },
+					comments: { count: response.data.comments },
+				},
+			});
+		});
+	};
 
 	/*
 	 ************************************************************************************
@@ -178,9 +237,23 @@
 		const data = JSON.parse(payload);
 
 		if (data.image_id === image_id && data.group_id === group_id) {
-			content.value.likes.count = data.likes.count;
+			content.value.has_interactions.likes.count = data.likes.count;
+			content.value.has_interactions.comments.count = data.comments.count;
+
+			updateItemByMetaId(group_id, data.image_id, {
+				has_interactions: {
+					has_liked: content.value.has_interactions.has_liked,
+					likes: { count: content.value.has_interactions.likes.count },
+					comments: { count: content.value.has_interactions.comments.count },
+				},
+			});
+
 		}
 	});
+
+	/*
+	 ************************************************************************************
+	 */
 
 	const isAnimating = ref(false);
 	const { updateItemByMetaId } = useGroupStore();
@@ -191,7 +264,6 @@
 		setTimeout(() => (isAnimating.value = false), 300);
 
 		await $fetch(`/api/moments/${group_id}/${content.value.id}`, { method: "PATCH" }).then((response) => {
-			
 			content.value.has_interactions.likes.count = response.data.likes.count;
 			content.value.has_interactions.has_liked = response.data.has_liked;
 
@@ -203,14 +275,18 @@
 					likes: {
 						count: content.value.has_interactions.likes.count,
 					},
+					comments: {
+						count: content.value.has_interactions.comments.count + 1,
+					},
 				})
 			);
 
 			updateItemByMetaId(group_id, content.value.id, {
 				has_interactions: {
 					has_liked: content.value.has_interactions.has_liked,
-					likes: { count: content.value.has_interactions.likes.count }
-				}
+					likes: { count: content.value.has_interactions.likes.count },
+					comments: { count: content.value.has_interactions.comments.count + 1 },
+				},
 			});
 		});
 	};
@@ -271,8 +347,8 @@
 	const paneRight = ref(60);
 
 	onMounted(() => {
-		if(isMobile.value) focus.value?.scrollIntoView({ behavior: 'auto' })
-	})
+		if (isMobile.value) focus.value?.scrollIntoView({ behavior: "auto" });
+	});
 
 	const updateScreenSize = () => {
 		isMobile.value = window.innerWidth < 768;
