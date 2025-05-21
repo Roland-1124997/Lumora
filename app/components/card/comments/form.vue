@@ -5,10 +5,16 @@
 				<h2 class="mb-3 text-xl font-semibold">Comments</h2>
 				<p class="mb-2 -mt-4">Join the conversation</p>
 			</div>
-			<button class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-				<Icon :class="isAnimating ? 'animate-like' : ''" name="ri:chat-3-line" size="1.2rem" />
-				<UtilsCounter :count="count" />
-			</button>
+			<div class="flex items-center gap-2 ">
+				<button @click="reload()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+					<icon :class="loading ? ' animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
+				</button>
+				<button class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+					<Icon :class="isAnimating ? 'animate-like' : ''" name="ri:chat-3-line" size="1.2rem" />
+					<UtilsCounter :count="count" />
+				</button>
+			</div>
+			
 		</div>
 		<form @submit.prevent="sumbitData(comment)">
 			<div class="flex items-start justify-center gap-2">
@@ -30,6 +36,8 @@
 		count: { type: Number, required: true },
 		isAnimating: { type: Boolean, default: false },
 		onSubmit: { type: Function, required: true },
+		loading: { type: Boolean, default: false },
+		reload: { type: Function, required: true },
 	});
 
 	const sumbitData = async (text: string) => {

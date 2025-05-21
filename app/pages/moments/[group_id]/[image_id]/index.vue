@@ -33,7 +33,7 @@
 						<CardImageGallery :content="content.related" :loaded :id="group_id" :pane="paneRight" />
 						<hr class="my-2 mt-4" />
 						<div class="" v-if="content.has_interactions">
-							<CardCommentsForm :count="comments_count" :isAnimating :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
+							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
 							<div class="flex flex-col gap-3 mt-3">
 								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="() => {}" :onReply="focusEditable" />
 							</div>
@@ -61,7 +61,7 @@
 					<CardImageGallery :content="content.related" :loaded :id="group_id" :pane="paneRight" />
 					<hr class="my-2 mt-4" />
 					<div class="mb-36" v-if="content.has_interactions">
-						<CardCommentsForm :count="comments_count" :isAnimating :onSubmit="handleSubmitComments" ref="commentForm" />
+						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="commentForm" />
 						<div class="flex flex-col gap-3 mt-1">
 							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="() => {}" :onReply="focusEditable" />
 						</div>
@@ -140,6 +140,7 @@ if (data.value) {
     updateGroupValue(data.value.meta.name);
 }
 
+
 const comments = ref([]);
 const comments_count = computed(() => comments.value.length);
 const likes_count = computed(() => content.value?.has_interactions?.likes.count || 0);
@@ -166,9 +167,14 @@ const updateStoreInteractions = () => {
     });
 }
 
+const loading = ref(false);
+
 const fetchComments = async () => {
+    loading.value = true;
     await makeRequest(`/api/moments/comments/${group_id}/${content.value.id}`);
     if (data.value) comments.value = data.value.data;
+
+    setTimeout(() => loading.value = false, 500);
 }
 
 /*
