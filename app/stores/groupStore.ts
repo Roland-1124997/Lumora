@@ -17,6 +17,29 @@ interface scrollState {
 }
 
 
+const useStorage = () => {
+
+    const setItem = (STORAGE_KEY: string, value: any) => {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+    }
+
+    const getItem = (STORAGE_KEY: string) => {
+        const data = sessionStorage.getItem(STORAGE_KEY);
+        return data ? JSON.parse(data) : null;
+    }
+
+    const removeItem = (STORAGE_KEY: string) => {
+        sessionStorage.removeItem(STORAGE_KEY);
+    }
+
+    return {
+        setItem,
+        getItem,
+        removeItem
+    }
+}
+
+
 const saveToStorage = (STORAGE_KEY: string, state: any = null) => {
     if(state) sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     else sessionStorage.removeItem(STORAGE_KEY)
@@ -41,21 +64,21 @@ export const useGroupStore = defineStore('group', () => {
     const scrollState = new Map<string, scrollState>();
 
     const getGroupData = (name: string) => {
-        const data = sessionStorage.getItem(`${name}_List`)
-        if(data) { state.set(name, JSON.parse(data))}
+        const data = useStorage().getItem(`${name}_List`)
+        if(data) { state.set(name, data)}
         return state.get(name);
     };
 
     const getScrollData = (name: string) => {
-        const data = sessionStorage.getItem(`${name}_Scroll`)
-        if (data) {scrollState.set(name, JSON.parse(data))}
+        const data = useStorage().getItem(`${name}_Scroll`)
+        if (data) {scrollState.set(name, data)}
         return scrollState.get(name)
     };
 
     const setGroupData = (name: string, group: string, page: number, total: number, data: object[]) => {
         if (state.has(name) || data.length == 0) return;
         state.set(name, { group: { name: group }, pagination: { page, total }, data });
-        saveToStorage(`${name}_List`, state.get(name));
+        useStorage().setItem(`${name}_List`, state.get(name));
     };
 
     const setItemToStart = (name: string, newItem: object | object[]) => {
@@ -80,35 +103,34 @@ export const useGroupStore = defineStore('group', () => {
             groupState.pagination.page = groupState.pagination.total;
         }
 
-        saveToStorage(`${name}_List`, state.set(name, groupState).get(name));
+        useStorage().setItem(`${name}_List`, groupState);
     };
 
     const updateScrollData = (name: string, percentage: number, pixels: number) => {
         scrollState.set(name, { percentage, pixels });
-        saveToStorage(`${name}_Scroll`, scrollState.get(name));
+        useStorage().setItem(`${name}_Scroll`, scrollState.get(name));
+        
     }
 
     const updateGroupData = (name: string, group: string, page: number, total: number, data: object[]) => {
         if (!state.has(name)) return;
         state.set(name, { group: { name: group, }, pagination: { page, total }, data });
-        saveToStorage(`${name}_List`, state.get(name));
+        
+        useStorage().setItem(`${name}_List`, state.get(name));
+        
     };
 
-    const updateItemByMetaId = (name: string, metaId: string, updatedFields: object) =>
-        modifyItemByMetaId(state, name, metaId, 'update', updatedFields);
+    const updateItemByMetaId = (name: string, metaId: string, updatedFields: object) => modifyItemByMetaId(state, name, metaId, 'update', updatedFields);
+    const removeItemByMetaId = (name: string, metaId: string) => modifyItemByMetaId(state, name, metaId, 'remove');
 
-    const removeItemByMetaId = (name: string, metaId: string) =>
-        modifyItemByMetaId(state, name, metaId, 'remove');
-
-    
     const removeData = (name: string, options: any = null) => {
 
         state.delete(name);
-        saveToStorage(`${name}_List`);
-
+        useStorage().removeItem(`${name}_List`);
+        
         if(!options?.partial) {
             scrollState.delete(name);
-            saveToStorage(`${name}_Scroll`);
+            useStorage().removeItem(`${name}_Scroll`);
         } 
 
     }

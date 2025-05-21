@@ -49,7 +49,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	}
 
 	const { error: logError } = await server.from("logbook").insert({
-		message: request.has_been_accepted ? 'Approved :member: photo' : 'Rejected :member: photo',
+		message: request.has_been_accepted
+			? (postData.author_id === user.id ? 'Approved their own photo' : 'Approved :member: photo')
+			: (postData.author_id === user.id ? 'Rejected their own photo' : 'Rejected :member: photo'),
 		performed_by_id: user.id,
 		target_user_id: postData.author_id,
 		action_type: request.has_been_accepted ? "created" : "deleted",
@@ -58,7 +60,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 			id: `${image_id.split("-")[0]}-${postData.author_id?.split("-")[4]}`,
 			type: "image",
 		}
-	})
+	});
 
 	if (logError) return useReturnResponse(event, internalServerError)
 

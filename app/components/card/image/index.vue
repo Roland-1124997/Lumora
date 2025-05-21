@@ -47,7 +47,7 @@
 							{{ content.group.name }}
 						</p>
 						<p class="text-xs text-gray-600 truncate md:text-sm">
-							{{ useTimeAgo(content.accepted_at).value }}
+							<NuxtTime :datetime="content.accepted_at" locale="en" relative/>
 						</p>
 					</div>
 				</div>

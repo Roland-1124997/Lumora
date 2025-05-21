@@ -11,8 +11,8 @@
 			</button>
 		</div>
 		<form @submit.prevent="sumbitData(comment)">
-			<div class="flex items-center justify-center gap-2">
-				<textarea v-model="comment" :placeholder="placeholder" ref="editable" class="w-full resize-none p-4 bg-gray-100 rounded-xl outline-none appearance-none h-[3.5rem] focus:border focus:border-black"></textarea>
+			<div class="flex items-start justify-center gap-2">
+				<textarea v-model="comment" :placeholder="placeholder" ref="editable" class="w-full resize-none p-4 bg-gray-100 rounded-xl outline-none appearance-none h-[6.5rem] focus:border focus:border-black"></textarea>
 				<button class="flex items-center justify-center p-[0.85rem] text-sm text-white bg-[#756145]/90 rounded-xl">
 					<Icon name="ri:send-plane-fill" size="1.4rem" />
 				</button>

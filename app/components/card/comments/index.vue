@@ -3,11 +3,13 @@
 		<div class="flex items-center gap-2 pb-2 border-b border-gray-200">
 			<img :src="content.author.url" :alt="content.author.name" class="object-cover w-8 h-8 border rounded-full" />
 
-			<div class="flex items-center justify-start gap-2">
+			<div class="flex items-center justify-between w-full gap-2">
 				<div class="text-sm font-semibold text-gray-800">
 					{{ content.author.name }}
 				</div>
-				<p class="text-xs text-gray-500">{{ useDateFormat(content.created_at, "DD-MM-YYYY - HH:mm") }}</p>
+				<p class="text-xs text-gray-800">
+					{{ useDateFormat(content.created_at, "DD-MM-YYYY - HH:mm") }}
+				</p>
 			</div>
 		</div>
 		<p class="pb-2 mt-1 text-sm text-gray-700 text-balance">{{ content.content.text }}</p>

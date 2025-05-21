@@ -1,5 +1,8 @@
 export default defineNuxtPlugin((nuxtApp) => {
-    const originalFetch = $fetch;
+   
+    const originalFetch = $fetch.create({
+        headers: useRequestHeaders(['cookie'])
+    });
 
     const fetch = async (url: Parameters<typeof $fetch>[0], options: Parameters<typeof $fetch>[1] & { sessions?: boolean } = {}) => {
 

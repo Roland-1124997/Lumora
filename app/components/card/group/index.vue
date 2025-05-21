@@ -12,7 +12,9 @@
 						<icon v-if="content.needs_attention" name="ri:error-warning-fill" size="1.6rem" class="text-red-600" />
 					</div>
 
-					<p v-if="content.last_action != 'Pending'" class="text-sm text-gray-500">{{ useTimeAgo(content.last_active).value }}</p>
+					<p v-if="content.last_action != 'Pending'" class="text-sm text-gray-500">
+						<NuxtTime :datetime="content.last_active" locale="en" relative/>
+					</p>
 				</div>
 				<p class="-mt-1 text-sm text-gray-500">
 					<span v-if="content.last_action == 'Deleted'">

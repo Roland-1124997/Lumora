@@ -12,13 +12,15 @@
 					</p>
 				</div>
 			</div>
-			<div class="text-sm text-gray-500">{{ useDateFormat(content.timestamp, "HH:mm") }}</div>
+			<div class="text-sm text-gray-500">
+				{{ useDateFormat(content.timestamp, "HH:mm") }}
+			</div>
 		</div>
 		<hr class="mt-2" />
 
 		<div class="p-3 mt-2 bg-gray-100 rounded-md">
 			<div class="flex items-center justify-between">
-				<h1 class="text-sm font-bold text-gray-700">Additional information</h1>
+				<h1 class="text-sm font-extrabold text-gray-700">Additional information</h1>
 				<button v-if="content.context" id="Dropdown" title="Dropdown"  @click="isDropdownOpen = !isDropdownOpen">
 					<icon :name="isDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem" />
 				</button>
@@ -26,8 +28,8 @@
 
 			<div v-for="(value, key) in content.context" :key="key" class="text-gray-700">
 				<p v-if="isDropdownOpen">
-					<strong>{{ key }}: </strong>
-					<span class="truncate">{{ value }}</span>
+					<span class="font-medium ">{{ key }}: </span>
+					<span class="block pb-2 ">{{ value }}</span>
 				</p>
 			</div>
 
