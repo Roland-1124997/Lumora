@@ -5,9 +5,11 @@
             <div class="flex items-center gap-2 rounded-lg">
                 <img :src="content.author.url" :alt="content.author.name" class="z-10 object-cover w-8 h-8 border border-gray-200 rounded-full" />
                 <span class="text-sm font-semibold text-gray-800">{{ content.author.name }}</span>
-                <span class="text-xs text-gray-400">{{ useDateFormat(content.created_at, "DD-MM-YYYY - HH:mm") }}</span>
+                <span class="text-xs text-gray-500">
+                    <NuxtTime :datetime="content.created_at" locale="en" relative/>
+                </span>
             </div>
-            <p class="mt-1 text-sm text-gray-700">{{ content.content.text }}</p>
+            <p class="mt-2 text-sm text-gray-700">{{ content.content.text }}</p>
             <div class="flex items-center justify-end gap-2 pt-2 mt-2 border-t border-gray-200">
                 <button v-if="content.author.is_owner || permisions.can_delete_message" @click="onDelete(content)" class="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 transition bg-gray-300 rounded hover:text-gray-700 hover:bg-gray-200">
                     <Icon name="ri:close-circle-line" size="1.1rem" />
@@ -20,7 +22,7 @@
                     <span>Reply</span>
                 </button>
             </div>
-            <div v-if="content.related && content.related.length" class="">
+            <div v-if="content.related && content.related.length" class="-mt-2">
                 <CardComments
                     v-for="reply in content.related"
                     :key="reply.id"
