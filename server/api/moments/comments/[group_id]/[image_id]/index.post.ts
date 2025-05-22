@@ -15,6 +15,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { data, error } = await client.from("posts_comments").insert({
         group_id: group_id,
         post_id: image_id,
+        parent_id: request.parent_id || null,
         content: request.comment
     }).select().single<Tables<"posts_comments">>();
 

@@ -34,8 +34,8 @@
 						<hr class="my-2 mt-4" />
 						<div class="" v-if="content.has_interactions">
 							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
-							<div class="flex flex-col gap-3 mt-3">
-								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="() => {}" :onReply="focusEditable" />
+                            <div class="flex flex-col gap-3 mt-3">
+								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="() => {}" :onReply="handleReply" />
 							</div>
 						</div>
 					</div>
@@ -63,7 +63,7 @@
 					<div class="mb-36" v-if="content.has_interactions">
 						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="commentForm" />
 						<div class="flex flex-col gap-3 mt-1">
-							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="() => {}" :onReply="focusEditable" />
+							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="() => {}" :onReply="handleReply" />
 						</div>
 					</div>
 				</div>
@@ -102,14 +102,17 @@ definePageMeta({
  ************************************************************************************
 */
 
-const commentForm = ref(null);
 const mobileCommentForm = ref(null);
+const commentForm = ref(null);
 const thumbnail = ref(null);
+const comment_id = ref()
 
 const focusEditable = () => {
     commentForm.value?.editable?.focus();
     mobileCommentForm.value?.editable?.focus();
+    comment_id.value = null;
 };
+
 
 /*
  ************************************************************************************
@@ -126,8 +129,14 @@ const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMet
 const { makeRequest, data, error } = useRetryableFetch();
 const { updateGroupValue } = inject("group");
 
+
 const group_id = useRoute().params.group_id;
 const image_id = useRoute().params.image_id;
+
+const handleReply = (comment) => {
+    focusEditable()
+    comment_id.value = comment.id;
+};
 
 const content = ref();
 const group = getGroupData(group_id);
@@ -142,7 +151,8 @@ if (data.value) {
 
 
 const comments = ref([]);
-const comments_count = computed(() => comments.value.length);
+const total_comment_count = ref(0);
+const comments_count = computed(() => total_comment_count.value);
 const likes_count = computed(() => content.value?.has_interactions?.likes.count || 0);
 
 const sendWebSocketUpdate = () => {
@@ -172,7 +182,10 @@ const loading = ref(false);
 const fetchComments = async () => {
     loading.value = true;
     await makeRequest(`/api/moments/comments/${group_id}/${content.value.id}`);
-    if (data.value) comments.value = data.value.data;
+    if (data.value) {
+        comments.value = data.value.data.comments;
+        total_comment_count.value = data.value.data.count;
+    }
 
     setTimeout(() => loading.value = false, 500);
 }
@@ -195,9 +208,15 @@ setTimeout(async () => {
 */
 
 const handleSubmitComments = async (comment) => {
-    $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment } }).then(async (response) => {
-		await fetchComments();
-	});
+
+    if (comment_id.value) await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment, parent_id: comment_id.value  } }).then(async (response) => {
+        await fetchComments();
+        comment_id.value = null;
+    });
+
+    else await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment } }).then(async (response) => {
+        await fetchComments();
+    });
 };
 
 /*
@@ -210,7 +229,7 @@ const list = ref();
 const name = ref();
 
 const deleteData = async () => createDeleteFunction();
-const deleteComment = async (id) => createDeleteCommentFunction(id);
+const deleteComment = async (comment) => createDeleteCommentFunction(comment);
 
 /*
  ************************************************************************************
@@ -295,12 +314,12 @@ const handleError = async ({ error, actions }) => {
  ************************************************************************************
 */
 
-const createDeleteCommentFunction = (comment_id) => {
+const createDeleteCommentFunction = (comment) => {
     updateModalValue({
         open: true,
         type: "negative:comment",
         name: "Alert",
-        requestUrl: `/api/moments/comments/${group_id}/${content.value.id}/${comment_id}`,
+        requestUrl: `/api/moments/comments/${group_id}/${content.value.id}/${comment.id}`,
         onSuccess: handleCommentSuccess,
         onError: handleCommentError,
     });
