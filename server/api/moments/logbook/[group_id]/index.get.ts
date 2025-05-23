@@ -11,7 +11,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { error: permisionError } = await client.from("members").select("*").eq("user_id", user.id).eq("group_id", group_id).single<Tables<"members">>()
     if (permisionError) return useReturnResponse(event, notFoundError)
 
-    const { data, error: groupError } = await client.from("groups").select("*").single<Tables<"groups">>()
+    const { data, error: groupError } = await client.from("groups").select("*").eq("id", group_id).single<Tables<"groups">>()
     if (groupError) return useReturnResponse(event, notFoundError)
     
 
@@ -40,7 +40,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     }
 
     const { count, data: logs, error } = await logbookQuery.overrideTypes<Array<Tables<"logbook">>>();
-
     if (error) return useReturnResponse(event, notFoundError);
 
     /*

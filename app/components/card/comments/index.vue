@@ -4,9 +4,9 @@
         <div class="w-full">
             <div class="flex items-center gap-2 rounded-lg">
                 <img :src="content.author.url" :alt="content.author.name" class="z-10 object-cover w-8 h-8 border border-gray-200 rounded-full" />
-                <span class="text-sm text-balance font-semibold text-gray-800">{{ content.author.name }}</span>
+                <span class="text-sm font-semibold text-gray-800 text-balance">{{ content.author.name }}</span>
                 <span class="text-xs text-gray-500">
-                    <NuxtTime :datetime="content.created_at" locale="en" :style="isChild ? 'short' : 'long'"  relative/>
+                    {{ relativeTime }}
                 </span>
             </div>
             <p class="mt-2 text-sm text-gray-700">{{ content.content.text }}</p>
@@ -39,12 +39,41 @@
 </template>
 
 <script setup lang="ts">
-    defineProps({
-        content: { type: Object, required: true },
-        permisions: { type: Object, required: true },
-        onDelete: { type: Function, required: true },
-        onEdit: { type: Function, required: true },
-        onReply: { type: Function, required: true },
-        isChild: { type: Boolean, default: false }, // toegevoegd
-    });
+import { ref, onMounted, onUnmounted } from 'vue';
+
+const props = defineProps({
+    content: { type: Object, required: true },
+    permisions: { type: Object, required: true },
+    onDelete: { type: Function, required: true },
+    onEdit: { type: Function, required: true },
+    onReply: { type: Function, required: true },
+    isChild: { type: Boolean, default: false },
+});
+
+// Custom relative time formatter
+function formatRelativeTime(date: string | Date) {
+    const now = new Date();
+    const then = new Date(date);
+    const diff = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+    if (diff < 60) return `${diff}s`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}u`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
+    return `${Math.floor(diff / 604800)}w`;
+}
+
+const relativeTime = ref(formatRelativeTime(props.content.created_at));
+
+let intervalId: number | undefined;
+
+onMounted(() => {
+    intervalId = window.setInterval(() => {
+        relativeTime.value = formatRelativeTime(props.content.created_at);
+    }, 1000); // elke 10 seconden updaten
+});
+
+onUnmounted(() => {
+    if (intervalId) clearInterval(intervalId);
+});
 </script>
