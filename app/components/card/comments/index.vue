@@ -4,9 +4,9 @@
         <div class="w-full">
             <div class="flex items-center gap-2 rounded-lg">
                 <img :src="content.author.url" :alt="content.author.name" class="z-10 object-cover w-8 h-8 border border-gray-200 rounded-full" />
-                <span class="text-sm font-semibold text-gray-800">{{ content.author.name }}</span>
+                <span class="text-sm text-balance font-semibold text-gray-800">{{ content.author.name }}</span>
                 <span class="text-xs text-gray-500">
-                    <NuxtTime :datetime="content.created_at" locale="en" relative/>
+                    <NuxtTime :datetime="content.created_at" locale="en" :style="isChild ? 'short' : 'long'"  relative/>
                 </span>
             </div>
             <p class="mt-2 text-sm text-gray-700">{{ content.content.text }}</p>
