@@ -31,10 +31,11 @@
 						</div>
 						<hr class="mt-4 mb-2 md:hidden" />
 						<CardImageGallery :content="content.related" :loaded :id="group_id" :pane="paneRight" />
-						<hr class="my-2 mt-4" />
+
 						<div class="" v-if="content.has_interactions">
+							<hr class="my-2 mt-4" />
 							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
-                            <div class="flex flex-col gap-3 mt-3">
+							<div class="flex flex-col gap-3 mt-3">
 								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="handleEdit" :onReply="handleReply" />
 							</div>
 						</div>
@@ -59,13 +60,15 @@
 					</div>
 					<hr class="mt-4 mb-2 md:hidden" />
 					<CardImageGallery :content="content.related" :loaded :id="group_id" :pane="paneRight" />
-					<hr class="my-2 mt-4" />
+
 					<div class="mb-36" v-if="content.has_interactions">
+						<hr class="my-2 mt-4" />
 						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="commentForm" />
 						<div class="flex flex-col gap-3 mt-1">
 							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="handleEdit" :onReply="handleReply" />
 						</div>
 					</div>
+					<div class="mb-36" v-else></div>
 				</div>
 			</div>
 		</div>
@@ -73,309 +76,307 @@
 </template>
 
 <script setup>
-import { Splitpanes, Pane } from "splitpanes";
-import "splitpanes/dist/splitpanes.css";
-
-useHead({
-    htmlAttrs: { lang: "en" },
-});
-
-useSeoMeta({
-    title: "Lumora - Photo View",
-    description: "Enjoy this photo shared in a Lumora group. Like, comment, and explore more moments.",
-    ogTitle: "Lumora - A Shared Moment",
-    ogDescription: "See the full photo and join the conversation in this Lumora group.",
-    ogImage: "/apple-touch-icon.png",
-    ogUrl: "/",
-    twitterTitle: "Lumora - Photo View",
-    twitterDescription: "Check out this moment captured in a Lumora group. Get inspired and connect.",
-    twitterImage: "/apple-touch-icon.png",
-    twitterCard: "summary",
-});
-
-definePageMeta({
-    middleware: "unauthorized",
-});
-
-/*
- ************************************************************************************
-*/
-
-const mobileCommentForm = ref(null);
-const commentForm = ref(null);
-const thumbnail = ref(null);
-const comment_id = ref()
-const type = ref("");
-
-const focusEditable = () => {
-    commentForm.value?.editable?.focus();
-    mobileCommentForm.value?.editable?.focus();
-    comment_id.value = null;
-};
-
-
-/*
- ************************************************************************************
-*/
-
-const loaded = ref(false);
-setTimeout(() => { loaded.value = true; }, 1500);
-
-/*
- ************************************************************************************
-*/
-
-const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId, updateItemByMetaId } = useGroupStore();
-const { makeRequest, data, error } = useRetryableFetch();
-const { updateGroupValue } = inject("group");
-
-
-const group_id = useRoute().params.group_id;
-const image_id = useRoute().params.image_id;
-
-const handleReply = (comment) => {
-    focusEditable()
-    comment_id.value = comment.id;
-};
-
-const handleEdit = (comment) => {
-    type.value = "Update";
-    
-    focusEditable()
-
-    commentForm.value.editable.value = comment.content.text;
-    mobileCommentForm.value.editable.value = comment.content.text;
-
-    comment_id.value = comment.id;
-};
-
-
-const content = ref();
-const group = getGroupData(group_id);
-
-await makeRequest(`/api/moments/${group_id}/${image_id}`);
-if (error.value) removeItemByMetaId(group_id, image_id);
-
-if (data.value) {
-    content.value = data.value.data;
-    updateGroupValue(data.value.meta.name);
-}
-
-
-const comments = ref([]);
-const total_comment_count = ref(0);
-const comments_count = computed(() => total_comment_count.value);
-const likes_count = computed(() => content.value?.has_interactions?.likes.count || 0);
-
-const sendWebSocketUpdate = () => {
-    webSocket.send(
-        JSON.stringify({
-            type: "update",
-            group_id,
-            image_id: content.value.id,
-            likes: { count: likes_count.value },
-            comments: { count: comments_count.value },
-        })
-    );
-}
-
-const updateStoreInteractions = () => {
-    updateItemByMetaId(group_id, content.value.id, {
-        has_interactions: {
-            has_liked: content.value.has_interactions.has_liked,
-            likes: { count: likes_count.value },
-            comments: { count: comments_count.value },
-        },
-    });
-}
-
-const loading = ref(false);
-
-const fetchComments = async () => {
-    loading.value = true;
-    await makeRequest(`/api/moments/comments/${group_id}/${content.value.id}`);
-    if (data.value) {
-        comments.value = data.value.data.comments;
-        total_comment_count.value = data.value.data.count;
-    }
-
-    setTimeout(() => loading.value = false, 500);
-}
-
-/*
- ************************************************************************************
-*/
-
-watch([likes_count, comments_count], () => {
-    sendWebSocketUpdate();
-    updateStoreInteractions();
-});
-
-setTimeout(async () => {
-    if (content.value.has_interactions) await fetchComments();
-}, 1000);
-
-/*
- ************************************************************************************
-*/
-
-const handleSubmitComments = async (comment) => {
-
-    if(type.value == "Update") await $fetch(`/api/moments/comments/${group_id}/${content.value.id}/${comment_id.value}`, { method: "PATCH", body: { comment } }).then(async (response) => {
-        await fetchComments();
-        comment_id.value = null;
-    });
-
-    else if (comment_id.value) await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment, parent_id: comment_id.value  } }).then(async (response) => {
-        await fetchComments();
-        comment_id.value = null;
-    });
-
-    else await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment } }).then(async (response) => {
-        await fetchComments();
-    });
-};
-
-/*
- ************************************************************************************
-*/
-
-const page = ref(1);
-const total = ref();
-const list = ref();
-const name = ref();
-
-const deleteData = async () => createDeleteFunction();
-const deleteComment = async (comment) => createDeleteCommentFunction(comment);
-
-/*
- ************************************************************************************
-*/
-
-const webSocket = inject("WebSocket");
-
-watch(webSocket.data, (payload) => {
-    const data = JSON.parse(payload);
-
-    if (data.image_id === image_id && data.group_id === group_id) {
-        content.value.has_interactions.likes.count = data.likes.count;
-        updateStoreInteractions();
-		fetchComments();
-    }
-});
-
-/*
- ************************************************************************************
-*/
-
-const isAnimating = ref(false);
-
-const likeImage = async () => {
-    const group_id = useRoute().params.group_id;
-    isAnimating.value = true;
-    setTimeout(() => (isAnimating.value = false), 300);
-
-    const response = await $fetch(`/api/moments/${group_id}/${content.value.id}`, { method: "PATCH" });
-    content.value.has_interactions.likes.count = response.data.likes.count;
-    content.value.has_interactions.has_liked = response.data.has_liked;
-};
-
-/*
- ************************************************************************************
-*/
-
-const { updateModalValue } = inject("modal");
-
-const createDeleteFunction = () => {
-    updateModalValue({
-        open: true,
-        type: "negative:post",
-        name: "Alert",
-        requestUrl: `/api/moments/${group_id}/${image_id}`,
-        onSuccess: handleSuccess,
-        onError: handleError,
-    });
-};
-
-const handleSuccess = async ({ response }) => {
-    removeItemByMetaId(group_id, image_id);
-    list.value = null;
-
-    while (page.value <= group.pagination.page) {
-        await $fetch(`/api/moments/${group_id}?page=${page.value}`).then((response) => {
-            total.value = response.pagination.total;
-            name.value = response.meta.name;
-
-            if (page.value === 1) {
-                list.value = response.data;
-                removeData(group_id, { partial: true });
-                setTimeout(() => setGroupData(group_id, name.value, page.value, total.value, list.value), 200);
-            } else {
-                list.value.push(...response.data);
-                setTimeout(() => updateGroupData(group_id, name.value, page.value, total.value, list.value), 200);
-            }
-        });
-
-        if (page.value < total.value) page.value++;
-        else break;
-    }
-
-    setTimeout(() => navigateTo(`/moments/${group_id}`), 500);
-};
-
-const handleError = async ({ error, actions }) => {
-    actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
-};
-
-/*
- ************************************************************************************
-*/
-
-const createDeleteCommentFunction = (comment) => {
-    updateModalValue({
-        open: true,
-        type: "negative:comment",
-        name: "Alert",
-        requestUrl: `/api/moments/comments/${group_id}/${content.value.id}/${comment.id}`,
-        onSuccess: handleCommentSuccess,
-        onError: handleCommentError,
-    });
-};
-
-const handleCommentSuccess = async ({ response }) => await fetchComments();
-
-const handleCommentError = async ({ error, actions }) => {
-    actions.setErrors({ message: ["An error occurred, unable to delete the comment! Please try again later."] });
-};
-
-/*
- ************************************************************************************
-*/
-
-const isMobile = ref(window.innerWidth < 768);
-const paneLeft = ref(60);
-const paneRight = ref(60);
-
-onMounted(() => {
-    if (isMobile.value) thumbnail.value?.focus.scrollIntoView({ behavior: "auto" });
-});
-
-const updateScreenSize = () => isMobile.value = window.innerWidth < 768;
-
-window.addEventListener("resize", updateScreenSize);
-onUnmounted(() => window.removeEventListener("resize", updateScreenSize));
-
-const panes = JSON.parse(sessionStorage.getItem(`panes_size`));
-if (panes) {
-    paneLeft.value = panes[0].size;
-    paneRight.value = panes[1].size;
-}
-
-const savePaneSize = (event) => {
-    sessionStorage.setItem(`panes_size`, JSON.stringify(event.panes));
-    paneLeft.value = event.panes[0].size;
-    paneRight.value = event.panes[1].size;
-};
+	import { Splitpanes, Pane } from "splitpanes";
+	import "splitpanes/dist/splitpanes.css";
+
+	useHead({
+		htmlAttrs: { lang: "en" },
+	});
+
+	useSeoMeta({
+		title: "Lumora - Photo View",
+		description: "Enjoy this photo shared in a Lumora group. Like, comment, and explore more moments.",
+		ogTitle: "Lumora - A Shared Moment",
+		ogDescription: "See the full photo and join the conversation in this Lumora group.",
+		ogImage: "/apple-touch-icon.png",
+		ogUrl: "/",
+		twitterTitle: "Lumora - Photo View",
+		twitterDescription: "Check out this moment captured in a Lumora group. Get inspired and connect.",
+		twitterImage: "/apple-touch-icon.png",
+		twitterCard: "summary",
+	});
+
+	definePageMeta({
+		middleware: "unauthorized",
+	});
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const mobileCommentForm = ref(null);
+	const commentForm = ref(null);
+	const thumbnail = ref(null);
+	const comment_id = ref();
+	const type = ref("");
+
+	const focusEditable = () => {
+		commentForm.value?.editable?.focus();
+		mobileCommentForm.value?.editable?.focus();
+		comment_id.value = null;
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const loaded = ref(false);
+	setTimeout(() => {
+		loaded.value = true;
+	}, 1500);
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId, updateItemByMetaId } = useGroupStore();
+	const { makeRequest, data, error } = useRetryableFetch();
+	const { updateGroupValue } = inject("group");
+
+	const group_id = useRoute().params.group_id;
+	const image_id = useRoute().params.image_id;
+
+	const handleReply = (comment) => {
+		focusEditable();
+		comment_id.value = comment.id;
+	};
+
+	const handleEdit = (comment) => {
+		type.value = "Update";
+
+		focusEditable();
+
+		commentForm.value.editable.value = comment.content.text;
+		mobileCommentForm.value.editable.value = comment.content.text;
+
+		comment_id.value = comment.id;
+	};
+
+	const content = ref();
+	const group = getGroupData(group_id);
+
+	await makeRequest(`/api/moments/${group_id}/${image_id}`);
+	if (error.value) removeItemByMetaId(group_id, image_id);
+
+	if (data.value) {
+		content.value = data.value.data;
+		updateGroupValue(data.value.meta.name);
+	}
+
+	const comments = ref([]);
+	const total_comment_count = ref(0);
+	const comments_count = computed(() => total_comment_count.value);
+	const likes_count = computed(() => content.value?.has_interactions?.likes.count || 0);
+
+	const sendWebSocketUpdate = () => {
+		webSocket.send(
+			JSON.stringify({
+				type: "update",
+				group_id,
+				image_id: content.value.id,
+				likes: { count: likes_count.value },
+				comments: { count: comments_count.value },
+			})
+		);
+	};
+
+	const updateStoreInteractions = () => {
+		updateItemByMetaId(group_id, content.value.id, {
+			has_interactions: {
+				has_liked: content.value.has_interactions.has_liked,
+				likes: { count: likes_count.value },
+				comments: { count: comments_count.value },
+			},
+		});
+	};
+
+	const loading = ref(false);
+
+	const fetchComments = async () => {
+		loading.value = true;
+		await makeRequest(`/api/moments/comments/${group_id}/${content.value.id}`);
+		if (data.value) {
+			comments.value = data.value.data.comments;
+			total_comment_count.value = data.value.data.count;
+		}
+
+		setTimeout(() => (loading.value = false), 500);
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	watch([likes_count, comments_count], () => {
+		sendWebSocketUpdate();
+		updateStoreInteractions();
+	});
+
+	setTimeout(async () => {
+		if (content.value.has_interactions) await fetchComments();
+	}, 1000);
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const handleSubmitComments = async (comment) => {
+		if (type.value == "Update")
+			await $fetch(`/api/moments/comments/${group_id}/${content.value.id}/${comment_id.value}`, { method: "PATCH", body: { comment } }).then(async (response) => {
+				await fetchComments();
+				comment_id.value = null;
+			});
+		else if (comment_id.value)
+			await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment, parent_id: comment_id.value } }).then(async (response) => {
+				await fetchComments();
+				comment_id.value = null;
+			});
+		else
+			await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment } }).then(async (response) => {
+				await fetchComments();
+			});
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const page = ref(1);
+	const total = ref();
+	const list = ref();
+	const name = ref();
+
+	const deleteData = async () => createDeleteFunction();
+	const deleteComment = async (comment) => createDeleteCommentFunction(comment);
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const webSocket = inject("WebSocket");
+
+	watch(webSocket.data, (payload) => {
+		const data = JSON.parse(payload);
+
+		if (data.image_id === image_id && data.group_id === group_id) {
+			content.value.has_interactions.likes.count = data.likes.count;
+			updateStoreInteractions();
+			fetchComments();
+		}
+	});
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const isAnimating = ref(false);
+
+	const likeImage = async () => {
+		const group_id = useRoute().params.group_id;
+		isAnimating.value = true;
+		setTimeout(() => (isAnimating.value = false), 300);
+
+		const response = await $fetch(`/api/moments/${group_id}/${content.value.id}`, { method: "PATCH" });
+		content.value.has_interactions.likes.count = response.data.likes.count;
+		content.value.has_interactions.has_liked = response.data.has_liked;
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const { updateModalValue } = inject("modal");
+
+	const createDeleteFunction = () => {
+		updateModalValue({
+			open: true,
+			type: "negative:post",
+			name: "Alert",
+			requestUrl: `/api/moments/${group_id}/${image_id}`,
+			onSuccess: handleSuccess,
+			onError: handleError,
+		});
+	};
+
+	const handleSuccess = async ({ response }) => {
+		removeItemByMetaId(group_id, image_id);
+		list.value = null;
+
+		while (page.value <= group.pagination.page) {
+			await $fetch(`/api/moments/${group_id}?page=${page.value}`).then((response) => {
+				total.value = response.pagination.total;
+				name.value = response.meta.name;
+
+				if (page.value === 1) {
+					list.value = response.data;
+					removeData(group_id, { partial: true });
+					setTimeout(() => setGroupData(group_id, name.value, page.value, total.value, list.value), 200);
+				} else {
+					list.value.push(...response.data);
+					setTimeout(() => updateGroupData(group_id, name.value, page.value, total.value, list.value), 200);
+				}
+			});
+
+			if (page.value < total.value) page.value++;
+			else break;
+		}
+
+		setTimeout(() => navigateTo(`/moments/${group_id}`), 500);
+	};
+
+	const handleError = async ({ error, actions }) => {
+		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const createDeleteCommentFunction = (comment) => {
+		updateModalValue({
+			open: true,
+			type: "negative:comment",
+			name: "Alert",
+			requestUrl: `/api/moments/comments/${group_id}/${content.value.id}/${comment.id}`,
+			onSuccess: handleCommentSuccess,
+			onError: handleCommentError,
+		});
+	};
+
+	const handleCommentSuccess = async ({ response }) => await fetchComments();
+
+	const handleCommentError = async ({ error, actions }) => {
+		actions.setErrors({ message: ["An error occurred, unable to delete the comment! Please try again later."] });
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const isMobile = ref(window.innerWidth < 768);
+	const paneLeft = ref(60);
+	const paneRight = ref(60);
+
+	onMounted(() => {
+		if (isMobile.value) thumbnail.value?.focus.scrollIntoView({ behavior: "auto" });
+	});
+
+	const updateScreenSize = () => (isMobile.value = window.innerWidth < 768);
+
+	window.addEventListener("resize", updateScreenSize);
+	onUnmounted(() => window.removeEventListener("resize", updateScreenSize));
+
+	const panes = JSON.parse(sessionStorage.getItem(`panes_size`));
+	if (panes) {
+		paneLeft.value = panes[0].size;
+		paneRight.value = panes[1].size;
+	}
+
+	const savePaneSize = (event) => {
+		sessionStorage.setItem(`panes_size`, JSON.stringify(event.panes));
+		paneLeft.value = event.panes[0].size;
+		paneRight.value = event.panes[1].size;
+	};
 </script>
 
 <style>

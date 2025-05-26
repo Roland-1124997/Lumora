@@ -35,6 +35,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     if (logError) return useReturnResponse(event, internalServerError);
 
+    if (comment.author_id != user.id) await server.from("notifications").insert({
+        group_id: group_id,
+        post_id: image_id,
+        target_id: comment.author_id,
+        title: `Deleted your comment`,
+        message: `${user.user_metadata.name} deleted your comment`,
+        type: "comment",
+    })
+
     return useReturnResponse(event, {
         status: {
             success: true,

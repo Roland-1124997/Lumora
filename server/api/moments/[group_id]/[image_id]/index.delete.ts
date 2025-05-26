@@ -23,6 +23,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         }
     });
 
+    if (data.author_id != user.id) await server.from("notifications").insert({
+        group_id: group_id,
+        post_id: image_id,
+        target_id: data.author_id,
+        title: `Deleted your photo`,
+        message: `${user.user_metadata.name} deleted your photo`,
+        type: "image",
+    })
+
     if (logError) return useReturnResponse(event, internalServerError)
 
     await server.from("groups").update({

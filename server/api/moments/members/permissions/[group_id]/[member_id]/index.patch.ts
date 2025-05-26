@@ -58,6 +58,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     if (logError) return useReturnResponse(event, internalServerError)
 
+    await server.from("notifications").insert({
+        group_id: group_id,
+        target_id: member_id,
+        title: `Permissions have been updated`,
+        message: `${user.user_metadata.name} has updated your permissions in the group`,
+        type: "group",
+    })
+
     return useReturnResponse(event, {
         status: {
             refresh: true,

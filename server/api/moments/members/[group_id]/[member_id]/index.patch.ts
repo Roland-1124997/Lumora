@@ -19,6 +19,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         group_id: group_id,
     })
 
+    await server.from("notifications").insert({
+        group_id: group_id,
+        target_id: member_id,
+        title: `You have been accepted`,
+        message: `${user.user_metadata.name} has accepted your join request`,
+        type: "group",
+    })
+
     if (logError) return useReturnResponse(event, internalServerError)
 
     return useReturnResponse(event, {

@@ -44,7 +44,19 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     });
 
     if (logError) return useReturnResponse(event, internalServerError);
-    
+
+    const { data: post, error: postError } = await server.from("posts").select("*").eq("id", image_id).eq("group_id", group_id).single<Tables<"posts">>();
+    if (postError) return useReturnResponse(event, notFoundError);
+
+    if (post.author_id != user.id) await server.from("notifications").insert({
+        group_id: group_id,
+        post_id: image_id,
+        target_id: post.author_id,
+        title: `Left a comment`,
+        message: `${user.user_metadata.name} left a comment on your image`,
+        type: "comment",
+    })
+
     return useReturnResponse(event, {
         status: {
             success: true,

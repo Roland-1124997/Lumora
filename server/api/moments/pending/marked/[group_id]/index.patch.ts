@@ -66,6 +66,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		})
 
 		if (logError) return useReturnResponse(event, internalServerError)
+	
+		if (postData.author_id != user.id) await server.from("notifications").insert({
+			group_id: group_id,
+			target_id: postData.author_id,
+			title: `Photo has been ${value ? 'approved' : 'rejected'}`,
+			message: `${user.user_metadata.name} has ${value ? 'approved' : 'rejected'} your photo`,
+			type: "image",
+		})
 	}
 
 	/*

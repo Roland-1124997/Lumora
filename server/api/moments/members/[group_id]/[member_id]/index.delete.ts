@@ -22,6 +22,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         group_id: group_id,
     })
 
+    await server.from("notifications").insert({
+        group_id: group_id,
+        target_id: member_id,
+        title: data.accepted ? "Kicked from the group" : "Rejected join request",
+        message: `${user.user_metadata.name} ${data.accepted ? "kicked you from the group" : "rejected your join request"}`,
+        type: "group",
+    })
+
     if (logError) return useReturnResponse(event, internalServerError)
 
     return useReturnResponse(event, {
