@@ -135,6 +135,11 @@ export const useGroupStore = defineStore('group', () => {
 
     }
 
+    const clearAllData = () => {
+        state.clear();
+        scrollState.clear();
+    };
+
     return {
         setGroupData,
         setItemToStart,
@@ -145,6 +150,7 @@ export const useGroupStore = defineStore('group', () => {
         updateItemByMetaId,
         removeItemByMetaId,
         removeData,
+        clearAllData
         
     };
 });

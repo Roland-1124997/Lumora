@@ -128,6 +128,7 @@
 	const { addToast } = useToast();
 
 	const store = useSessionsStore();
+	const groupStore = useGroupStore();
 
 	const button = templateRef("hidden");
 	const password_button = templateRef("hidden-password");
@@ -309,6 +310,7 @@
 	const logout = () => {
 		$fetch("/api/auth/logout", { method: "POST" }).then((response) => {
 			store.clearSession();
+			groupStore.clearAllData()
 			navigateTo(response.status.redirect);
 		});
 	};
