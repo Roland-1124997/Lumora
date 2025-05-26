@@ -1,8 +1,7 @@
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
-
     if (!user) return useReturnResponse(event, unauthorizedError);
 
-    const { group_id, image_id } = getRouterParams(event);
+    const { group_id, image_id, comment_id } = getRouterParams(event);
 
     const { error: memberError } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single<Tables<"members">>()
     if (memberError) return useReturnResponse(event, forbiddenError);
@@ -12,48 +11,36 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const request = await readBody(event);
 
-    if (request.parent_id) {
-        const { data: comment, error: commentError } = await client.from("posts_comments").select("*").eq("id", request.parent_id).eq("group_id", group_id).single<Tables<"posts_comments">>();
+    const { data: comment, error: commentError } = await client.from("posts_comments").select("*").eq("id", comment_id).eq("group_id", group_id).single<Tables<"posts_comments">>();
 
-        if (commentError) return useReturnResponse(event, forbiddenError);
-        if (comment.author_id == user.id) return useReturnResponse(event, forbiddenError)
-    }
+    if (commentError) return useReturnResponse(event, forbiddenError);
+    if (comment.author_id != user.id || comment.content == "This comment has been deleted") return useReturnResponse(event, forbiddenError)
 
-    const { data, error } = await client.from("posts_comments").insert({
-        group_id: group_id,
-        post_id: image_id,
-        parent_id: request.parent_id || null,
+    const { data, error } = await client.from("posts_comments").update({
         content: request.comment
-    }).select().single<Tables<"posts_comments">>();
+    }).eq("id", comment_id).select().single<Tables<"posts_comments">>();
 
     if (error) return useReturnResponse(event, internalServerError);
 
-    const { count } = await client.from("posts_comments").select("*", { count: "exact" }).eq("post_id", image_id).eq("group_id", group_id)
-    await server.from("posts").update({ comments: count }).eq("id", image_id).eq("group_id", group_id)
-    
     const { error: logError } = await server.from("logbook").insert({
-        message: `Left a comment on image`,
+        message: `Edited a comment on image`,
         performed_by_id: user.id,
-        action_type: "created",
+        action_type: "updated",
         group_id: group_id,
         context: {
             id: `${data.id.split("-")[0]}-${user.id.split("-")[4]}`,
-            "parent id": `${image_id.split("-")[0]}-${user.id.split("-")[4]}`,
-            content: request.comment
+            "new content": request.comment,
+            "old content": comment.content
         }
     });
 
     if (logError) return useReturnResponse(event, internalServerError);
-    
+
     return useReturnResponse(event, {
         status: {
             success: true,
             message: "success",
             code: 200
-        },
-        data: {
-            comments: count,
         }
     })
-
-})
+});

@@ -23,16 +23,19 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         const isOwner = reply.author_id === user?.id;
         const authorName = author?.user_metadata.name;
 
+        const deleted = reply.content === "This comment has been deleted";
+
         return {
             id: reply.id,
             created_at: reply.created_at,
             author: {
-                name: isOwner ? `${authorName} (You)` : authorName,
-                url: author?.user_metadata.avatar_url || `/attachments/avatar/${reply.author_id}`,
-                is_owner: isOwner,
+                name: deleted ? "Deleted" : (isOwner ? `${authorName} (You)` : authorName),
+                url: deleted ? undefined : (author?.user_metadata.avatar_url || `/attachments/avatar/${reply.author_id}`),
+                is_owner: deleted ? undefined : isOwner,
             },
             content: { text: reply.content },
             related: reply.related?.map(mapReply) || [],
+            deleted: deleted
         };
     }
 
@@ -41,16 +44,19 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         const isOwner = data.author_id === user.id;
         const authorName = author?.user_metadata.name;
 
+        const deleted = data.content === "This comment has been deleted";
+
         return {
             id: data.id,
             created_at: data.created_at,
             author: {
-                name: isOwner ? `${authorName} (You)` : authorName,
-                url: author?.user_metadata.avatar_url || `/attachments/avatar/${data.author_id}`,
-                is_owner: isOwner,
+                name: deleted ? "Deleted" : (isOwner ? `${authorName} (You)` : authorName),
+                url: deleted ? undefined : (author?.user_metadata.avatar_url || `/attachments/avatar/${data.author_id}`),
+                is_owner: deleted ? undefined : isOwner,
             },
             content: { text: data.content },
             related: data.related?.map(mapReply) || [],
+            deleted: deleted,
         };
     });
 

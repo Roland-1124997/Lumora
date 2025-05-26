@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 	const comment = ref("");
+	const editable = ref<HTMLTextAreaElement | null>(null);
 
 	const { onSubmit } = defineProps({
 		placeholder: { type: String, default: "Leave an message" },
@@ -39,12 +40,15 @@
 	});
 
 	const sumbitData = async (text: string) => {
-		if (text.length > 0)
-			await onSubmit(text).then(() => {
+		let internal_text = text || editable.value?.value;
+
+		if (typeof internal_text === "string" && internal_text.trim().length > 0) {
+			await onSubmit(internal_text).then(() => {
+				if (editable.value) editable.value.value = "";
 				comment.value = "";
 			});
+		}
 	};
 
-	const editable = ref(null);
 	defineExpose({ editable });
 </script>

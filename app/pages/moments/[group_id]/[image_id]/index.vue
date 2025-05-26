@@ -35,7 +35,7 @@
 						<div class="" v-if="content.has_interactions">
 							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
                             <div class="flex flex-col gap-3 mt-3">
-								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="() => {}" :onReply="handleReply" />
+								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="handleEdit" :onReply="handleReply" />
 							</div>
 						</div>
 					</div>
@@ -63,7 +63,7 @@
 					<div class="mb-36" v-if="content.has_interactions">
 						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="commentForm" />
 						<div class="flex flex-col gap-3 mt-1">
-							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="() => {}" :onReply="handleReply" />
+							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="handleEdit" :onReply="handleReply" />
 						</div>
 					</div>
 				</div>
@@ -73,7 +73,6 @@
 </template>
 
 <script setup>
-import { UtilsButtonDownload } from "#components";
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
 
@@ -106,6 +105,7 @@ const mobileCommentForm = ref(null);
 const commentForm = ref(null);
 const thumbnail = ref(null);
 const comment_id = ref()
+const type = ref("");
 
 const focusEditable = () => {
     commentForm.value?.editable?.focus();
@@ -137,6 +137,18 @@ const handleReply = (comment) => {
     focusEditable()
     comment_id.value = comment.id;
 };
+
+const handleEdit = (comment) => {
+    type.value = "Update";
+    
+    focusEditable()
+
+    commentForm.value.editable.value = comment.content.text;
+    mobileCommentForm.value.editable.value = comment.content.text;
+
+    comment_id.value = comment.id;
+};
+
 
 const content = ref();
 const group = getGroupData(group_id);
@@ -209,7 +221,12 @@ setTimeout(async () => {
 
 const handleSubmitComments = async (comment) => {
 
-    if (comment_id.value) await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment, parent_id: comment_id.value  } }).then(async (response) => {
+    if(type.value == "Update") await $fetch(`/api/moments/comments/${group_id}/${content.value.id}/${comment_id.value}`, { method: "PATCH", body: { comment } }).then(async (response) => {
+        await fetchComments();
+        comment_id.value = null;
+    });
+
+    else if (comment_id.value) await $fetch(`/api/moments/comments/${group_id}/${content.value.id}`, { method: "POST", body: { comment, parent_id: comment_id.value  } }).then(async (response) => {
         await fetchComments();
         comment_id.value = null;
     });
@@ -328,7 +345,7 @@ const createDeleteCommentFunction = (comment) => {
 const handleCommentSuccess = async ({ response }) => await fetchComments();
 
 const handleCommentError = async ({ error, actions }) => {
-    actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
+    actions.setErrors({ message: ["An error occurred, unable to delete the comment! Please try again later."] });
 };
 
 /*
