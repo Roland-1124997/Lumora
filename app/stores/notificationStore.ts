@@ -1,16 +1,22 @@
 export const useNotificationStore = defineStore("notification", () => {
-    const notifications = ref<any[]>([]);
+    const notifications = ref<any>([]);
 
     const randomId = ref(Math.random().toString(36).substring(2, 15));
-    const { data } = useEventSource(`/events/notifications/${randomId}`);
-    $fetch('/api/notifications').then((response: any) => notifications.value = response.data);
-
-    watch(data, async () => await fetchNotifications());
+    const { data: events } = useEventSource(`/events/notifications/${randomId}`);
+    
+    
+    const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Group[]>>({ throwOnError: false });
+    
+    watch(events, async () => await fetchNotifications());
 
     const fetchNotifications = async () => {
-        const response = await $fetch("/api/notifications");
-        notifications.value = response.data;
+        await makeRequest('/api/notifications')
+        if(data.value) notifications.value = data.value.data;
     };
+
+    onMounted(async () => {
+        await fetchNotifications();
+    });
 
     const getAllNotifications = computed(() => notifications.value);
     const getUnreadNotifications = computed(() => notifications.value.filter((n: any) => !n.is_read));

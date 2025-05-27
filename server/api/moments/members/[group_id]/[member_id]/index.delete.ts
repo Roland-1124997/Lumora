@@ -26,7 +26,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         group_id: group_id,
         target_id: member_id,
         title: data.accepted ? "Kicked from the group" : "Rejected join request",
-        message: `${user.user_metadata.name} ${data.accepted ? "kicked you from the group" : "rejected your join request"}`,
+        message: data.accepted ? "You have been kicked from the group" : "Your join request has been rejected" + " by a moderator or admin",
         type: "group",
     })
 

@@ -184,11 +184,18 @@
 		close()
 	})
 
+	let fromRoute = null;
+	let toRoute = null;
+
+	addRouteMiddleware("global-route",(to, from) => {
+		fromRoute = from.name;
+		toRoute = to.name;
+	},{ global: true });
+
 	const handleBack = () => {
 
-		if(route.name === 'moments-group_id') return router.push('/moments'); 
-		if(route.name === 'moments-group_id-image_id') return router.push(`/moments/${route.params.group_id}`);
-		else router.back(); 
+		if(fromRoute == 'moments-group_id-image_id' && toRoute == 'moments-group_id-image_id') return router.push(`/moments/${route.params.group_id}`);
+		return router.back();
 	};
 
 	function updateGroupValue(option) {

@@ -18,20 +18,36 @@
 		<section v-if="notifications.length >= 1" class="h-[80vh] w-full overflow-scroll">
 			<div class="mb-24 space-y-2">
 				<div v-for="notification in notifications" :key="notification.id" class="flex items-start gap-3 p-4 transition bg-white border shadow-sm rounded-xl hover:bg-gray-50">
-					
 					<div class="flex items-center justify-center flex-shrink-0 w-10 h-10 bg-gray-100 rounded-full">
 						<icon :name="notification.icon || 'ri:notification-2-line'" class="text-[#756145]" size="1.5em" />
 					</div>
-					
+
 					<div class="flex-1 min-w-0">
 						<p class="text-base font-semibold">{{ notification.title }}</p>
-						<p class="text-sm text-gray-600 line-clamp-2 text-wrap ">{{ notification.message }}</p>
-						
-						<p class="mt-1 text-xs text-gray-400">
-							<NuxtTime :datetime="notification.created_at" locale="en" relative/>
+						<p class="text-sm text-gray-700 line-clamp-2 text-wrap">{{ notification.message }}</p>
+
+						<div v-if="notification.reason" class="mt-2">
+							<h2 class="block text-sm font-semibold text-gray-600">Reason:</h2>
+							<div class="text-sm font-normal text-red-800 text-balance">{{ notification.reason }}</div>
+						</div>
+
+						<NuxtLink :to="notification.post?.url || notification.group.url" class="flex items-center gap-2 mt-2">
+							<div v-if="notification.group || notification.post" class="text-sm flex items-center border p-1 px-2 rounded-md text-[#756145]">
+								<icon name="ri:group-line" size="1em" class="inline-block mr-1" />
+								<span>{{ notification.group.name }}</span>
+							</div>
+
+							<div v-if="notification.post" class="text-sm flex items-center border p-1 px-2 rounded-md text-[#756145]">
+								<icon name="ri:message-3-line" size="1em" class="inline-block mr-1" />
+								<span>comment</span>
+							</div>
+						</NuxtLink>
+
+						<p class="mt-2 text-xs text-gray-400">
+							<NuxtTime :datetime="notification.created_at" locale="en" relative />
 						</p>
 					</div>
-					
+
 					<button v-if="!notification.is_read" @click="notificationStore.markNotificationAsRead(notification.id)" class="p-2 ml-2 transition rounded-full hover:bg-gray-200" title="Mark as read">
 						<icon name="ri:close-fill" size="1.3em" class="text-gray-400" />
 					</button>
@@ -42,8 +58,8 @@
 		<section v-else class="h-[60vh] -mt-8 md:h-[65vh] flex items-start justify-center overflow-hidden">
 			<div class="flex flex-col items-center justify-center w-full h-full gap-5">
 				<icon class="text-gray-500" name="ri:notification-2-line" size="5em" />
-				<h1 class="text-lg font-bold text-center text-balance">Je bent up to date!</h1>
-				<p class="-mt-5 text-center text-balance">Er zijn geen ongelezen berichten</p>
+				<h1 class="text-lg font-bold text-center text-balance">You are up to date!</h1>
+				<p class="-mt-5 text-center text-balance">There are no unread notifications</p>
 			</div>
 		</section>
 	</div>
@@ -82,7 +98,7 @@
 	const unreadNotifications = computed(() => notificationStore.getUnreadNotifications);
 	const notifications = computed(() => (activeTab.value == "all" ? readNotifications.value : unreadNotifications.value));
 
-	const setActiveTab = async (tab) => activeTab.value = tab;
+	const setActiveTab = async (tab) => (activeTab.value = tab);
 </script>
 
 <style scoped>

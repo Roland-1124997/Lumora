@@ -321,7 +321,10 @@
 			else break;
 		}
 
-		setTimeout(() => navigateTo(`/moments/${group_id}`), 500);
+		setTimeout(() => {
+			const router = useRouter();
+			router.replace(`/moments/${group_id}`);
+		}, 500);
 	};
 
 	const handleError = async ({ error, actions }) => {

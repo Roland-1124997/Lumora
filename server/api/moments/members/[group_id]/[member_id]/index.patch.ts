@@ -23,7 +23,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         group_id: group_id,
         target_id: member_id,
         title: `You have been accepted`,
-        message: `${user.user_metadata.name} has accepted your join request`,
+        message: `You have been accepted into the group by a moderator or admin`,
         type: "group",
     })
 

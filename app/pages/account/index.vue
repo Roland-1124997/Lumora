@@ -62,7 +62,7 @@
 					<hr class="mb-2" />
 					<button class="flex items-center justify-between w-full p-3 text-left border-2 border-dashed rounded-md ">
 						<div>
-							<div class="font-bold">Enable Multi-Factor</div>
+							<div class="font-bold">{{ mfa_active ? 'Disable' : 'Enable' }} Multi-Factor</div>
 							<div class="text-xs opacity-70">Add an extra layer of security</div>
 						</div>
 						<label for="mfa" class="cursor-pointer">

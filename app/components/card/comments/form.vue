@@ -7,7 +7,7 @@
 			</div>
 			<div class="flex items-center gap-2">
 				<button class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-					<Icon :class="isAnimating ? 'animate-like' : ''" name="ri:chat-3-line" size="1.2rem" />
+					<Icon :class="isAnimating ? 'animate-like' : ''" name="ri:message-3-line" size="1.2rem" />
 					<UtilsCounter :count="count" />
 				</button>
 				<button @click="reload()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">

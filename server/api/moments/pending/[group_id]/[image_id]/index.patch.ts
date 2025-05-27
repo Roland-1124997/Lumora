@@ -68,7 +68,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		group_id: group_id,
 		target_id: postData.author_id,
 		title: `Photo has been ${request.has_been_accepted ? 'approved' : 'rejected'}`,
-		message: `${user.user_metadata.name} has ${request.has_been_accepted ? 'approved' : 'rejected'} your photo`,
+		message: `A moderator or admin has ${request.has_been_accepted ? 'approved' : 'rejected'} your photo`,
 		type: "image",
 	})
 

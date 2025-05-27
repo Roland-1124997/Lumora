@@ -28,7 +28,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         post_id: image_id,
         target_id: data.author_id,
         title: `Deleted your photo`,
-        message: `${user.user_metadata.name} deleted your photo`,
+        message: `A moderator or admin deleted your photo`,
         type: "image",
     })
 

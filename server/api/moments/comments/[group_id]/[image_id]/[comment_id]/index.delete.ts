@@ -40,7 +40,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         post_id: image_id,
         target_id: comment.author_id,
         title: `Deleted your comment`,
-        message: `${user.user_metadata.name} deleted your comment`,
+        message: `A moderator or admin deleted your comment`,
         type: "comment",
     })
 
