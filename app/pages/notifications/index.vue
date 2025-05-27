@@ -24,7 +24,7 @@
 
 					<div class="flex-1 min-w-0">
 						<p class="text-base font-semibold">{{ notification.title }}</p>
-						<p class="text-sm text-gray-700 line-clamp-2 text-wrap">{{ notification.message }}</p>
+						<p class="text-sm text-gray-700 line-clamp-3 text-wrap">{{ notification.message }}</p>
 
 						<div v-if="notification.reason" class="mt-2">
 							<h2 class="block text-sm font-semibold text-gray-600">Reason:</h2>
