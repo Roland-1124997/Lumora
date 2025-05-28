@@ -41,12 +41,22 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             "parent id": `${image_id.split("-")[0]}-${user.id.split("-")[4]}`,
             content: request.comment
         }
-    });
+    })
 
     if (logError) return useReturnResponse(event, internalServerError);
 
     const { data: post, error: postError } = await server.from("posts").select("*").eq("id", image_id).eq("group_id", group_id).single<Tables<"posts">>();
     if (postError) return useReturnResponse(event, notFoundError);
+
+    if (post.author_id != user.id) await server.from("notifications").insert({
+        group_id: group_id,
+        post_id: image_id,
+        comment_id: data.id,
+        target_id: post.author_id,
+        title: `New comment`,
+        message: `Somone has left a comment on your post. Check it out!`,
+        type: "comment",
+    })
 
     return useReturnResponse(event, {
         status: {

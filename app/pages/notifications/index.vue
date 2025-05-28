@@ -36,11 +36,6 @@
 								<icon name="ri:group-line" size="1em" class="inline-block mr-1" />
 								<span>{{ notification.group.name }}</span>
 							</div>
-
-							<div v-if="notification.post" class="text-sm flex items-center border p-1 px-2 rounded-md text-[#756145]">
-								<icon name="ri:message-3-line" size="1em" class="inline-block mr-1" />
-								<span>comment</span>
-							</div>
 						</NuxtLink>
 
 						<p class="mt-2 text-xs text-gray-400">

@@ -25,7 +25,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
                 post: !post ? undefined : {
                     id: post.id,
                     group_id: post.group_id,
-                    url: `/moments/${post.group_id}/${post.id}`,
+                    url: `/moments/${post.group_id}/${post.id}?comment=${notification.comment_id}`,
                 },
                 created_at: notification.created_at,
             }

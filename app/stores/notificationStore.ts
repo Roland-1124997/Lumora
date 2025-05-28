@@ -1,19 +1,9 @@
 export const useNotificationStore = defineStore("notification", () => {
     const notifications = ref<any>([]);
 
-
-
     const store = useSessionsStore()
     
-    
-    
-    
-    
-    
-    
-    
     const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Group[]>>({ throwOnError: false });
-    
     
     const fetchNotifications = async () => {
         await makeRequest('/api/notifications')
@@ -23,7 +13,9 @@ export const useNotificationStore = defineStore("notification", () => {
     onMounted(async () => {
 
         const user = await store.getSession()
-        const { data: events } = useEventSource(`/events/notifications/${user.data.id}`);
+        const { data: events } = useEventSource(`/events/notifications/${user.data.id}`, [], {
+            autoReconnect: true
+        });
 
         watch(events, async () => await fetchNotifications());
 
