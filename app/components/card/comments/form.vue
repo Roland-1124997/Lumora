@@ -32,7 +32,7 @@
 
 	const { onSubmit } = defineProps({
 		placeholder: { type: String, default: "Leave an message" },
-		count: { type: Number, required: true },
+		count: { type: Number, default: 0 },
 		isAnimating: { type: Boolean, default: false },
 		onSubmit: { type: Function, required: true },
 		loading: { type: Boolean, default: false },

@@ -99,10 +99,10 @@
 
 	@keyframes slide {
 		0% {
-			transform: translateX(-100%); /* Start buiten de container */
+			transform: translateX(-100%); 
 		}
 		100% {
-			transform: translateX(100%); /* Eindigt buiten de container */
+			transform: translateX(100%);
 		}
 	}
 

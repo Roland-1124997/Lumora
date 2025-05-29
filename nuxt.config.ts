@@ -47,7 +47,7 @@ export default defineNuxtConfig({
         '/api/moments/logbook/[group_id]': {
           methods: ["GET"],
           maxRequests: 30,
-          intervalSeconds: 60,
+          intervalSeconds: 30,
         },
         '/api/moments/members/[group_id]': {
           methods: ["GET"],

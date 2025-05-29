@@ -151,8 +151,41 @@
 	const originalUsername = ref(user.data.name)
 	const originalEmail = ref(user.data.email);
 
-
+	/*
+	 ************************************************************************************
+	 */
 	
+	const blocked = ref(false)
+
+	watch([username, email, password], () => {
+		const changed =
+		username.value !== originalUsername.value ||
+		email.value !== originalEmail.value || password.value !== ""
+		if (blocked.value !== changed) blocked.value = changed;
+	}, { deep: true });
+
+	onBeforeRouteLeave((event) => {
+		if (blocked.value) {
+			addToast({
+				message: `You have unsaved changes in your account settings. Please save before leaving this page.`,
+				type: "warning",
+				duration: 10000,
+				discard: () => {
+						blocked.value = false
+						navigateTo(event.fullPath)
+					},
+					save: () => {
+						blocked.value = false
+
+						if(password.value !== "") clickPasswordButton()
+						else clickButton()
+						
+						navigateTo(event.fullPath)
+					}
+			});
+			return false;
+		}
+	});
 
 
 	/*
@@ -184,11 +217,19 @@
 	const loading = ref(false);
 	const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
 		loading.value = true;
+		blocked.value = false
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 		await $fetch("/api/user", { method: "patch", body: values })
 			.then(async (response) => {
 				updateUsername(response.data.name);
+
+				username.value = response.data.name
+				email.value = response.data.email;
+
+				originalUsername.value = response.data.name
+				originalEmail.value = response.data.email;
+
 				addToast({
 					message: `User profile have been updated`,
 					type: "success",
@@ -212,6 +253,7 @@
 	const loading_password = ref(false);
 	const handlePasswordSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
 		loading_password.value = true;
+		blocked.value = false
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 		await $fetch("/api/user", { method: "put", body: values })
@@ -310,38 +352,6 @@
 	const handleDeleteMFAError = async ({ error, actions }: ErrorResponse) => {
 		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
 	};
-
-	const blocked = ref(false)
-
-	watch([username, email, password], () => {
-		const changed =
-		username.value !== originalUsername.value ||
-		email.value !== originalEmail.value || password.value !== ""
-		if (blocked.value !== changed) blocked.value = changed;
-	}, { deep: true });
-
-	onBeforeRouteLeave((event) => {
-		if (blocked.value) {
-			addToast({
-				message: `You have unsaved changes in your account settings. Please save before leaving this page.`,
-				type: "warning",
-				duration: 10000,
-				discard: () => {
-						blocked.value = false
-						navigateTo(event.fullPath)
-					},
-					save: () => {
-						blocked.value = false
-
-						if(password.value !== "") clickPasswordButton()
-						else clickButton()
-						
-						navigateTo(event.fullPath)
-					}
-			});
-			return false;
-		}
-	});
 
 	/*
 	 ************************************************************************************

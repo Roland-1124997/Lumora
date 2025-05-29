@@ -27,16 +27,16 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     ************************************************************************************
     */
 
-    const updates: { email?: string; user_metadata?: { name?: string, email?: string } } = {};
-    
-    if (request.email !== user.user_metadata.email) {
-        if (updates.user_metadata) updates.user_metadata.email = request.email;
-    }
-    if (request.username !== user.user_metadata.name) {
-        if (updates.user_metadata) updates.user_metadata.name = request.username;
-    }
-    if (Object.keys(updates).length > 0) await server.auth.admin.updateUserById(user.id, updates);
-    
+    const { data, error} = await server.auth.admin.updateUserById(user.id, { 
+        email: request.email,
+        user_metadata: {
+            name: request.username,
+            email: request.email,
+        } 
+    })
+
+    if(error) return useReturnResponse(event,internalServerError)
+
     /*
     ************************************************************************************
     */
@@ -49,9 +49,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         },
         data: {
             id: user.id,
-            name: updates.user_metadata?.name || user.user_metadata.name,
+            name: data.user.user_metadata?.name || user.user_metadata.name,
             avatar: user.user_metadata.avatar || "/profile.jpg",
-            email: updates.email || user.user_metadata.email,
+            email: data.user.email || user.user_metadata.email,
             provider: user.app_metadata.provider
         }
     });

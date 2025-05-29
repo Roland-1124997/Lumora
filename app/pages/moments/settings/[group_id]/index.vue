@@ -421,16 +421,20 @@
 			updateGroupValue(name.value)
 		}
 
+		const abortController = new AbortController();
+
 		setTimeout(async () => {
-			await makeRequest(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`);
+			await makeRequest(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`, { signal: abortController.signal });
 			if (data.value) memberList.value = data.value.data;
 
-			await makeRequest(`/api/moments/invitations/${group_id}`);
+			await makeRequest(`/api/moments/invitations/${group_id}`, { signal: abortController.signal });
 			if (data.value) inviteLinks.value = data.value.data;
 
 			searchLoading.value = false;
 			InviteLoading.value = false;
 		}, 2500);
+
+		
 
 		/*
 		 ************************************************************************************
@@ -759,6 +763,8 @@
 		}, { deep: true });
 		
 		onBeforeRouteLeave((event) => {
+
+			abortController.abort();
 
 			if (blocked.value) {
 				addToast({

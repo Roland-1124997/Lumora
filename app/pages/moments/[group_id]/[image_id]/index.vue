@@ -192,9 +192,11 @@
 
 	const loading = ref(false);
 
+	const abortController = new AbortController();
+
 	const fetchComments = async () => {
 		loading.value = true;
-		await makeRequest(`/api/moments/comments/${group_id}/${content.value.id}`);
+		await makeRequest(`/api/moments/comments/${group_id}/${content.value.id}`, { signal: abortController.signal });
 		if (data.value) {
 			comments.value = data.value.data.comments;
 			total_comment_count.value = data.value.data.count;
@@ -207,6 +209,10 @@
 	 ************************************************************************************
 	 */
 
+	onUnmounted(() => {
+		abortController.abort();
+	})
+
 	watch([likes_count, comments_count], () => {
 		sendWebSocketUpdate();
 		updateStoreInteractions();
@@ -214,7 +220,7 @@
 
 	setTimeout(async () => {
 		if (content.value.has_interactions) await fetchComments();
-	}, 1000);
+	}, 2500);
 
 	/*
 	 ************************************************************************************

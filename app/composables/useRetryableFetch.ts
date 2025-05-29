@@ -9,7 +9,9 @@ export function useRetryableFetch<T>(configuration: { maxAttempts?: number; dela
         return await $fetch(url, options).then((response) => {data.value = response;}).catch((err) => {
             error.value = err;
             if (++attempts < maxAttempts) return new Promise((resolve) => setTimeout(resolve, delay)).then(() => fetchWithRetry(url, options, attempts));
-            if (throwOnError) useThrowError(error)
+            if (throwOnError) {
+                if (!error.value.message.includes("aborted")) useThrowError(error)
+            }
         });
     };
 
