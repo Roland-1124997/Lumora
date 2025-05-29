@@ -7,8 +7,8 @@
 					<span> Create posts </span>
 				</button>
 				<NuxtLink :to="`/moments/pending-queue/${group_id}`" aria-label="pending-queue" v-if="need_approval && has_permisons" class="flex items-center justify-center gap-2 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
-					<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-h-5 h-fit w-fit ">
-						<span class="-mt-[0.10rem] ">{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}</span>
+					<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-h-5 h-fit w-fit">
+						<span class="-mt-[0.10rem]">{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}</span>
 					</span>
 					<icon name="ri:folder-received-fill" size="1.4em" />
 				</NuxtLink>
@@ -19,14 +19,14 @@
 				<span> Create posts </span>
 			</button>
 			<NuxtLink :to="`/moments/pending-queue/${group_id}`" aria-label="pending-queue" v-if="need_approval && has_permisons" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
-				<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit ">
-					<span class="-mt-[0.10rem] ">{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}</span>
+				<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit">
+					<span class="-mt-[0.10rem]">{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}</span>
 				</span>
 				<icon name="ri:folder-received-fill" size="1.4em" />
 			</NuxtLink>
 			<div class="flex items-center gap-2">
-				<button :disabled=" reload" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-					<icon :class=" reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
+				<button :disabled="reload" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+					<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 				<NuxtLink :to="`/moments/settings/${group_id}`" aria-label="settings" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon name="ri:settings-3-fill" size="1.4em" />
@@ -163,17 +163,16 @@
 	const need_approval = ref(false);
 	const has_permisons = ref(false);
 	const posts_count_need_approval = ref(0);
-	const has_interaction = ref(true)
+	const has_interaction = ref(true);
 	const loading = ref(false);
 
 	const group: any = getGroupData(group_id);
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
 
-
 	await makeRequest(`/api/moments/pending/${group_id}`);
 
-	if(data.value) {
+	if (data.value) {
 		accepted.value = data.value.data.accepted;
 		need_approval.value = data.value.data.need_approval;
 		has_permisons.value = data.value.data.has_permisons;
@@ -252,7 +251,6 @@
 	 ************************************************************************************
 	 */
 
-	
 	const { addToast } = useToast();
 
 	const { updateModalValue } = inject<any>("modal");
@@ -274,29 +272,27 @@
 	const handleSuccess = async ({ response }: SuccessResponse<Post>) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
-		if(need_approval.value) {
-			
+		if (need_approval.value) {
 			await makeRequest(`/api/moments/pending/${group_id}`);
 
-			if(data.value) {
+			if (data.value) {
 				accepted.value = data.value.data.accepted;
 				need_approval.value = data.value.data.need_approval;
 				has_permisons.value = data.value.data.has_permisons;
 				posts_count_need_approval.value = data.value.data.posts_count_need_approval;
 			}
-			
-			return addToast({ 
-				message: "Your image has been submitted for approval.", 
-				type: "success", 
-				duration: 5000 
+
+			return addToast({
+				message: "Your image has been submitted for approval.",
+				type: "success",
+				duration: 5000,
 			});
-		}
-		
-		else addToast({ 
-			message: "Your image has been posted successfully.", 
-			type: "success", 
-			duration: 5000 
-		});
+		} else
+			addToast({
+				message: "Your image has been posted successfully.",
+				type: "success",
+				duration: 5000,
+			});
 
 		if (response.status.redirect) navigateTo(response.status.redirect);
 		if (response.status.refresh) handleReload();

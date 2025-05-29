@@ -19,6 +19,13 @@
 					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 				</div>
 			</div>
+			<div >
+			<div v-show="isLoading" class="absolute z-50 w-full h-full md:top-0">
+				<div class="">
+					<div class="h-1 animate bg-[#756145]" :style="{ width: progress + '%' }"></div>
+				</div>
+			</div>
+		</div>
 		</header>
 
 		<main class="fixed mt-[4.5rem] w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over sm:px-6 lg:px-24">
@@ -134,12 +141,23 @@
 				:resize="modal.resize" 
 				v-model="modal"
 			/>
-
 		</ModalBaselayer>
 	</div>
 </template>
 
 <script setup>
+
+	const nuxtApp = useNuxtApp();
+
+	const { progress, isLoading, start, finish } = useLoadingIndicator({
+		duration: 2000,
+		throttle: 200,
+		estimatedProgress: (duration, elapsed) => (2 / Math.PI) * 100 * Math.atan(((elapsed / duration) * 100) / 50),
+	});
+
+	addRouteMiddleware("global-loader",(to, from) => start(),{ global: true });
+
+	nuxtApp.hook("page:finish", () => finish());
 
 	const { PWAInstalled } = useCheckPwa()
 
@@ -149,6 +167,8 @@
 	const avatar = ref(user?.avatar)
 
 	const notificationStore = useNotificationStore();
+	await notificationStore.fetchNotifications()
+	
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
 
 	const group = ref()
@@ -184,17 +204,7 @@
 		close()
 	})
 
-	let fromRoute = null;
-	let toRoute = null;
-
-	addRouteMiddleware("global-route",(to, from) => {
-		fromRoute = from.name;
-		toRoute = to.name;
-	},{ global: true });
-
 	const handleBack = () => {
-
-		if(fromRoute == 'moments-group_id-image_id' && toRoute == 'moments-group_id-image_id') return router.push(`/moments/${route.params.group_id}`);
 		return router.back();
 	};
 
@@ -223,5 +233,9 @@
 <style scoped>
 	.router-link-active {
 		@apply font-bold opacity-100 bg-white;
+	}
+
+	.animate {
+		transition: width 0.2s ease-in-out;
 	}
 </style>

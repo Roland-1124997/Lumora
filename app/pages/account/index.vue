@@ -31,8 +31,8 @@
 					<p class="mb-3 text-sm text-gray-500">Update your account information and profile picture.</p>
 					<hr class="mb-2" />
 					<div class="flex flex-col w-full gap-2">
-						<FieldInput :disabled="disabled || loading" name="username" label="Display name" :required="!disabled" :initialValue="username" />
-						<FieldInputEmail :disabled="disabled || loading" name="email" label="Email" :required="!disabled" :initialValue="email" />
+						<FieldInput :disabled="disabled || loading" name="username" label="Display name" :required="!disabled" :initialValue="username" v-model="username" />
+						<FieldInputEmail :disabled="disabled || loading" name="email" label="Email" :required="!disabled" :initialValue="email" v-model="email" />
 					</div>
 				</Form>
 			</div>
@@ -47,7 +47,7 @@
 					<hr class="mb-2" />
 					<div>
 						<div class="flex flex-col w-full gap-2">
-							<FieldInputPassword :disabled="disabled || loading_password" name="New_password" label="New Password" :required="!disabled" rerender enableToggle />
+							<FieldInputPassword :disabled="disabled || loading_password" name="New_password" label="New Password" :required="!disabled" rerender enableToggle v-model="password" />
 							<FieldInputPassword :disabled="disabled || loading_password" name="Confirm_password" label="Confirm Password" :required="!disabled" rerender enableToggle />
 						</div>
 					</div>
@@ -146,6 +146,14 @@
 	const username = ref(user.data.name);
 	const email = ref(user.data.email);
 	const disabled = ref(user.data.provider !== "email");
+
+	const password = ref('')
+	const originalUsername = ref(user.data.name)
+	const originalEmail = ref(user.data.email);
+
+
+	
+
 
 	/*
 	 ************************************************************************************
@@ -302,6 +310,38 @@
 	const handleDeleteMFAError = async ({ error, actions }: ErrorResponse) => {
 		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
 	};
+
+	const blocked = ref(false)
+
+	watch([username, email, password], () => {
+		const changed =
+		username.value !== originalUsername.value ||
+		email.value !== originalEmail.value || password.value !== ""
+		if (blocked.value !== changed) blocked.value = changed;
+	}, { deep: true });
+
+	onBeforeRouteLeave((event) => {
+		if (blocked.value) {
+			addToast({
+				message: `You have unsaved changes in your account settings. Please save before leaving this page.`,
+				type: "warning",
+				duration: 10000,
+				discard: () => {
+						blocked.value = false
+						navigateTo(event.fullPath)
+					},
+					save: () => {
+						blocked.value = false
+
+						if(password.value !== "") clickPasswordButton()
+						else clickButton()
+						
+						navigateTo(event.fullPath)
+					}
+			});
+			return false;
+		}
+	});
 
 	/*
 	 ************************************************************************************

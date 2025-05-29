@@ -59,6 +59,11 @@ export default defineNuxtConfig({
           maxRequests: 30,
           intervalSeconds: 30,
         },
+        '/api/moments/settings/[group_id]': {
+          methods: ["GET"],
+          maxRequests: 30,
+          intervalSeconds: 30,
+        },
         '/api/moments/[group_id]': {
           methods: ['POST'],
           maxRequests: 5,

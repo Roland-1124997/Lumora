@@ -35,7 +35,7 @@
 						<div class="" v-if="content.has_interactions">
 							<hr class="my-2 mt-4" />
 							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
-							<div class="flex flex-col gap-3 mt-3">
+							<div class="flex flex-col gap-3 -mt-3">
 								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="handleEdit" :onReply="handleReply" />
 							</div>
 						</div>
@@ -64,7 +64,7 @@
 					<div class="mb-36" v-if="content.has_interactions">
 						<hr class="my-2 mt-4" />
 						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="commentForm" />
-						<div class="flex flex-col gap-3 mt-1">
+						<div class="flex flex-col gap-3 -mt-3">
 							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="handleEdit" :onReply="handleReply" />
 						</div>
 					</div>

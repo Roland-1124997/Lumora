@@ -5,9 +5,9 @@
 
 		<div :class="pane <= 38.5 ? 'grid-cols-2' : 'grid-cols-3'" class="grid gap-2 mt-4">
 			<div v-for="item in content" :key="item.post_data.id" class="flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
-				<NuxtLink v-if="loaded" :to="`/moments/${id}/${item.post_data.id}`">
+				<button @click="$router.replace(`/moments/${id}/${item.post_data.id}`)" v-if="loaded">
 					<img :src="item.post_data?.media?.url" :alt="item.post_data?.media?.id" class="object-cover w-full h-full aspect-square" />
-				</NuxtLink>
+				</button>
 				<div v-else class="flex items-center justify-center flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
 					<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
 				</div>

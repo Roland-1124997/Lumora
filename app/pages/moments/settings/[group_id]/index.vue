@@ -7,14 +7,14 @@
 					<NuxtLink v-if="content?.permision?.edit" aria-label="logbook" :to="`/moments/logbook/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
 						<Icon name="ri:book-marked-fill" size="1.4rem" />
 					</NuxtLink>
-					<button v-if="content?.permision?.create && content?.accepted" id="CreateLink" title="CreateLink"  @click="CreateLink" :disabled="loading" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+					<button v-if="content?.permision?.create && content?.accepted" id="CreateLink" title="CreateLink" @click="CreateLink" :disabled="loading" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
 						<Icon name="ri:attachment-2" size="1.4rem" />
 					</button>
 					<button :disabled="loading" id="updateSettings" title="updateSettings" @click="clickButton" v-if="content?.permision?.change" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-3 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 						<icon v-if="loading" class="animate-spin" size="1.25rem" name="ri:refresh-line" />
 						<span v-else> Update group</span>
 					</button>
-					<button v-if="content?.permision?.delete" id="deleteGroup" title="deleteGroup"  @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
+					<button v-if="content?.permision?.delete" id="deleteGroup" title="deleteGroup" @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
 					<button v-else id="leaveGroup" title="leaveGroup" @click="leaveGroup" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave group<span class="hidden md:flex"></span></button>
 				</div>
 				<FieldInputSearch v-if="content?.accepted" class="md:hidden" placeholder="Search member..." :disabled="!content.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
@@ -22,7 +22,6 @@
 			</div>
 
 			<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="flex flex-col gap-4 overflow-scroll">
-				
 				<div v-if="content?.permision?.change" class="p-4 border rounded-xl">
 					<Form :validation-schema="schema" v-slot="{ meta, errors }: any" @submit="handleSubmit">
 						<div class="flex items-center justify-between mb-1">
@@ -100,7 +99,7 @@
 												<p v-else class="text-sm text-gray-500 text">Pending</p>
 											</div>
 											<div v-if="content?.permision?.change" class="flex items-center gap-2">
-												<button id="updateMembers" title="updateMembers"  v-if="member?.accepted" @click="createUpdateFunction(member?.id)" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1 text-black/70 hover:text-black">
+												<button id="updateMembers" title="updateMembers" v-if="member?.accepted" @click="createUpdateFunction(member?.id)" :class="member?.name?.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.change ? 'opacity-30 cursor-not-allowed' : ''" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.change" class="flex items-center justify-center p-1 text-black/70 hover:text-black">
 													<Icon name="ri:edit-circle-line" size="1.3rem" />
 												</button>
 												<button v-else id="acceptMember" title="acceptMember" @click="AcceptMember(member?.id)" :class="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content.permision.edit ? 'opacity-30 cursor-not-allowed' : 'text-green-500 hover:text-green-700'" :disabled="member?.name.includes('(You)') || member?.Permissions?.can_delete_group || !content?.permision?.edit" class="flex items-center justify-center p-1">
@@ -196,7 +195,7 @@
 						</table>
 					</div>
 				</div>
-				
+
 				<div v-if="content?.permision?.change" class="p-4 mb-2 border rounded-xl">
 					<div class="">
 						<div v-for="(section, index) in config.sections" :key="index">
@@ -223,547 +222,625 @@
 	</div>
 </template>
 <script setup lang="ts">
-	import { toTypedSchema } from "@vee-validate/zod";
-	import * as zod from "zod";
+		import { toTypedSchema } from "@vee-validate/zod";
+		import * as zod from "zod";
 
-	useHead({
-		htmlAttrs: {
-			lang: "en",
-		},
-	});
-
-	useSeoMeta({
-		title: "Lumora - Group settings",
-		description: "Manage your group details, privacy settings, and member access on Lumora.",
-		ogTitle: "Lumora - Customize Your Group",
-		ogDescription: "Edit your group name, description, visibility, and more. Keep your photo group exactly how you want it.",
-		ogImage: "/apple-touch-icon.png",
-		ogUrl: "/",
-		twitterTitle: "Lumora - Group Settings",
-		twitterDescription: "Update your group settings and manage members easily on Lumora.",
-		twitterImage: "/apple-touch-icon.png",
-		twitterCard: "summary",
-	});
-
-	definePageMeta({
-		middleware: "unauthorized",
-	});
-
-	/*
-	 ************************************************************************************
-	 */
-
-	const group_id = useRoute().params.group_id;
-
-	const button = templateRef("hidden");
-	const clickButton = () => button.value.click();
-
-	const { PWAInstalled } = inject<any>("PWA");
-	const { addToast } = useToast();
-
-	/*
-	 ************************************************************************************
-	 */
-
-	const share = (link: any) => {
-		if (isLinkExpired(link) || getRemainingUses(link) === 0)
-			return addToast({
-				message: `The invitation link has already expired: ${link.code}`,
-				type: "error",
-				duration: 5000,
-			});
-
-		const dummy = document.createElement("input");
-
-		const text = `${window.location.origin}/invitations/${link.id}?token=${link.code}`;
-		dummy.style.opacity = "0";
-		dummy.style.position = "absolute";
-		dummy.style.top = "0";
-
-		document.body.appendChild(dummy);
-		dummy.value = text;
-		dummy.select();
-		document.execCommand("copy");
-		document.body.removeChild(dummy);
-
-		addToast({
-			message: `The invitation link has been copied: ${link.code}`,
-			type: "info",
-			duration: 5000,
+		useHead({
+			htmlAttrs: {
+				lang: "en",
+			},
 		});
-	};
 
-	/*
-	 ************************************************************************************
-	 */
-	const CreateLink = async () => createInviteFunction();
-	const leaveGroup = async () => createLeaveFunction();
-	const KickMember = async (id: string) => createKickFunction(id);
-	const deleteData = async () => createDeleteFunction();
-	const AcceptMember = async (id: string) => createAcceptFunction(id);
-	const RejectMember = async (id: string) => createRejectFunction(id);
+		useSeoMeta({
+			title: "Lumora - Group settings",
+			description: "Manage your group details, privacy settings, and member access on Lumora.",
+			ogTitle: "Lumora - Customize Your Group",
+			ogDescription: "Edit your group name, description, visibility, and more. Keep your photo group exactly how you want it.",
+			ogImage: "/apple-touch-icon.png",
+			ogUrl: "/",
+			twitterTitle: "Lumora - Group Settings",
+			twitterDescription: "Update your group settings and manage members easily on Lumora.",
+			twitterImage: "/apple-touch-icon.png",
+			twitterCard: "summary",
+		});
 
-	/*
-	 ************************************************************************************
-	 */
+		definePageMeta({
+			middleware: "unauthorized",
+		});
 
-	const searchLoading = ref(true);
-	const InviteLoading = ref(true);
 
-	const handleSearch = (data: any, error: any, loading: boolean) => {
-		searchLoading.value = loading;
 
-		if (data.value) memberList.value = data.value.data;
+		/*
+		 ************************************************************************************
+		 */
 
-		if (error.value) {
-			memberList.value = [];
-			addToast({
-				message: `An error occurred while searching. Please try again later.`,
-				type: "error",
-				duration: 5000,
-			});
-		}
-	};
+		const group_id = useRoute().params.group_id;
 
-	/*
-	 ************************************************************************************
-	 */
+		const button = templateRef("hidden");
+		const clickButton = () => button.value.click();
 
-	const isLinkExpired = (link: any) => {
-		if (link.expiresAt === null) return link.expiresAt;
-		return new Date(link.expiresAt) < new Date();
-	};
-	const getRemainingUses = (link: any) => link.uses;
+		const { PWAInstalled } = inject<any>("PWA");
+		const { addToast } = useToast();
 
-	const handleDeleteInviteLink = async (invite: any) => {
-		await $fetch(`/api/moments/invitations/${group_id}/${invite.id}?token=${invite.code}`, { method: "delete" })
-			.then(() => {
-				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== invite.id);
-				addToast({
-					message: `The invitation link has been deleted: ${invite.code}`,
-					type: "success",
+		/*
+		 ************************************************************************************
+		 */
+
+		const share = (link: any) => {
+			if (isLinkExpired(link) || getRemainingUses(link) === 0)
+				return addToast({
+					message: `The invitation link has already expired: ${link.code}`,
+					type: "error",
 					duration: 5000,
 				});
-			})
-			.catch((error) => {});
-	};
 
-	/*
-	 ************************************************************************************
-	 */
-	const content = ref();
-	const config = ref();
+			const dummy = document.createElement("input");
 
-	const { value: name }: any = useField<string>("name");
-	const { value: description }: any = useField<string>("description");
+			const text = `${window.location.origin}/invitations/${link.id}?token=${link.code}`;
+			dummy.style.opacity = "0";
+			dummy.style.position = "absolute";
+			dummy.style.top = "0";
 
-	const inviteLinks: any = ref([]);
-	const memberList: any = ref([]);
+			document.body.appendChild(dummy);
+			dummy.value = text;
+			dummy.select();
+			document.execCommand("copy");
+			document.body.removeChild(dummy);
 
-	const activeTab = ref();
+			addToast({
+				message: `The invitation link has been copied: ${link.code}`,
+				type: "info",
+				duration: 5000,
+			});
+		};
 
-	const setActiveTab = async (tab: string) => {
-		searchLoading.value = true;
-		activeTab.value = tab;
+		/*
+		 ************************************************************************************
+		 */
+		const CreateLink = async () => createInviteFunction();
+		const leaveGroup = async () => createLeaveFunction();
+		const KickMember = async (id: string) => createKickFunction(id);
+		const deleteData = async () => createDeleteFunction();
+		const AcceptMember = async (id: string) => createAcceptFunction(id);
+		const RejectMember = async (id: string) => createRejectFunction(id);
 
-		const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ throwOnError: false });
+		/*
+		 ************************************************************************************
+		 */
 
-		await makeRequest(`/api/moments/members/${group_id}?pending=${tab == "requests"}`);
-		if (data.value) memberList.value = data.value.data;
-		if (error.value) memberList.value = [];
+		const searchLoading = ref(true);
+		const InviteLoading = ref(true);
 
-		setTimeout(() => {
+		const handleSearch = (data: any, error: any, loading: boolean) => {
+			searchLoading.value = loading;
+
+			if (data.value) memberList.value = data.value.data;
+
+			if (error.value) {
+				memberList.value = [];
+				addToast({
+					message: `An error occurred while searching. Please try again later.`,
+					type: "error",
+					duration: 5000,
+				});
+			}
+		};
+
+		/*
+		 ************************************************************************************
+		 */
+
+		const isLinkExpired = (link: any) => {
+			if (link.expiresAt === null) return link.expiresAt;
+			return new Date(link.expiresAt) < new Date();
+		};
+		const getRemainingUses = (link: any) => link.uses;
+
+		const handleDeleteInviteLink = async (invite: any) => {
+			await $fetch(`/api/moments/invitations/${group_id}/${invite.id}?token=${invite.code}`, { method: "delete" })
+				.then(() => {
+					inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== invite.id);
+					addToast({
+						message: `The invitation link has been deleted: ${invite.code}`,
+						type: "success",
+						duration: 5000,
+					});
+				})
+				.catch((error) => {});
+		};
+
+		/*
+		 ************************************************************************************
+		 */
+		const content = ref();
+		const config = ref();
+
+		const { value: name }: any = useField<string>("name");
+		const { value: description }: any = useField<string>("description");
+
+		const originalName = ref('');
+		const originalDescription = ref('');
+		const originalConfig = ref<any[]>([]);
+
+		const inviteLinks: any = ref([]);
+		const memberList: any = ref([]);
+
+		const activeTab = ref();
+
+		const setActiveTab = async (tab: string) => {
+			searchLoading.value = true;
+			activeTab.value = tab;
+
+			const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ throwOnError: false });
+
+			await makeRequest(`/api/moments/members/${group_id}?pending=${tab == "requests"}`);
+			if (data.value) memberList.value = data.value.data;
+			if (error.value) memberList.value = [];
+
+			setTimeout(() => {
+				searchLoading.value = false;
+			}, 1500);
+		};
+
+		const reloadInvite = async () => {
+			InviteLoading.value = true;
+
+			await makeRequest(`/api/moments/invitations/${group_id}`);
+			if (data.value) inviteLinks.value = data.value.data;
+
+			setTimeout(() => {
+				InviteLoading.value = false;
+			}, 1500);
+		};
+
+		/*
+		 ************************************************************************************
+		 */
+
+		const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>();
+		const { updateGroupValue } = inject<any>("group");
+
+
+		await makeRequest(`/api/moments/settings/${group_id}`);
+		if (data.value) {
+			content.value = data.value.data;
+			name.value = data.value.data.name;
+			description.value = data.value.data.description;
+			config.value = data.value.data.configuration;
+			activeTab.value = data.value.data.accepted ? "members" : "requests";
+
+			originalName.value = data.value.data.name;
+			originalDescription.value = data.value.data.description;
+
+			data.value.data.configuration.sections.forEach((section: any) => {
+				section.options.forEach((option: any) => {
+					originalConfig.value[option.key] = option.value;
+				});
+			});
+
+			updateGroupValue(name.value)
+		}
+
+		setTimeout(async () => {
+			await makeRequest(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`);
+			if (data.value) memberList.value = data.value.data;
+
+			await makeRequest(`/api/moments/invitations/${group_id}`);
+			if (data.value) inviteLinks.value = data.value.data;
+
 			searchLoading.value = false;
-		}, 1500);
-	};
-
-	const reloadInvite = async () => {
-		InviteLoading.value = true;
-
-		await makeRequest(`/api/moments/invitations/${group_id}`);
-		if (data.value) inviteLinks.value = data.value.data;
-
-		setTimeout(() => {
 			InviteLoading.value = false;
-		}, 1500);
-	};
+		}, 2500);
 
-	/*
-	 ************************************************************************************
-	 */
+		/*
+		 ************************************************************************************
+		 */
 
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>();
-	const { updateGroupValue } = inject<any>("group");
+		const webSocket = inject<any>("WebSocket");
 
+		const { updateModalValue } = inject<any>("modal");
 
-	await makeRequest(`/api/moments/settings/${group_id}`);
-	if (data.value) {
-		content.value = data.value.data;
-		name.value = data.value.data.name;
-		config.value = data.value.data.configuration;
-		description.value = data.value.data.description;
-		activeTab.value = data.value.data.accepted ? "members" : "requests";
+		const createDeleteFunction = () => {
+			updateModalValue({
+				open: true,
+				type: "negative:group",
+				name: "Alert",
+				requestUrl: `/api/moments/${group_id}`,
+				onSuccess: handleSuccess,
+				onError: handleError,
+			});
+		};
 
-		updateGroupValue(name.value)
+		const handleSuccess = async ({ response }: SuccessResponse<null>) => {
+			if (response.status.redirect) {
+				setTimeout(() => navigateTo(response.status.redirect), 500);
 
-	}
+				webSocket.send(
+					JSON.stringify({
+						type: "delete",
+						group_id,
+					})
+				);
 
-	setTimeout(async () => {
-		await makeRequest(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`);
-		if (data.value) memberList.value = data.value.data;
+				setTimeout(() => {
+					addToast({
+						message: `You have deleted the group`,
+						type: "success",
+						duration: 5000,
+					});
+				}, 800);
+			}
+		};
 
-		await makeRequest(`/api/moments/invitations/${group_id}`);
-		if (data.value) inviteLinks.value = data.value.data;
+		const handleError = async ({ error, actions }: ErrorResponse) => {
+			actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
+		};
 
-		searchLoading.value = false;
-		InviteLoading.value = false;
-	}, 2500);
+		/*
+		 ************************************************************************************
+		 */
+		const createInviteFunction = () => {
+			updateModalValue({
+				open: true,
+				type: "links",
+				name: "Generate",
+				requestUrl: `/api/moments/invitations/${group_id}`,
+				onSuccess: handleInviteSuccess,
+				onError: handleInviteError,
+			});
+		};
 
-	/*
-	 ************************************************************************************
-	 */
+		const handleInviteSuccess = async ({ response: main }: any) => {
+			if (main.status.refresh)
+				await $fetch(`/api/moments/invitations/${group_id}`)
+					.then((response: any) => {
+						inviteLinks.value = response.data;
 
-	const webSocket = inject<any>("WebSocket");
+						setTimeout(() => {
+							addToast({
+								message: `Invitation link has been created: ${main.data.code}`,
+								type: "success",
+								duration: 5000,
+							});
+						}, 500);
+					})
+					.catch((error) => {});
+		};
 
-	const { updateModalValue } = inject<any>("modal");
+		const handleInviteError = async ({ error, actions }: ErrorResponse) => {
+			actions.setErrors({ message: ["An error occurred, unable to create invite! Please try again later."] });
+		};
 
-	const createDeleteFunction = () => {
-		updateModalValue({
-			open: true,
-			type: "negative:group",
-			name: "Alert",
-			requestUrl: `/api/moments/${group_id}`,
-			onSuccess: handleSuccess,
-			onError: handleError,
-		});
-	};
+		/*
+		 ************************************************************************************
+		 */
 
-	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		if (response.status.redirect) {
-			setTimeout(() => navigateTo(response.status.redirect), 500);
+		const createLeaveFunction = () => {
+			updateModalValue({
+				open: true,
+				type: "Group:leave",
+				name: "Alert",
+				requestUrl: `/api/moments/members/${group_id}`,
+				onSuccess: handleLeaveSuccess,
+				onError: handleLeaveError,
+			});
+		};
+
+		const handleLeaveSuccess = async ({ response }: any) => {
+			if (response.status.redirect) navigateTo(response.status.redirect);
 
 			webSocket.send(
 				JSON.stringify({
-					type: "delete",
-					group_id,
+					type: "update-topics",
 				})
 			);
 
 			setTimeout(() => {
 				addToast({
-					message: `You have deleted the group`,
+					message: `You have left the group`,
 					type: "success",
 					duration: 5000,
 				});
-			}, 800);
-		}
-	};
+			}, 500);
+		};
 
-	const handleError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
-	};
+		const handleLeaveError = async ({ error, actions }: ErrorResponse) => {
+			actions.setErrors({ message: ["An error occurred, unable to leave the group! Please try again later."] });
+			addToast({
+				message: `An error occurred, unable to leave the group`,
+				type: "error",
+				duration: 5000,
+			});
+		};
 
-	/*
-	 ************************************************************************************
-	 */
-	const createInviteFunction = () => {
-		updateModalValue({
-			open: true,
-			type: "links",
-			name: "Generate",
-			requestUrl: `/api/moments/invitations/${group_id}`,
-			onSuccess: handleInviteSuccess,
-			onError: handleInviteError,
-		});
-	};
+		/*
+		 ************************************************************************************
+		 */
 
-	const handleInviteSuccess = async ({ response: main }: any) => {
-		if (main.status.refresh)
-			await $fetch(`/api/moments/invitations/${group_id}`)
+		const member_id = ref();
+
+		const createRejectFunction = (id: string) => {
+			member_id.value = id;
+
+			updateModalValue({
+				open: true,
+				type: "Group:Reject",
+				name: "Alert",
+				requestUrl: `/api/moments/members/${group_id}/${id}`,
+				onSuccess: handleKickSuccess,
+				onError: handleKickError,
+			});
+		};
+
+		const createKickFunction = (id: string) => {
+			member_id.value = id;
+
+			updateModalValue({
+				open: true,
+				type: "Group:kick",
+				name: "Alert",
+				requestUrl: `/api/moments/members/${group_id}/${id}`,
+				onSuccess: handleKickSuccess,
+				onError: handleKickError,
+			});
+		};
+
+		const handleKickSuccess = async ({ response }: any) => {
+			await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
 				.then((response: any) => {
-					inviteLinks.value = response.data;
+					memberList.value = response.data;
+
+					webSocket.send(
+						JSON.stringify({
+							type: "kick",
+							group_id,
+							member_id: member_id.value,
+						})
+					);
 
 					setTimeout(() => {
 						addToast({
-							message: `Invitation link has been created: ${main.data.code}`,
+							message: `Member has been removed from the group`,
 							type: "success",
 							duration: 5000,
 						});
 					}, 500);
 				})
-				.catch((error) => {});
-	};
+				.catch((error) => {
+					memberList.value = [];
+				});
+		};
 
-	const handleInviteError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to create invite! Please try again later."] });
-	};
+		const handleKickError = async ({ error, actions }: ErrorResponse) => {
+			actions.setErrors({ message: ["An error occurred, unable to kick the member! Please try again later."] });
+			addToast({
+				message: `An error occurred, unable to kick the member`,
+				type: "error",
+				duration: 5000,
+			});
+		};
 
-	/*
-	 ************************************************************************************
-	 */
+		/*
+		 ************************************************************************************
+		 */
 
-	const createLeaveFunction = () => {
-		updateModalValue({
-			open: true,
-			type: "Group:leave",
-			name: "Alert",
-			requestUrl: `/api/moments/members/${group_id}`,
-			onSuccess: handleLeaveSuccess,
-			onError: handleLeaveError,
+		const createAcceptFunction = (id: string) => {
+			updateModalValue({
+				open: true,
+				type: "join:group",
+				name: "join",
+				requestUrl: `/api/moments/members/${group_id}/${id}`,
+				onSuccess: handleAcceptSuccess,
+				onError: handleAcceptError,
+			});
+		};
+
+		const handleAcceptSuccess = async ({ response }: any) => {
+			await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
+				.then((response: any) => {
+					memberList.value = response.data;
+
+					webSocket.send(
+						JSON.stringify({
+							type: "update-topics",
+						})
+					);
+
+					setTimeout(() => {
+						addToast({
+							message: `Member has accepted to the group`,
+							type: "success",
+							duration: 5000,
+						});
+					}, 500);
+				})
+				.catch((error) => {
+					memberList.value = [];
+				});
+		};
+
+		const handleAcceptError = async ({ error, actions }: ErrorResponse) => {
+			actions.setErrors({ message: ["An error occurred, unable to accept the member! Please try again later."] });
+			addToast({
+				message: `An error occurred, unable to kick the member`,
+				type: "error",
+				duration: 5000,
+			});
+		};
+
+		/*
+		 ************************************************************************************
+		 */
+
+		const createUpdateFunction = (id: string) => {
+			updateModalValue({
+				open: true,
+				type: "update:member",
+				name: "Edit Permissions",
+				requestUrl: `/api/moments/members/permissions/${group_id}/${id}`,
+				onSuccess: handleUpdateSuccess,
+				onError: handleUpdateError,
+			});
+		};
+
+		const handleUpdateSuccess = async ({ response }: any) => {
+			searchLoading.value = true;
+			await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
+				.then((response: any) => {
+					memberList.value = response.data;
+
+					webSocket.send(
+						JSON.stringify({
+							type: "update-topics",
+						})
+					);
+
+					setTimeout(() => {
+						addToast({
+							message: `Member permissions updated`,
+							type: "success",
+							duration: 5000,
+						});
+					}, 500);
+				})
+				.catch((error) => {
+					memberList.value = [];
+				});
+
+			setTimeout(() => {
+				searchLoading.value = false;
+			}, 1500);
+		};
+
+		const handleUpdateError = async ({ error, actions }: ErrorResponse) => {
+			actions.setErrors({ message: ["An error occurred, unable to accept the member! Please try again later."] });
+			addToast({
+				message: `An error occurred, unable to kick the member`,
+				type: "error",
+				duration: 5000,
+			});
+		};
+
+		/*
+		 ************************************************************************************
+		 */
+		const blocked : any = ref(false);
+
+		function getOriginalOptionsMap() {
+			const map: Record<string, any> = {};
+			for (const section of config.value.sections) {
+				for (const option of section.options) {
+					if (originalConfig.value[option.key] !== undefined) {
+						map[option.key] = originalConfig.value[option.key];
+					}
+				}
+			}
+			return map;
+		}
+		
+		function isConfigChanged() {
+			const originalMap = getOriginalOptionsMap();
+			for (const section of config.value.sections) {
+				for (const option of section.options) {
+					if (originalMap[option.key] !== option.value) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		watch([name, description, config], () => {
+			const changed =
+				name.value !== originalName.value ||
+				description.value !== originalDescription.value ||
+				isConfigChanged();
+			if (blocked.value !== changed) blocked.value = changed;
+		}, { deep: true });
+		
+		onBeforeRouteLeave((event) => {
+
+			if (blocked.value) {
+				addToast({
+					message: `You have unsaved changes in the group settings. Please save before leaving this page.`,
+					type: "warning",
+					duration: 10000,
+					discard: () => {
+						blocked.value = false
+						navigateTo(event.fullPath)
+					},
+					save: () => {
+						blocked.value = false
+						clickButton()
+						navigateTo(event.fullPath)
+					}
+				});
+				return false;
+			}
 		});
-	};
 
-	const handleLeaveSuccess = async ({ response }: any) => {
-		if (response.status.redirect) navigateTo(response.status.redirect);
-
-		webSocket.send(
-			JSON.stringify({
-				type: "update-topics",
+		const loading = ref(false);
+		const schema = toTypedSchema(
+			zod.object({
+				name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
+				description: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
 			})
 		);
 
-		setTimeout(() => {
-			addToast({
-				message: `You have left the group`,
-				type: "success",
-				duration: 5000,
-			});
-		}, 500);
-	};
+		const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
+			loading.value = true;
 
-	const handleLeaveError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to leave the group! Please try again later."] });
-		addToast({
-			message: `An error occurred, unable to leave the group`,
-			type: "error",
-			duration: 5000,
-		});
-	};
+			await new Promise((resolve) => setTimeout(resolve, 2000));
 
-	/*
-	 ************************************************************************************
-	 */
+			values.configuration = {};
 
-	const member_id = ref();
-
-	const createRejectFunction = (id: string) => {
-		member_id.value = id;
-
-		updateModalValue({
-			open: true,
-			type: "Group:Reject",
-			name: "Alert",
-			requestUrl: `/api/moments/members/${group_id}/${id}`,
-			onSuccess: handleKickSuccess,
-			onError: handleKickError,
-		});
-	};
-
-	const createKickFunction = (id: string) => {
-		member_id.value = id;
-
-		updateModalValue({
-			open: true,
-			type: "Group:kick",
-			name: "Alert",
-			requestUrl: `/api/moments/members/${group_id}/${id}`,
-			onSuccess: handleKickSuccess,
-			onError: handleKickError,
-		});
-	};
-
-	const handleKickSuccess = async ({ response }: any) => {
-		await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
-			.then((response: any) => {
-				memberList.value = response.data;
-
-				webSocket.send(
-					JSON.stringify({
-						type: "kick",
-						group_id,
-						member_id: member_id.value,
-					})
-				);
-
-				setTimeout(() => {
-					addToast({
-						message: `Member has been removed from the group`,
-						type: "success",
-						duration: 5000,
-					});
-				}, 500);
-			})
-			.catch((error) => {
-				memberList.value = [];
-			});
-	};
-
-	const handleKickError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to kick the member! Please try again later."] });
-		addToast({
-			message: `An error occurred, unable to kick the member`,
-			type: "error",
-			duration: 5000,
-		});
-	};
-
-	/*
-	 ************************************************************************************
-	 */
-
-	const createAcceptFunction = (id: string) => {
-		updateModalValue({
-			open: true,
-			type: "join:group",
-			name: "join",
-			requestUrl: `/api/moments/members/${group_id}/${id}`,
-			onSuccess: handleAcceptSuccess,
-			onError: handleAcceptError,
-		});
-	};
-
-	const handleAcceptSuccess = async ({ response }: any) => {
-		await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
-			.then((response: any) => {
-				memberList.value = response.data;
-
-				webSocket.send(
-					JSON.stringify({
-						type: "update-topics",
-					})
-				);
-
-				setTimeout(() => {
-					addToast({
-						message: `Member has accepted to the group`,
-						type: "success",
-						duration: 5000,
-					});
-				}, 500);
-			})
-			.catch((error) => {
-				memberList.value = [];
-			});
-	};
-
-	const handleAcceptError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to accept the member! Please try again later."] });
-		addToast({
-			message: `An error occurred, unable to kick the member`,
-			type: "error",
-			duration: 5000,
-		});
-	};
-
-	/*
-	 ************************************************************************************
-	 */
-
-	const createUpdateFunction = (id: string) => {
-		updateModalValue({
-			open: true,
-			type: "update:member",
-			name: "Edit Permissions",
-			requestUrl: `/api/moments/members/permissions/${group_id}/${id}`,
-			onSuccess: handleUpdateSuccess,
-			onError: handleUpdateError,
-		});
-	};
-
-	const handleUpdateSuccess = async ({ response }: any) => {
-		searchLoading.value = true;
-		await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
-			.then((response: any) => {
-				memberList.value = response.data;
-
-				webSocket.send(
-					JSON.stringify({
-						type: "update-topics",
-					})
-				);
-
-				setTimeout(() => {
-					addToast({
-						message: `Member permissions updated`,
-						type: "success",
-						duration: 5000,
-					});
-				}, 500);
-			})
-			.catch((error) => {
-				memberList.value = [];
+			config.value.sections.forEach((section: any) => {
+				section.options.forEach((option: any) => {
+					values.configuration[option.key] = option.value;
+				});
 			});
 
-		setTimeout(() => {
-			searchLoading.value = false;
-		}, 1500);
-	};
+			await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
+				.then(async (response: any) => {
+					if (response.status.refresh)
+						await $fetch(`/api/moments/settings/${group_id}`)
+							.then((response) => {
+								content.value = response.data;
+								name.value = response.data.name;
+								config.value = response.data.configuration;
+								description.value = response.data.description;
 
-	const handleUpdateError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to accept the member! Please try again later."] });
-		addToast({
-			message: `An error occurred, unable to kick the member`,
-			type: "error",
-			duration: 5000,
-		});
-	};
+								originalConfig.value = []
 
-	/*
-	 ************************************************************************************
-	 */
+								originalName.value = response.data.name;
+								originalDescription.value = response.data.description;
 
-	const loading = ref(false);
+								response.data.configuration.sections.forEach((section: any) => {
+									section.options.forEach((option: any) => {
+										originalConfig.value[option.key] = option.value;
+									});
+								});
 
-	const schema = toTypedSchema(
-		zod.object({
-			name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
-			description: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
-		})
-	);
-
-	const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
-		loading.value = true;
-
-		await new Promise((resolve) => setTimeout(resolve, 2000));
-
-		values.configuration = {};
-
-		config.value.sections.forEach((section: any) => {
-			section.options.forEach((option: any) => {
-				values.configuration[option.key] = option.value;
-			});
-		});
-
-		await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
-			.then(async (response: any) => {
-				if (response.status.refresh)
-					await $fetch(`/api/moments/settings/${group_id}`)
-						.then((response) => {
-							content.value = response.data;
-							name.value = response.data.name;
-							config.value = response.data.configuration;
-							description.value = response.data.description;
-
-							addToast({
-								message: `Group settings have been updated`,
-								type: "success",
-								duration: 5000,
+								addToast({
+									message: `Group settings have been updated`,
+									type: "success",
+									duration: 5000,
+								});
+							})
+							.catch((error) => {
+								throw createError({
+									statusCode: error.data.meta.code,
+									message: error.data.meta.message,
+									fatal: true,
+								});
 							});
-						})
-						.catch((error) => {
-							throw createError({
-								statusCode: error.data.meta.code,
-								message: error.data.meta.message,
-								fatal: true,
-							});
-						});
-			})
-			.catch(async (error) => {
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-				if (error.data && error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			})
-			.finally(() => (loading.value = false));
-	};
+				})
+				.catch(async (error) => {
+					await new Promise((resolve) => setTimeout(resolve, 1000));
+					if (error.data && error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+				})
+				.finally(() => (loading.value = false));
+		};
 </script>
 
 <style scoped>
