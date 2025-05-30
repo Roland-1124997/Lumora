@@ -24,8 +24,8 @@ export const createFilesObject = (zod: typeof z) => {
             name: zod.string(),
             filename: zod.string(),
             type: zod.string().regex(/^image\/(jpeg|png)$/, "Only PNG or JPEG files are allowed"),
-            data: zod.instanceof(Buffer).refine((buffer) => buffer.length <= 10 * 1024 * 1024, {
-                message: "File size must not exceed 10MB",
+            data: zod.instanceof(Buffer).refine((buffer) => buffer.length <= 5 * 1024 * 1024, {
+                message: "File size must not exceed 5MB",
             })
         })
     ).nonempty("This field is required");

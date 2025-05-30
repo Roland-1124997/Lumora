@@ -60,8 +60,8 @@
 			name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).max(20, { message: "Name must be less than 20 characters" }),
 			description: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).max(200, { message: "Description must be less than 200 characters" }),
 			thumbnail: zod.instanceof(File, { message: "This field is required" }) 
-			.refine((file) => file.size <= 10 * 1024 * 1024, {
-				message: "File size must not exceed 10MB",
+			.refine((file) => file.size <= 5 * 1024 * 1024, {
+				message: "File size must not exceed 5MB",
 			})
 			.refine((file) => ["image/png", "image/jpeg"].includes(file.type), {
 				message: "Only PNG or JPEG files are allowed",

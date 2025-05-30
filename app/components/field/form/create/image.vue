@@ -28,11 +28,11 @@
 		zod.object({
 			images: zod.array(
 				zod.instanceof(File)
-				.refine((file) => file.size <= 10 * 1024 * 1024, {message: "File size must not exceed 10MB",})
+				.refine((file) => file.size <= 5 * 1024 * 1024, {message: "File size must not exceed 5MB",})
 				.refine((file) => ["image/png", "image/jpeg"].includes(file.type), {message: "Only PNG or JPEG files are allowed",})
 			)
 			.min(1, { message: "You must upload at least one image" }) 
-			.max(4, { message: "Maximum of 4 images allowed" })
+			.max(2, { message: "Maximum of 2 images allowed" })
 			.or(zod.literal(undefined).transform(() => [])),
 		})
 	);
