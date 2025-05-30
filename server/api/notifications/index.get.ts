@@ -6,8 +6,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const updated = await Promise.all(
         data?.map(async notification => {
-            const { data: group } = await client.from("groups").select("*").eq("id", notification.group_id).single<Tables<"groups">>();
-            const { data: post } = await client.from("posts").select("*").eq("id", notification.post_id).single<Tables<"posts">>();
+            const { data: group } = await server.from("groups").select("*").eq("id", notification.group_id).single<Tables<"groups">>();
+            const { data: post } = await server.from("posts").select("*").eq("id", notification.post_id).single<Tables<"posts">>();
 
             return {
                 id: notification.id,
