@@ -169,7 +169,7 @@
 			type: "Create",
 			name: "Create group",
 			requestUrl: "/api/moments",
-			resize: true,
+			resize: false,
 			minimized: false,
 			loading: false,
 			onSuccess: handleSuccess,
