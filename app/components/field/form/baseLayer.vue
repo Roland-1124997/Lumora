@@ -9,7 +9,7 @@
 			<div v-if="onReturn" @click="onReturn()" class="flex items-center h-12 gap-2 px-4 py-2 font-medium text-gray-700 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100">
 				<Icon name="material-symbols:arrow-back-ios-new-rounded" class="w-4 h-4" />
 			</div>
-			
+
 			<button v-if="label" :disabled="loading" class="flex items-center justify-center w-full h-12 text-base font-semibold text-white border bg-[#756145]/80 rounded-xl hover:bg-[#756145]">
 				<UtilsLoader :loading :label :numberCount="3" />
 			</button>
@@ -62,7 +62,7 @@
 			return navigateTo(`/${requestUrl.split("/")[2]}/${values.invite_link}`);
 		}
 
-		if(values.remember) {
+		if (values.remember) {
 			const remember = useLocalStorage("user-email", undefined) as Ref<string | undefined>;
 			remember.value = values.remember ? values.email : undefined;
 		}
@@ -72,18 +72,19 @@
 
 			for (const key in values) {
 				if (key === "images") {
-					values[key].forEach((file: File, index: number) => {
-						const blob = new Blob([file], { type: file.type });
-						formData.append(`file:images[${index}]`, blob, file.name);
-					});
+					for (let index = 0; index < values[key].length; index++) {
+						const file: File = values[key][index];
+						const webpBlob = await convertToWebp(file);
+						formData.append(`file:images[${index}]`, webpBlob, file.name.replace(/\.[^/.]+$/, ".webp"));
+					}
 				} else if (key === "thumbnail") {
-					const blob = new Blob([values[key]], { type: values[key]?.type });
-					formData.append(`file:thumbnail`, blob, values[key]?.name);
+					const file = values[key];
+					const webpBlob = await convertToWebp(file);
+					formData.append(`file:thumbnail`, webpBlob, file.name.replace(/\.[^/.]+$/, ".webp"));
 				} else {
 					formData.append(key, values[key]);
 				}
 			}
-
 			values = formData;
 		}
 
@@ -92,24 +93,53 @@
 			body: values,
 			signal: abortController.value?.signal,
 		})
-			.then((response) => {
-				onSuccess({ response, actions });
-				if (callback) callback();
-			})
-			.catch((error) => {
-				if (error.message.includes("aborted")) {
-					setTimeout(() => {
-						addToast({
-							message: "The request has been canceled.",
-							type: "error",
-							duration: 5000,
-						});
-					}, 1000);
-				} else onError({ error, actions });
-			})
-			.finally(() => {
+		.then((response) => {
+			onSuccess({ response, actions });
+			if (callback) callback();
+		})
+		.catch((error) => {
+			if (error.message.includes("aborted")) {
+				setTimeout(() => {
+					addToast({
+						message: "The request has been canceled.",
+						type: "error",
+						duration: 5000,
+					});
+				}, 1000);
+			} else onError({ error, actions });
+		})
+		.finally(() => {
 				loading.value = false;
 				abortController.value = new AbortController();
-			});
+		});
 	};
+
+	// const convertToWebp = (file: File): Promise<Blob> => {
+	// 	return new Promise((resolve, reject) => {
+	// 		const img = new Image();
+	// 		const reader = new FileReader();
+	// 		reader.onload = (event) => {
+	// 			img.onload = () => {
+	// 				const canvas = document.createElement("canvas");
+	// 				canvas.width = img.width;
+	// 				canvas.height = img.height;
+	// 				const ctx = canvas.getContext("2d");
+	// 				if (!ctx) return reject("Canvas context error");
+	// 				ctx.drawImage(img, 0, 0);
+	// 				canvas.toBlob(
+	// 					(blob) => {
+	// 						if (blob) resolve(blob);
+	// 						else reject("Conversion failed");
+	// 					},
+	// 					"image/webp",
+	// 					0.7
+	// 				);
+	// 			};
+	// 			img.onerror = reject;
+	// 			img.src = event.target?.result as string;
+	// 		};
+	// 		reader.onerror = reject;
+	// 		reader.readAsDataURL(file);
+	// 	});
+	// };
 </script>

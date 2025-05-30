@@ -23,10 +23,10 @@ export const createFilesObject = (zod: typeof z) => {
         zod.object({
             name: zod.string(),
             filename: zod.string(),
-            type: zod.string().regex(/^image\/(jpeg|png)$/, "Alleen PNG of JPEG-bestanden zijn toegestaan"),
-            data: zod.instanceof(Buffer).refine((buffer) => buffer.length <= 10 * 1024 * 1024, {
-                message: "Bestandsgrootte mag niet groter zijn dan 10MB",
+            type: zod.string().regex(/^image\/(jpeg|png|webp)$/, "Only PNG, JPEG or WEBP files are allowed"),
+            data: zod.instanceof(Buffer).refine((buffer) => buffer.length <= 1 * 1024 * 1024, {
+                message: "File size must not exceed 1MB",
             })
         })
-    ).nonempty("Dit is een verplicht veld");
+    ).nonempty("This field is required");
 };

@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     "@nuxtjs/supabase",
     "nuxt-scheduler",
     "@pinia/nuxt",
+    "nuxt-workers",
   ],
 
   nitro: {
