@@ -1,3 +1,5 @@
+import sharp from "sharp";
+
 export const processImage = async (file: FormDataItem) => {
     let buffer: Buffer;
 
@@ -6,8 +8,7 @@ export const processImage = async (file: FormDataItem) => {
     else if (file.data instanceof Uint8Array || Array.isArray(file.data)) buffer = Buffer.from(file.data);
     else throw new Error("Unsupported data type for file.data");
     
-    return buffer
-    
+    return await sharp(buffer).rotate().webp({ quality: 10 }).toBuffer();
 };
 
 export const uploadImage = async (client: SupabaseClient, groupId: string, userId: string, imageId: string, buffer: Buffer) => {

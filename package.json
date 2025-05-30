@@ -18,7 +18,6 @@
     "@vee-validate/zod": "^4.14.7",
     "@vite-pwa/nuxt": "^0.10.6",
     "nuxt": "^3.17.1",
-    "nuxt-workers": "^0.1.0",
     "pinia": "^3.0.2",
     "splitpanes": "^4.0.2",
     "vee-validate": "^4.14.7",
