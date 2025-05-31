@@ -16,6 +16,7 @@
 				<div class="flex items-center gap-2">
 					<UtilsButton to="/account" :options="{ name: username, url: avatar }" />
 					<UtilsButton to="/moments" iconName="ri:archive-stack-fill"/>
+					<UtilsButton v-if="part_of_team" to="/monitor" iconName="ri:database-2-fill" />
 					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 				</div>
 			</div>
@@ -165,6 +166,7 @@
 	const { data: user } = await store.getSession();
 	const username = ref(user?.name);
 	const avatar = ref(user?.avatar)
+	const part_of_team = ref(user?.team || false)
 
 	const notificationStore = useNotificationStore();
 	await notificationStore.fetchNotifications()

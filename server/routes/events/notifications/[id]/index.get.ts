@@ -12,7 +12,11 @@ export default defineEventHandler(async (event) => {
         
         const { data } = await client.auth.getUser();
 
-        if(!data.user) return; 
+        if(!data.user) {
+            eventStream.close()
+            return
+        }
+        
         if(data.user.id !== event.new.target_id) return; 
         else eventStream.push(JSON.stringify(event.new.id));
     }).subscribe();

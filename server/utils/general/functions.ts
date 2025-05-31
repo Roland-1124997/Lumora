@@ -15,7 +15,7 @@ const processQueue = async () => {
     processing = true;
     while (imageQueue.length > 0) {
         if (getMemoryUsageMB() > MAX_MEMORY_MB) {
-            console.warn("Te veel geheugen gebruikt, wacht...");
+            console.warn("Too much memory used, waiting...");
             await new Promise(res => setTimeout(res, 1000));
             continue;
         }

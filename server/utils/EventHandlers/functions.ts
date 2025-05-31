@@ -11,6 +11,8 @@ export const defineSupabaseEventHandler = (callback: (event: H3Event, user: User
             const { data } = await server.from("factor_sessions").select("*").eq("user_id", user?.id).single()
             if (!!data) return useReturnResponse(event, unauthorizedError)
         }
+
+        await useStateChange(client)
         
         return callback(event, user, client, server)
 

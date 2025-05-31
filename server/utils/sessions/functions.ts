@@ -24,6 +24,7 @@ export const useSetSessionData = async (event: H3Event, user: User | null) => {
             name: user.user_metadata.name || "Anymouses",
             avatar: user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`,
             email: user.user_metadata.email || user.email,
+            team: user.app_metadata.plan == "team" || false,
             provider: user.app_metadata.provider,
             factors: !!user.factors,
         }
@@ -42,4 +43,18 @@ export const useSessionExists = async (event: H3Event, client: SupabaseClient) =
     const { data, error } = await useGetSession(client, currentSession);
 
     return { data: data?.user, error };
+}
+
+
+
+export const useStateChange = async (client: SupabaseClient) => {
+
+    let state: string 
+
+    return new Promise<string>((resolve) => {
+        client.auth.onAuthStateChange((event, session) => {
+            state = event;
+            resolve(state);
+        });
+    });
 }
