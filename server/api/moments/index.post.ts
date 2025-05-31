@@ -29,7 +29,10 @@ export default defineSupabaseEventHandler(async (event, user, client) => {
 	*/
 
 	const imageId = crypto.randomUUID();
-	const buffer = await processImage(files[0]);
+	
+	const buffer: Buffer = await new Promise((resolve, reject) => {
+		queueImageProcess(files[0], (result) => resolve(result), (err) => reject(err));
+	});
 
 	const { data: image, error: storageError } = await uploadImage(client, data.id, user.id, imageId, buffer);
 	if (storageError) return useReturnResponse(event, internalServerError);

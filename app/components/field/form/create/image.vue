@@ -32,7 +32,7 @@
 				.refine((file) => ["image/png", "image/jpeg"].includes(file.type), {message: "Only PNG or JPEG files are allowed",})
 			)
 			.min(1, { message: "You must upload at least one image" }) 
-			.max(2, { message: "Maximum of 2 images allowed" })
+			.max(4, { message: "Maximum of 4 images allowed" })
 			.or(zod.literal(undefined).transform(() => [])),
 		})
 	);

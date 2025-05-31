@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 const schema = zod.object({
-	files: createFilesObject(zod).max(2, { message: "Maximum of 2 images allowed" })
+	files: createFilesObject(zod).max(4, { message: "Maximum of 4 images allowed" })
 });
 
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
@@ -28,7 +28,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	await Promise.all(files.map(async (file) => {
 		const imageId = crypto.randomUUID();
 
-		const buffer = await processImage(file); 
+		const buffer: Buffer = await new Promise((resolve, reject) => {
+			queueImageProcess(file,(result) => resolve(result), (err) => reject(err));
+		});
 
 		const { data: image, error: storageError } = await uploadImage(client, group_id, user.id, imageId, buffer);
 		if (storageError) throw new Error(storageError.message);
