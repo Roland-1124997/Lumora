@@ -46,7 +46,7 @@ export const processImage = async (file: FormDataItem) => {
     else if (file.data instanceof Uint8Array || Array.isArray(file.data)) buffer = Buffer.from(file.data);
     else throw new Error("Unsupported data type for file.data");
 
-    return await sharp(buffer).resize({ width: 800, withoutEnlargement: true }).webp({ quality: 5, lossless: true }).toBuffer();
+    return await sharp(buffer).rotate().resize({ width: 800, withoutEnlargement: true }).webp({ quality: 5, lossless: true }).toBuffer();
 };
 
 export const uploadImage = async (client: SupabaseClient, groupId: string, userId: string, imageId: string, buffer: Buffer) => {
