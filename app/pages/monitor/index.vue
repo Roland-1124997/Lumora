@@ -17,7 +17,7 @@
 								<span class="text-xs text-gray-400">{{ server.totalMemory }} MB</span>
 							</div>
 							<div class="w-full h-2 overflow-hidden bg-gray-200 rounded">
-								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.rss / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="h-2 bg-[#756145] rounded animate" :style="{ width: ((server.memory.rss / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 							</div>
 						</div>
 						<div>
@@ -26,7 +26,7 @@
 								<span class="font-bold">{{ server.memory.heapTotal }} MB</span>
 							</div>
 							<div class="w-full h-2 overflow-hidden bg-gray-200 rounded">
-								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.heapTotal / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="h-2 bg-[#756145] rounded animate" :style="{ width: ((server.memory.heapTotal / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 							</div>
 						</div>
 						<div>
@@ -35,7 +35,7 @@
 								<span class="font-bold">{{ server.memory.heapUsed }} MB</span>
 							</div>
 							<div class="w-full h-2 overflow-hidden bg-gray-200 rounded">
-								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.heapUsed / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="h-2 bg-[#756145] rounded animate" :style="{ width: ((server.memory.heapUsed / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 							</div>
 						</div>
 						<div>
@@ -44,7 +44,7 @@
 								<span class="font-bold">{{ server.memory.external }} MB</span>
 							</div>
 							<div class="w-full h-2 overflow-hidden bg-gray-200 rounded">
-								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.external / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="h-2 bg-[#756145] rounded animate" :style="{ width: ((server.memory.external / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 							</div>
 						</div>
 						<div>
@@ -53,7 +53,7 @@
 								<span class="font-bold">{{ server.memory.arrayBuffers }} MB</span>
 							</div>
 							<div class="w-full h-2 bg-gray-200 rounded">
-								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.arrayBuffers / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="h-2 bg-[#756145] rounded animate" :style="{ width: ((server.memory.arrayBuffers / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 							</div>
 						</div>
 					</div>
@@ -69,7 +69,7 @@
 						</div>
 						<div class="text-3xl font-extrabold">{{ server.cpu }}%</div>
 						<div class="w-full h-2 bg-gray-200 rounded">
-							<div class="h-2 bg-[#756145] rounded" :style="{ width: server.cpu + '%' }"></div>
+							<div class="h-2 bg-[#756145] animate rounded" :style="{ width: server.cpu + '%' }"></div>
 						</div>
 						<div class="mt-1 text-xs text-gray-400">
 							<div v-if="server.cpu < 40">Low usage - system running efficiently</div>
@@ -131,3 +131,9 @@
 		return `${h}h ${m}m ${s}s`;
 	}
 </script>
+
+<style scoped>
+	.animate {
+		transition: width 0.2s ease-in-out;
+	}
+</style>
