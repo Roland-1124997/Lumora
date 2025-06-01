@@ -7,6 +7,10 @@ export default defineEventHandler(async (event) => {
     const { data } = await client.auth.getUser();
     if (!data.user || data.user.app_metadata.plan !== "team") return;
 
+    const { build } = useRuntimeConfig()
+
+    const memory = await UseRenderMemory()
+
     const eventStream = createEventStream(event);
 
     function getCpuUsagePercent() {
@@ -31,8 +35,6 @@ export default defineEventHandler(async (event) => {
         const totalDiff = currentCpu.total - lastCpu.total;
         const cpuPercent = totalDiff > 0 ? Math.round(100 - (100 * idleDiff / totalDiff)) : 0;
         lastCpu = currentCpu;
-
-        const { build, memory } = useRuntimeConfig()
 
         return {
             totalMemory: build ? memory : Math.round(os.totalmem() / 1024 / 1024),

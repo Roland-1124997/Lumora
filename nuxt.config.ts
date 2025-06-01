@@ -34,8 +34,12 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     build: process.env.NODE_ENV !== "development",
-    memory: 520,
     ServerUrl: process.env.SERVER_URL,
+    render: {
+      key: process.env.RENDER_API_KEY,
+      resource: process.env.RENDER_RESOURCE,
+      uri: process.env.RENDER_URI
+    },
     public: {
       googleClientId: process.env.GOOGLE_CLIENT_ID,
     },

@@ -1,12 +1,11 @@
 import sharp from "sharp";
-import os from "os";
 
 const imageQueue: (() => Promise<void>)[] = [];
 let processing = false;
+let TOTAL_MEMORY_MB : number | undefined = 520
 
-const TOTAL_MEMORY_MB = (os.totalmem() / 1024 / 1024) || 450;
-const MAX_MEMORY_MB = TOTAL_MEMORY_MB * 0.6; 
-const MAX_QUEUE_LENGTH = 10;
+const MAX_MEMORY_MB = TOTAL_MEMORY_MB * 0.8; 
+const MAX_QUEUE_LENGTH = 20;
 
 const getMemoryUsageMB = () => process.memoryUsage().rss / 1024 / 1024;
 
@@ -57,3 +56,21 @@ export const uploadImage = async (client: SupabaseClient, groupId: string, userI
         upsert: true,
     });
 };
+
+export const UseRenderMemory = async () => {
+
+    const { render } = useRuntimeConfig()
+
+    await $fetch(render.uri, {
+        query: { resolutionSeconds: 3600, resource: render.resource },
+        headers: { authorization: `Bearer ${render.key}` }
+    })
+    .then((response: any) => {
+        const lastItem = response[response.length - 1];
+        const lastValue = lastItem?.values?.[lastItem.values.length - 1].value;
+        TOTAL_MEMORY_MB = Math.round(lastValue / 1024 / 1024) + 8
+    })
+    .catch(() => { })
+
+    return TOTAL_MEMORY_MB;
+}
