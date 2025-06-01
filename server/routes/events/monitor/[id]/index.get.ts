@@ -32,8 +32,10 @@ export default defineEventHandler(async (event) => {
         const cpuPercent = totalDiff > 0 ? Math.round(100 - (100 * idleDiff / totalDiff)) : 0;
         lastCpu = currentCpu;
 
+        const { build, memory } = useRuntimeConfig()
+
         return {
-            totalMemory: Math.round(os.totalmem() / 1024 / 1024),
+            totalMemory: build ? memory : Math.round(os.totalmem() / 1024 / 1024),
             cpu: cpuPercent,
             node: process.version,
             platform: process.platform,
@@ -46,7 +48,6 @@ export default defineEventHandler(async (event) => {
                 arrayBuffers: Math.round(process.memoryUsage().arrayBuffers / 1024 / 1024)
             },
             uptime: Math.floor(process.uptime()),
-            versions: process.versions
         };
     }
 

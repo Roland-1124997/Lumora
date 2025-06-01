@@ -1,59 +1,113 @@
 <template>
-	<div :class="PWAInstalled ? 'mb-32 md:mb-20' : 'mb-20'" class="p-2 mx-auto -mt-4 ">
-		<h2 class="mb-4 text-2xl font-bold">Server Monitor</h2>
+	<div :class="PWAInstalled ? 'mb-32 md:mb-20' : 'mb-20'" class="p-2 mx-auto -mt-4">
 		<div v-if="server" class="space-y-4">
-			<div class="grid grid-cols-2 gap-4">
-				<div>
-					<span class="block font-semibold">CPU: </span>
-					<span>{{ server.cpu }}%</span>
+			<div class="p-4 shadow rounded-xl">
+				<div class="mb-4">
+					<div class="text-2xl font-bold">Total Memory</div>
+					<div class="text-sm text-gray-400">{{ server.totalMemory }} MB total system memory</div>
 				</div>
 				<div>
-					<span class="block font-semibold">Platform: </span>
-					<span>{{ server.platform }} ({{ server.arch }})</span>
-				</div>
-				<div>
-					<span class="block font-semibold">Node: </span>
-					<span>{{ server.node }}</span>
-				</div>
-				<div>
-					<span class="block font-semibold">Uptime: </span>
-					<span>{{ formatUptime(server.uptime) }}</span>
-				</div>
-				<div>
-					<span class="block font-semibold">Total Memory: </span>
-					<span>{{ server.totalMemory }} MB</span>
+					<div class="mb-2 font-semibold">Memory Usage</div>
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div>
+							<div class="text-xs text-gray-500">RSS</div>
+							<div class="flex items-center gap-2">
+								<span class="font-bold">{{ server.memory.rss }} MB</span>
+								<span class="text-xs text-gray-400">/</span>
+								<span class="text-xs text-gray-400">{{ server.totalMemory }} MB</span>
+							</div>
+							<div class="w-full h-2 overflow-hidden bg-gray-200 rounded">
+								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.rss / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+							</div>
+						</div>
+						<div>
+							<div class="text-xs text-gray-500">Heap Total</div>
+							<div class="flex items-center gap-2">
+								<span class="font-bold">{{ server.memory.heapTotal }} MB</span>
+							</div>
+							<div class="w-full h-2 overflow-hidden bg-gray-200 rounded">
+								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.heapTotal / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+							</div>
+						</div>
+						<div>
+							<div class="text-xs text-gray-500">Heap Used</div>
+							<div class="flex items-center gap-2">
+								<span class="font-bold">{{ server.memory.heapUsed }} MB</span>
+							</div>
+							<div class="w-full h-2 overflow-hidden bg-gray-200 rounded">
+								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.heapUsed / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+							</div>
+						</div>
+						<div>
+							<div class="text-xs text-gray-500">External</div>
+							<div class="flex items-center gap-2">
+								<span class="font-bold">{{ server.memory.external }} MB</span>
+							</div>
+							<div class="w-full h-2 overflow-hidden bg-gray-200 rounded">
+								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.external / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+							</div>
+						</div>
+						<div>
+							<div class="overflow-hidden text-xs text-gray-500">Array Buffers</div>
+							<div class="flex items-center gap-2">
+								<span class="font-bold">{{ server.memory.arrayBuffers }} MB</span>
+							</div>
+							<div class="w-full h-2 bg-gray-200 rounded">
+								<div class="h-2 bg-[#756145] rounded" :style="{ width: ((server.memory.arrayBuffers / server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div>
-				<h3 class="mb-2 font-semibold">Memory Usage</h3>
-				<ul class="text-sm list-disc list-inside">
-					<li><span class="font-semibold">RSS: </span> {{ server.memory.rss }} MB</li>
-					<li><span class="font-semibold">Heap Total: </span> {{ server.memory.heapTotal }} MB</li>
-					<li><span class="font-semibold">Heap Used: </span> {{ server.memory.heapUsed }} MB</li>
-					<li><span class="font-semibold">External: </span> {{ server.memory.external }} MB</li>
-					<li><span class="font-semibold">Array Buffers: </span> {{ server.memory.arrayBuffers }} MB</li>
-				</ul>
+
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div class="flex flex-col gap-4 p-4 bg-white shadow rounded-xl">
+					<div class="flex flex-col gap-2">
+						<div class="flex items-center justify-between">
+							<span class="font-semibold text-gray-600">CPU</span>
+							<span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{{ server.cpu }}%</span>
+						</div>
+						<div class="text-3xl font-extrabold">{{ server.cpu }}%</div>
+						<div class="w-full h-2 bg-gray-200 rounded">
+							<div class="h-2 bg-[#756145] rounded" :style="{ width: server.cpu + '%' }"></div>
+						</div>
+						<div class="mt-1 text-xs text-gray-400">
+							<div v-if="server.cpu < 40">Low usage - system running efficiently</div>
+							<div v-else-if="server.cpu < 75">Moderate usage - system stable</div>
+							<div v-else>High usage - consider investigating</div>
+						</div>
+					</div>
+
+					<div>
+						<span class="font-semibold text-gray-600">Uptime</span>
+						<div class="text-2xl font-extrabold">{{ formatUptime(server.uptime) }}</div>
+						<div class="text-xs text-gray-400">Since last restart</div>
+					</div>
+				</div>
+
+				<div class="flex flex-col gap-4 p-4 bg-white shadow rounded-xl">
+					<div>
+						<span class="font-semibold text-gray-600">Platform</span>
+						<div class="text-2xl font-extrabold">{{ server.platform }}</div>
+						<div class="text-xs text-gray-400">({{ server.arch }})</div>
+					</div>
+					<div>
+						<span class="font-semibold text-gray-600">Node</span>
+						<div class="text-2xl font-extrabold">{{ server.node }}</div>
+						<div class="text-xs text-gray-400">Latest LTS version</div>
+					</div>
+				</div>
 			</div>
-			<details class="p-2 rounded bg-gray-50">
-				<summary class="font-semibold cursor-pointer">Node Versions</summary>
-				<ul class="mt-2 text-sm list-disc list-inside">
-					<li v-for="(ver, key) in server.versions" :key="key">
-						<span class="font-semibold">{{ key }}:</span> {{ ver }}
-					</li>
-				</ul>
-			</details>
 		</div>
-		<div v-else class="italic text-gray-400">Waiting for server data...</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-
 	definePageMeta({
 		middleware: "monitor",
 	});
 
-    const { PWAInstalled } = useCheckPwa()
+	const { PWAInstalled } = useCheckPwa();
 
 	const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 	const server = ref();

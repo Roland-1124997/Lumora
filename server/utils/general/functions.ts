@@ -27,7 +27,7 @@ const processQueue = async () => {
 
 export const queueImageProcess = (file: FormDataItem, onDone: (result: Buffer) => void, onError: (err: Error) => void) => {
     if (imageQueue.length >= MAX_QUEUE_LENGTH) {
-        onError(new Error("Server is busy, probeer het later opnieuw."));
+        onError(new Error("Server is busy, please try again later."));
         return;
     }
     imageQueue.push(() => {
