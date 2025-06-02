@@ -1,11 +1,20 @@
 import sharp from "sharp";
+import os from "os";
+
+interface Storage {
+    bucket_id: string,
+    total_size_megabyte: string
+}
 
 const imageQueue: (() => Promise<void>)[] = [];
 let processing = false;
-let TOTAL_MEMORY_MB : number | undefined = 520
+export let TOTAL_MEMORY_MB: number = 520
+export let TOTAL_STORAGE: Storage
+export let TOTAL_MONTHLY_ACTIVE_USERS: object = []
 
-const MAX_MEMORY_MB = TOTAL_MEMORY_MB * 0.8; 
-const MAX_QUEUE_LENGTH = 20;
+export const MAX_MEMORY_MB = TOTAL_MEMORY_MB * 0.8;
+export const MAX_STORAGE_SIZE = 1024
+export const MAX_QUEUE_LENGTH = 20;
 
 const getMemoryUsageMB = () => process.memoryUsage().rss / 1024 / 1024;
 
@@ -57,7 +66,29 @@ export const uploadImage = async (client: SupabaseClient, groupId: string, userI
     });
 };
 
-export const UseRenderMemory = async () => {
+
+export const useSupabaseUsage = async () => {
+
+    const supabase = useSupaBaseServer();
+
+    const { data: storage, error: storageError } = await supabase.rpc("get_bucket_sizes")
+    
+    if (!storageError) TOTAL_STORAGE = storage[0]
+
+    const { data: active, error: activeError } = await supabase.rpc("get_monthly_active_users");
+    if (!activeError) {
+
+        const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' })
+
+        TOTAL_MONTHLY_ACTIVE_USERS = active.map((item: { month: string; active_users: number }) => ({
+            month: monthFormatter.format(new Date(item.month)),
+            users: item.active_users,
+        }))
+    }
+        
+}
+
+export const useRenderMemory = async () => {
 
     const { render } = useRuntimeConfig()
 
@@ -71,6 +102,19 @@ export const UseRenderMemory = async () => {
         TOTAL_MEMORY_MB = Math.round(lastValue / 1024 / 1024) + 8
     })
     .catch(() => { })
+}
 
-    return TOTAL_MEMORY_MB;
+
+export const useGetCpuUsagePercent = () => {
+    const cpus = os.cpus();
+    let idle = 0, total = 0;
+    for (const cpu of cpus) {
+        for (const type in cpu.times) {
+            total += cpu.times[type as keyof typeof cpu.times];
+        }
+        idle += cpu.times.idle;
+    }
+    const idleAvg = idle / cpus.length;
+    const totalAvg = total / cpus.length;
+    return { idle: idleAvg, total: totalAvg };
 }
