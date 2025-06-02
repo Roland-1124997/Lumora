@@ -44,7 +44,8 @@ export default defineEventHandler(async (event) => {
                 bucket: {
                     id: TOTAL_STORAGE.bucket_id,
                     size: TOTAL_STORAGE.total_size_megabyte,
-                    max: MAX_STORAGE_SIZE
+                    max: MAX_STORAGE_SIZE,
+                    groups: TOTAL_STORAGE.groups
                 },
                 monthly: TOTAL_MONTHLY_ACTIVE_USERS
             }

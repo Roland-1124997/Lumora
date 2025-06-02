@@ -3,7 +3,11 @@ import os from "os";
 
 interface Storage {
     bucket_id: string,
-    total_size_megabyte: string
+    total_size_megabyte: string,
+    groups: [{
+        group_id: string,
+        total_size_megabyte: string,
+    }]
 }
 
 const imageQueue: (() => Promise<void>)[] = [];
@@ -72,8 +76,13 @@ export const useSupabaseUsage = async () => {
     const supabase = useSupaBaseServer();
 
     const { data: storage, error: storageError } = await supabase.rpc("get_bucket_sizes")
-    
-    if (!storageError) TOTAL_STORAGE = storage[0]
+
+    const { data: groupStorage, error: GroupStorageError } = await supabase.rpc("get_group_storage_sizes")
+
+    if (!storageError && !GroupStorageError) TOTAL_STORAGE = {
+        ...storage[0],
+        groups: groupStorage
+    }
 
     const { data: active, error: activeError } = await supabase.rpc("get_monthly_active_users");
     if (!activeError) {

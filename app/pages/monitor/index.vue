@@ -1,5 +1,5 @@
 <template>
-	<div :class="PWAInstalled ? 'mb-32 md:mb-20' : 'mb-20'" class="p-2 mx-auto -mt-4">
+	<div :class="PWAInstalled ? 'mb-32 md:mb-20' : 'mb-20'" class="p-2 mx-auto -mt-4 select-none">
 		<div v-if="monitor" class="space-y-4">
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<div class="p-4 shadow rounded-xl">
@@ -63,7 +63,7 @@
 
 				<div class="hidden p-4 shadow rounded-xl md:block">
 					<div class="mb-4">
-						<div class="text-2xl font-bold">Monthly users</div>
+						<div class="text-2xl font-bold">Monthly active users</div>
 						<div class="text-sm text-gray-400">The total amount of active users per month based on their last login</div>
 					</div>
 					<div>
@@ -100,24 +100,47 @@
 				<div class="flex flex-col gap-4 p-4 bg-white shadow rounded-xl md:hidden">
 					<div class="flex items-center justify-between">
 						<span class="font-semibold text-gray-600">Storage</span>
-						<span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{{ monitor.supabase.bucket.id }}</span>
+						<div class="flex items-center justify-center gap-2">
+							<span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{{ monitor.supabase.bucket.id }}</span>
+							<button @click="openDetails" class="text-xs text-white bg-[#756145] px-2 py-0.5 rounded-full">expand</button>
+						</div>
 					</div>
 
-					<div>
+					<div class="flex items-center gap-2">
 						<span class="text-3xl font-extrabold">{{ monitor.supabase.bucket.size }} MB</span>
 
 						<span class="text-xl font-semibold text-gray-400">/</span>
 						<span class="text-xl font-semibold text-gray-400">{{ monitor.supabase.bucket.max }} MB</span>
 					</div>
 
-					<div class="w-full h-4 bg-gray-200 rounded">
+					<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
 						<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.supabase.bucket.size / monitor.supabase.bucket.max) * 100).toFixed(1) + '%' }"></div>
+					</div>
+
+					<div v-if="open">
+						<div class="flex items-center justify-between mb-2">
+							<span class="font-semibold text-gray-600">Disks</span>
+						</div>
+
+						<div class="grid grid-cols-1 gap-4">
+							<div v-for="group in monitor.supabase.bucket.groups" :key="group.group_id">
+								<div class="text-xs text-gray-500">{{ group.group_id }}</div>
+								<div class="flex items-center gap-2 py-1">
+									<span class="font-bold">{{ group.total_size_megabyte }} MB</span>
+									<span class="text-xs text-gray-400">/</span>
+									<span class="text-xs text-gray-400">{{ monitor.supabase.bucket.size }} MB</span>
+								</div>
+								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+									<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((group.total_size_megabyte / monitor.supabase.bucket.size) * 100).toFixed(1) + '%' }"></div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 
 				<div class="p-4 shadow rounded-xl md:hidden">
 					<div class="mb-4">
-						<div class="text-2xl font-bold">Monthly active</div>
+						<div class="text-2xl font-bold">Monthly active users</div>
 						<div class="text-sm text-gray-400">The total amount of active users per month based on their last login</div>
 					</div>
 					<div>
@@ -141,10 +164,13 @@
 				<div class="flex-col hidden gap-4 p-4 bg-white shadow rounded-xl md:flex">
 					<div class="flex items-center justify-between">
 						<span class="font-semibold text-gray-600">Storage</span>
-						<span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{{ monitor.supabase.bucket.id }}</span>
+						<div class="flex items-center justify-center gap-2">
+							<span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{{ monitor.supabase.bucket.id }}</span>
+							<button @click="openDetails" class="text-xs text-white bg-[#756145] px-2 py-0.5 rounded-full">expand</button>
+						</div>
 					</div>
 
-					<div>
+					<div class="flex items-center gap-2">
 						<span class="text-3xl font-extrabold">{{ monitor.supabase.bucket.size }} MB</span>
 
 						<span class="text-xl font-semibold text-gray-400">/</span>
@@ -153,6 +179,26 @@
 
 					<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
 						<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.supabase.bucket.size / monitor.supabase.bucket.max) * 100).toFixed(1) + '%' }"></div>
+					</div>
+
+					<div v-if="open">
+						<div class="flex items-center justify-between mb-2">
+							<span class="font-semibold text-gray-600">Disks</span>
+						</div>
+
+						<div class="grid grid-cols-1 gap-4">
+							<div v-for="group in monitor.supabase.bucket.groups" :key="group.group_id">
+								<div class="text-xs text-gray-500">{{ group.group_id }}</div>
+								<div class="flex items-center gap-2 py-1">
+									<span class="font-bold">{{ group.total_size_megabyte }} MB</span>
+									<span class="text-xs text-gray-400">/</span>
+									<span class="text-xs text-gray-400">{{ monitor.supabase.bucket.size }} MB</span>
+								</div>
+								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+									<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((group.total_size_megabyte / monitor.supabase.bucket.size) * 100).toFixed(1) + '%' }"></div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -182,12 +228,16 @@
 		close();
 	});
 
-	function formatUptime(seconds: number) {
+	const open = ref(false);
+
+	const openDetails = () => (open.value = !open.value);
+
+	const formatUptime = (seconds: number) => {
 		const h = Math.floor(seconds / 3600);
 		const m = Math.floor((seconds % 3600) / 60);
 		const s = seconds % 60;
 		return `${h}h ${m}m ${s}s`;
-	}
+	};
 </script>
 
 <style scoped>
