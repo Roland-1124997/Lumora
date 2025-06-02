@@ -17,8 +17,8 @@
 									<span class="text-xs text-gray-400">/</span>
 									<span class="text-xs text-gray-400">{{ monitor.server.totalMemory }} MB</span>
 								</div>
-								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded-lg">
-									<div class="h-4 bg-[#756145] rounded-lg animate" :style="{ width: ((monitor.server.memory.rss / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+									<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.server.memory.rss / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 								</div>
 							</div>
 							<div>
@@ -26,8 +26,8 @@
 								<div class="flex items-center gap-2">
 									<span class="font-bold">{{ monitor.server.memory.heapTotal }} MB</span>
 								</div>
-								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded-lg">
-									<div class="h-4 bg-[#756145] rounded-lg animate" :style="{ width: ((monitor.server.memory.heapTotal / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+									<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.server.memory.heapTotal / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 								</div>
 							</div>
 							<div>
@@ -35,8 +35,8 @@
 								<div class="flex items-center gap-2">
 									<span class="font-bold">{{ monitor.server.memory.heapUsed }} MB</span>
 								</div>
-								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded-lg">
-									<div class="h-4 bg-[#756145] rounded-lg animate" :style="{ width: ((monitor.server.memory.heapUsed / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+									<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.server.memory.heapUsed / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 								</div>
 							</div>
 							<div>
@@ -44,17 +44,17 @@
 								<div class="flex items-center gap-2">
 									<span class="font-bold">{{ monitor.server.memory.external }} MB</span>
 								</div>
-								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded-lg">
-									<div class="h-4 bg-[#756145] rounded-lg animate" :style="{ width: ((monitor.server.memory.external / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+									<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.server.memory.external / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 								</div>
 							</div>
 							<div>
-								<div class="overflow-hidden text-xs text-gray-500">Array Buffers</div>
-								<div class="flex items-center gap-2">
+								<div class="text-xs text-gray-500 ">Array Buffers</div>
+								<div class="flex items-center gap-2 overflow-hidden">
 									<span class="font-bold">{{ monitor.server.memory.arrayBuffers }} MB</span>
 								</div>
-								<div class="w-full h-4 bg-gray-200 rounded-lg">
-									<div class="h-4 bg-[#756145] rounded-lg animate" :style="{ width: ((monitor.server.memory.arrayBuffers / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
+								<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+									<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.server.memory.arrayBuffers / monitor.server.totalMemory) * 100).toFixed(1) + '%' }"></div>
 								</div>
 							</div>
 						</div>
@@ -80,8 +80,8 @@
 							<span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{{ monitor.server.cpu }}%</span>
 						</div>
 						<div class="text-3xl font-extrabold">{{ monitor.server.cpu }}%</div>
-						<div class="w-full h-4 bg-gray-200 rounded-lg">
-							<div class="h-4 bg-[#756145] animate rounded-lg" :style="{ width: monitor.server.cpu + '%' }"></div>
+						<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+							<div class="h-4 bg-[#756145] animate rounded" :style="{ width: monitor.server.cpu + '%' }"></div>
 						</div>
 						<div class="mt-1 text-xs text-gray-400">
 							<div v-if="monitor.server.cpu < 40">Low usage - system running efficiently</div>
@@ -110,8 +110,8 @@
 						<span class="text-xl font-semibold text-gray-400">{{ monitor.supabase.bucket.max }} MB</span>
 					</div>
 
-					<div class="w-full h-4 bg-gray-200 rounded-lg">
-						<div class="h-4 bg-[#756145] rounded-lg animate" :style="{ width: ((monitor.supabase.bucket.size / monitor.supabase.bucket.max) * 100).toFixed(1) + '%' }"></div>
+					<div class="w-full h-4 bg-gray-200 rounded">
+						<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.supabase.bucket.size / monitor.supabase.bucket.max) * 100).toFixed(1) + '%' }"></div>
 					</div>
 				</div>
 
@@ -151,8 +151,8 @@
 						<span class="text-xl font-semibold text-gray-400">{{ monitor.supabase.bucket.max }} MB</span>
 					</div>
 
-					<div class="w-full h-4 bg-gray-200 rounded-lg">
-						<div class="h-4 bg-[#756145] rounded-lg animate" :style="{ width: ((monitor.supabase.bucket.size / monitor.supabase.bucket.max) * 100).toFixed(1) + '%' }"></div>
+					<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+						<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.supabase.bucket.size / monitor.supabase.bucket.max) * 100).toFixed(1) + '%' }"></div>
 					</div>
 				</div>
 			</div>
