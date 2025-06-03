@@ -8,7 +8,7 @@
 const { PWAInstalled } = inject<any>("PWA");
 
     defineProps({
-        url: { type: String, required: true },
+        url: { type: String, default: "/" },
     });
 
 </script>

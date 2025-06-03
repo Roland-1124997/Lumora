@@ -1,6 +1,26 @@
 import type { ZodIssue } from 'zod';
 import type { AuthError } from '@supabase/auth-js';
 
+interface Media {
+    type: "image";
+    url: string;
+}
+
+export interface Interactions {
+    has_liked: boolean;
+    likes: {
+        count: number;
+    };
+    comments?: {
+        count: number;
+    };
+}
+
+interface Author {
+    name: string;
+    url: string;
+    is_owner: boolean;
+}
 
 interface Status {
     success: boolean;
@@ -9,61 +29,111 @@ interface Status {
     message: string;
     code: number;
 }
+
 interface Meta {
     id: string;
     name?: string;
     description?: string;
 }
+
 interface Pagination {
     page: number;
     total: number;
 }
+
 interface Error {
     type: 'fields' | 'auth';
-    details: ZodIssue[] | AuthError 
+    details: ZodIssue[] | AuthError
 }
 
-export interface Group {
-    id: string;
+export interface pending {
+    accepted: boolean,
+    need_approval: boolean,
+    posts_count_need_approval: number,
+    has_interaction: boolean,
+    has_permisons: boolean
+}
+
+export interface GroupOverview {
+    id: string,
     name: string,
     description: string,
-    last_active: string,
-    last_photo_posted_by?: string
-    permisions?: {
-        delete: boolean
-    }
-    media: {
-        type: string;
-        url: string;
-    };
-    posts?: Post
+    last_active: Date,
+    last_action: "Rejected" | "Approved",
+    needs_attention: boolean,
+    last_photo_posted_by: {
+        url: string
+    },
+    media: Media
 }
+
+export interface PostUserDetails {
+    id: string;
+    created_at: string;
+    has_interactions: Interactions
+    author: Author
+    permision: {
+        can_delete_message: boolean;
+    };
+    media: Media
+    related: RelatedPost[];
+}
+
+export interface RelatedPost {
+    post_data: {
+        id: string;
+        media: {
+            type: string;
+            url: string;
+        };
+    };
+}
+
+export interface UserComments {
+    id: string;
+    created_at: string;
+    author: Author
+    content: {
+        text: string;
+    };
+    related: UserComments[];
+    deleted: boolean;
+}
+
+export interface ApiUserComments {
+    count: number,
+    comments: UserComments[]
+}
+
+
 export interface Post {
     id: string;
     created_at: string;
-    has_liked?: boolean;
-    author: {
-        name: string;
-        is_owner: boolean;
-    };
-    likes: {
-        count: number;
-    };
-    media: {
-        type: string;
-        url: string;
-    };
+    updated_at: string;
+    accepted_at: string;
+    has_left: boolean;
+    has_been_accepted: boolean;
+    has_interactions: Interactions;
+    author: Author;
+    media: Media;
 }
+
 export interface User {
     id: string;
     name: string;
+    avatar: string,
+    email: string,
+    team: boolean,
+    provider: string,
+    factors: boolean
 }
+
 export interface SuccessResponse<Type> {
     response: {
         status: Status;
-        meta?: Meta; 
+        meta?: Meta;
         pagination?: Pagination;
-        data?: Type ; 
+        data: Type;
     },
 }
 
@@ -72,7 +142,7 @@ export interface ErrorResponse {
         data: {
             status: Status;
             meta?: Meta;
-            error?: Error | Record<string, any>; 
+            error: Error | Record<string, any>;
         }
     };
     actions: {
@@ -85,7 +155,7 @@ export interface ApiResponse<Type> {
     status: Status;
     meta?: Meta;
     pagination?: Pagination;
-    data?: Type | Type[] | null | { [key: string]: any } | undefined;
+    data: Type;
     error?: Error | Record<string, any>;
 }
 

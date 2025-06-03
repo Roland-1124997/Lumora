@@ -207,6 +207,26 @@
 </template>
 
 <script setup lang="ts">
+
+	useHead({
+		htmlAttrs: {
+			lang: "en",
+		},
+	});
+
+	useSeoMeta({
+		title: "Lumora - Monitor",
+		description: "Monitor server activity, system events, in real time from the admin dashboard.",
+		ogTitle: "Lumora - Server Monitoring Dashboard",
+		ogDescription: "Stay informed with real-time insights into system health, user activity.",
+		ogImage: "/apple-touch-icon.png",
+		ogUrl: "/",
+		twitterTitle: "Lumora - Monitor",
+		twitterDescription: "Track system performance directly from the central admin interface.",
+		twitterImage: "/apple-touch-icon.png",
+		twitterCard: "summary",
+	})
+
 	definePageMeta({
 		middleware: "monitor",
 	});

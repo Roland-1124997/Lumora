@@ -64,7 +64,7 @@
 	});
 
 	useSeoMeta({
-		title: "Lumora - Group",
+		title: () => `Lumora - Group`,
 		description: "View shared photos and stories in this Lumora group. Connect, comment, and be inspired.",
 		ogTitle: "Lumora - Explore This Group",
 		ogDescription: "Dive into the latest posts and moments shared in this Lumora group.",
@@ -90,7 +90,7 @@
 	const totalPages = ref(1);
 	const Page = ref(1);
 
-	const List = ref<Post[] | any>([]);
+	const List = ref<Post[]>([]);
 	const name = ref();
 
 	/*
@@ -99,13 +99,19 @@
 
 	const { updateGroupValue } = inject<any>("group");
 	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>();
+	
+	/*
+	 ************************************************************************************
+	 */
+
+	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
+	const { makeRequest: makePendingRequest, data: pending } = useRetryableFetch<ApiResponse<pending>>();
 
 	/*
 	 ************************************************************************************
 	 */
 
-	const processPostsApiResponse = (data: Record<string, any>) => {
+	const processPostsApiResponse = (data: Ref<ApiResponse<Post[]>>) => {
 		const response = data.value;
 		totalPages.value = response.pagination?.total || 0;
 		name.value = response.meta?.name;
@@ -117,11 +123,11 @@
 
 	const updateListData = (response: ApiResponse<Post[]>, page: number = 1, options: { set?: boolean; update?: boolean; reload?: boolean } = {}) => {
 		if (options.reload) {
-			List.value = response.data as Post[];
+			List.value = response.data;
 			removeData(group_id, { partial: false });
 			setTimeout(() => setGroupData(group_id, name.value, page, totalPages.value, List.value), 3000);
 		} else if (options.set || page === 1) {
-			List.value = response.data as Post[];
+			List.value = response.data;
 			removeData(group_id, { partial: true });
 			setTimeout(() => setGroupData(group_id, name.value, page, totalPages.value, List.value), 200);
 		} else if (options.update || page > 1) {
@@ -130,7 +136,7 @@
 		}
 	};
 
-	const useFetchData = async (options: Record<string, any>, load: Ref, timer = 250) => {
+	const useFetchData = async (options: Record<string, any>, load: Ref<boolean>, timer = 250) => {
 		load.value = true;
 
 		if (options.reload) Page.value = 1;
@@ -139,9 +145,10 @@
 		await makeRequest(`/api/moments/${group_id}?page=${Page.value}`);
 
 		if (data.value) {
-			const response = processPostsApiResponse(data);
+			const response = processPostsApiResponse(data as Ref<ApiResponse<Post[]>>);
 			updateListData(response, Page.value, options);
 		}
+
 
 		setTimeout(() => (load.value = false), timer);
 	};
@@ -170,14 +177,14 @@
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
 
-	await makeRequest(`/api/moments/pending/${group_id}`);
+	await makePendingRequest(`/api/moments/pending/${group_id}`);
 
-	if (data.value) {
-		accepted.value = data.value.data.accepted;
-		need_approval.value = data.value.data.need_approval;
-		has_permisons.value = data.value.data.has_permisons;
-		has_interaction.value = data.value.data.has_interaction;
-		posts_count_need_approval.value = data.value.data.posts_count_need_approval;
+	if (pending.value) {
+		accepted.value = pending.value.data.accepted;
+		need_approval.value = pending.value.data.need_approval;
+		has_permisons.value = pending.value.data.has_permisons;
+		has_interaction.value = pending.value.data.has_interaction;
+		posts_count_need_approval.value = pending.value.data.posts_count_need_approval;
 	}
 
 	/*
@@ -236,7 +243,7 @@
 			await makeRequest(`/api/moments/${group_id}?page=${page.value}`);
 
 			if (data.value) {
-				const response = processPostsApiResponse(data);
+				const response = processPostsApiResponse(data as Ref<ApiResponse<Post[]>>);
 				updateListData(response, page.value);
 			}
 
@@ -269,17 +276,18 @@
 		});
 	};
 
-	const handleSuccess = async ({ response }: SuccessResponse<Post>) => {
+	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		if (need_approval.value) {
-			await makeRequest(`/api/moments/pending/${group_id}`);
+			await makePendingRequest(`/api/moments/pending/${group_id}`);
 
-			if (data.value) {
-				accepted.value = data.value.data.accepted;
-				need_approval.value = data.value.data.need_approval;
-				has_permisons.value = data.value.data.has_permisons;
-				posts_count_need_approval.value = data.value.data.posts_count_need_approval;
+			if (pending.value) {
+				accepted.value = pending.value.data.accepted;
+				need_approval.value = pending.value.data.need_approval;
+				has_permisons.value = pending.value.data.has_permisons;
+				has_interaction.value = pending.value.data.has_interaction;
+				posts_count_need_approval.value = pending.value.data.posts_count_need_approval;
 			}
 
 			return addToast({

@@ -1,4 +1,4 @@
-export default {
+export const useStatusCodes: Record<number, { message: string; statusMessage: string }> = {
     300: {
         message: "Multiple Choices",
         statusMessage: "The request has multiple possible responses. Select one from the options provided."

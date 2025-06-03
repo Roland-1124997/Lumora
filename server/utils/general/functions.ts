@@ -10,13 +10,15 @@ interface Storage {
     }]
 }
 
+const { build } = useRuntimeConfig()
+
 const imageQueue: (() => Promise<void>)[] = [];
 let processing = false;
 export let TOTAL_MEMORY_MB: number = 520
 export let TOTAL_STORAGE: Storage
 export let TOTAL_MONTHLY_ACTIVE_USERS: object = []
 
-export const MAX_MEMORY_MB = TOTAL_MEMORY_MB * 0.8;
+export const MAX_MEMORY_MB = (build ? TOTAL_MEMORY_MB : Math.round(os.totalmem() / 1024 / 1024)) * 0.8;
 export const MAX_STORAGE_SIZE = 1024
 export const MAX_QUEUE_LENGTH = 20;
 
@@ -76,7 +78,6 @@ export const useSupabaseUsage = async () => {
     const supabase = useSupaBaseServer();
 
     const { data: storage, error: storageError } = await supabase.rpc("get_bucket_sizes")
-
     const { data: groupStorage, error: GroupStorageError } = await supabase.rpc("get_group_storage_sizes")
 
     if (!storageError && !GroupStorageError) TOTAL_STORAGE = {

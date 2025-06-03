@@ -72,7 +72,7 @@
 	 ************************************************************************************
 	 */
 
-	const List: any = ref([]);
+	const List = ref<GroupOverview[]>([]);
 	const loading = ref(false);
 	
 	const totalPages = ref(0);
@@ -84,7 +84,7 @@
 	const searched = ref(!!query.search);
 
 	const { addToast } = useToast();
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Group[]>>({ throwOnError: false });
+	const { makeRequest, data } = useRetryableFetch<ApiResponse<GroupOverview[]>>({ throwOnError: false });
 
 	/*
 	 ************************************************************************************
@@ -97,14 +97,14 @@
 		totalPages.value = data.value.pagination?.total || 0;
 	}
 
-	const handleSearch = (data: any, error: any, loading: boolean) => {
+	const handleSearch = (result: Ref<ApiResponse<GroupOverview[]>>, error: Ref<ErrorResponse>, loading: boolean) => {
 		Page.value = 1;
 		searchLoading.value = loading;
 		searched.value = true;
 
-		if (data.value) {
-			List.value = data.value.data;
-			totalPages.value = data.value.pagination?.total || 0;
+		if (result.value) {
+			List.value = result.value.data;
+			totalPages.value = result.value.pagination?.total || 0;
 		}
 
 		if (error.value) List.value = [];
@@ -162,7 +162,7 @@
 	 ************************************************************************************
 	 */
 
-	const { updateModalValue }: any = inject("modal");
+	const { updateModalValue } = <any>inject("modal");
 	const createFunction = () => {
 		updateModalValue({
 			open: true,
@@ -177,7 +177,7 @@
 		});
 	};
 
-	const handleSuccess = async ({ response }: SuccessResponse<Group>) => {
+	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (response.status.redirect) navigateTo(response.status.redirect);
 
@@ -192,7 +192,7 @@
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+		if (error.data.error.type == "fields") actions.setErrors(error.data.error.details);
 		else actions.setErrors({ message: ["An error occurred, unable to create the group! Please try again later."] });
 	};
 
@@ -206,12 +206,8 @@
 			type: "join",
 			name: "Join group",
 			requestUrl: "/api/invitations/",
-			onSuccess: handleLinkSuccess,
-			onError: handleLinkError,
+			onSuccess: () => {},
+			onError: () => {},
 		});
 	};
-
-	const handleLinkSuccess = async ({ response }: SuccessResponse<Group>) => {};
-
-	const handleLinkError = async ({ error, actions }: ErrorResponse) => {};
 </script>

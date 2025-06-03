@@ -52,11 +52,11 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 
 	const route = useRoute();
-	const id = route.params.id;
-	const token = route.query.token || "";
+	const id: any = route.params.id || "";
+	const token: any = route.query.token || "";
 
 	const result = ref();
 
@@ -80,7 +80,7 @@
 		layout: "invite",
 	});
 
-	const verifyInvite = async (id, token) => {
+	const verifyInvite = async (id: string, token: string) => {
 
 		await $fetch(`/api/invitations/${id}/${token}`)
 			.then((response) => {
@@ -128,7 +128,7 @@
 				loadButton.value = false
 				if (response.status.redirect) navigateTo(response.status.redirect);
 			}, 1000);
-		}).catch(() => navigateTo("/moments"))
+		}).catch(() => { navigateTo("/moments") })
 	};
 </script>
 

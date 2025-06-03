@@ -60,7 +60,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 	useHead({
 		htmlAttrs: {
 			lang: "en",
@@ -93,7 +93,7 @@
 	const unreadNotifications = computed(() => notificationStore.getUnreadNotifications);
 	const notifications = computed(() => (activeTab.value == "all" ? readNotifications.value : unreadNotifications.value));
 
-	const setActiveTab = async (tab) => (activeTab.value = tab);
+	const setActiveTab = async (tab: string) => (activeTab.value = tab);
 </script>
 
 <style scoped>

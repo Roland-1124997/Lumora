@@ -32,9 +32,9 @@
 							</div>
 						</div>
 						
-						<div class="pt-16 space-y-4 lg:pt-8">
-							<h2 class="text-2xl text-[#756145] font-semibold">{{ useStatusCodes[status].message }}</h2>
-							<p class="text-gray-600 text-balance">{{status == 500 ? error : useStatusCodes[status].statusMessage }}</p>
+						<div v-if="statusInfo" class="pt-16 space-y-4 lg:pt-8">
+							<h2 class="text-2xl text-[#756145] font-semibold">{{ statusInfo.message }}</h2>
+							<p class="text-gray-600 text-balance">{{status == 500 ? error : statusInfo.statusMessage }}</p>
 						</div>
 
 						<div class="flex flex-col justify-center gap-3 pt-2 sm:flex-row">
@@ -56,27 +56,30 @@
 	</div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
+
+const { PWAInstalled } = useCheckPwa()
 
 	const error = useError();
-	const status = ref(error.value.statusCode);
+	const status = ref(error.value?.statusCode || 500);
 
-	const { PWAInstalled } = useCheckPwa()
-	
 	const errorValue = ref(false);
-	
+
+	const statusCode = computed(() => error.value?.statusCode || 500);
+	const statusInfo = computed(() => useStatusCodes[statusCode.value]);
+
 	const name = ref()
 	const avatar = ref()
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
 
-	await $fetch("/api/user").then((response) => {
+	await $fetch<ApiResponse<User>>("/api/user").then((response) => {
 		name.value = response.data.name
 		avatar.value = response.data.avatar
 	}).catch(() => (errorValue.value = true));
 
-	const handleError = (to) => {
+	const handleError = (to: string) => {
 		if (to == "/back") return useRouter().back();
 		return clearError({ redirect: to });
 	};
