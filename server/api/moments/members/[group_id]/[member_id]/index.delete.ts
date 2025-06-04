@@ -35,7 +35,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     return useReturnResponse(event, {
         status: {
             success: true,
-            redirect: `/moments/`,
+            redirect: data.accepted ? `/moments/`: undefined,
             message: "Ok",
             code: 200
         },

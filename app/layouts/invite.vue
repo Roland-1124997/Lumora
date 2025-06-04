@@ -12,6 +12,7 @@
 					<div v-if="!errorValue" class="flex items-center gap-2">
 						<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name, url: avatar }" />
 						<UtilsButton to="/moments" iconName="ri:archive-stack-fill"/>
+						<UtilsButton v-if="part_of_team" to="/monitor" iconName="ri:database-2-fill" />
 						<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 					</div>
 					<div v-else class="flex items-center gap-2">
@@ -37,6 +38,7 @@
 	const name = ref()
 	const avatar = ref()
 	const errorValue = ref(false)
+	const part_of_team = ref(false)
 
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
@@ -44,6 +46,7 @@
 	await $fetch("/api/user").then((response) => {
 		name.value = response.data.name
 		avatar.value = response.data.avatar
+		part_of_team.value = response.data.team || false
 	}).catch(() => (errorValue.value = true));
 
 	const router = useRouter();
