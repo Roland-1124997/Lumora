@@ -8,7 +8,7 @@
 							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							<UtilsCounter :count="likes_count" />
 						</button>
-						<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon name="ri:close-circle-line" size="1.2rem" />
 						</button>
 						<UtilsButtonDownload :url="content?.media?.url" />
@@ -24,7 +24,7 @@
 								<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 								<UtilsCounter :count="likes_count" />
 							</button>
-							<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+							<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 								<Icon name="ri:close-circle-line" size="1.2rem" />
 							</button>
 							<UtilsButtonDownload :url="content?.media?.url" />
@@ -39,7 +39,7 @@
 							<hr class="my-2 mt-4" />
 							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
 							<div class="flex flex-col gap-3 -mt-3">
-								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="handleEdit" :onReply="handleReply" />
+								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
 							</div>
 						</div>
 					</div>
@@ -56,7 +56,7 @@
 							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							<UtilsCounter :count="likes_count" />
 						</button>
-						<button v-if="content?.permision?.can_delete_message" @click="deleteData" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon name="ri:close-circle-line" size="1.2rem" />
 						</button>
 						<UtilsButtonDownload :url="content?.media?.url" />
@@ -70,7 +70,7 @@
 						<hr class="my-2 mt-4" />
 						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="commentForm" />
 						<div class="flex flex-col gap-3 -mt-3">
-							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="deleteComment" :onEdit="handleEdit" :onReply="handleReply" />
+							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
 						</div>
 					</div>
 					<div class="mb-36" v-else></div>
@@ -263,9 +263,6 @@
 	const list = ref<PostUserDetails[]>([]);
 	const name = ref();
 
-	const deleteData = async () => createDeleteFunction();
-	const deleteComment = async (comment: UserComments) => createDeleteCommentFunction(comment);
-
 	/*
 	 ************************************************************************************
 	 */
@@ -305,50 +302,53 @@
 	 ************************************************************************************
 	 */
 
-	const { updateModalValue } = inject<any>("modal");
+	const { open } = useModal()
+	const { addToast } = useToast();
 
 	const createDeleteFunction = () => {
-		updateModalValue({
+
+		const { onSuccess } = open({
 			open: true,
 			type: "negative:post",
 			name: "Alert",
 			requestUrl: `/api/moments/${group_id}/${image_id}`,
-			onSuccess: handleSuccess,
-			onError: handleError,
-		});
-	};
+		})
 
-	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		removeItemByMetaId(group_id, image_id);
-		list.value = [];
+		onSuccess(async () => {
+			removeItemByMetaId(group_id, image_id);
+			list.value = [];
 
-		while (page.value <= group.pagination.page) {
-			await $fetch(`/api/moments/${group_id}?page=${page.value}`).then((response) => {
-				total.value = response.pagination.total;
-				name.value = response.meta.name;
+			while (page.value <= group.pagination.page) {
+				await $fetch(`/api/moments/${group_id}?page=${page.value}`).then((response) => {
+					total.value = response.pagination.total;
+					name.value = response.meta.name;
 
-				if (page.value === 1) {
-					list.value = response.data;
-					removeData(group_id, { partial: true });
-					setTimeout(() => setGroupData(group_id, name.value, page.value, total.value, list.value), 200);
-				} else {
-					list.value.push(...response.data);
-					setTimeout(() => updateGroupData(group_id, name.value, page.value, total.value, list.value), 200);
-				}
-			});
+					if (page.value === 1) {
+						list.value = response.data;
+						removeData(group_id, { partial: true });
+						setTimeout(() => setGroupData(group_id, name.value, page.value, total.value, list.value), 200);
+					} else {
+						list.value.push(...response.data);
+						setTimeout(() => updateGroupData(group_id, name.value, page.value, total.value, list.value), 200);
+					}
+				});
 
-			if (page.value < total.value) page.value++;
-			else break;
-		}
+				if (page.value < total.value) page.value++;
+				else break;
+			}
 
-		setTimeout(() => {
-			const router = useRouter();
-			router.replace(`/moments/${group_id}`);
-		}, 500);
-	};
+			setTimeout(() => {
+				const router = useRouter();
+				router.replace(`/moments/${group_id}`);
 
-	const handleError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
+				addToast({
+					message: `post has been deleted`,
+					type: "success",
+					duration: 5000,
+				})
+
+			}, 500);
+		})
 	};
 
 	/*
@@ -356,20 +356,24 @@
 	 */
 
 	const createDeleteCommentFunction = (comment: UserComments) => {
-		updateModalValue({
+
+		const { onSuccess } = open({
 			open: true,
 			type: "negative:comment",
 			name: "Alert",
 			requestUrl: `/api/moments/comments/${group_id}/${content.value?.id}/${comment.id}`,
-			onSuccess: handleCommentSuccess,
-			onError: handleCommentError,
-		});
-	};
+		})
 
-	const handleCommentSuccess = async ({ response }: SuccessResponse<null>) => await fetchComments();
+		onSuccess( async () => {
+			await fetchComments()
 
-	const handleCommentError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to delete the comment! Please try again later."] });
+			addToast({
+				message: `comment has been deleted`,
+				type: "success",
+				duration: 5000,
+			})
+		})
+	
 	};
 
 	/*

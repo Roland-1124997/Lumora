@@ -193,15 +193,23 @@
 	 ************************************************************************************
 	 */
 
-	const { updateModalValue } = inject<any>("modal");
+	const { open } = useModal()
 	const { addToast } = useToast();
 	
 	const approveImage = async (image: any) => {
 
-		const handleApproveSuccess = async ({ response }: SuccessResponse<Post>) => {
-		
+		const { onSuccess } = open({
+			open: true,
+			type: "image:approve",
+			name: "Alert",
+			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
+		})
+
+		onSuccess( async () => {
+
 			await handleReload();
 			clearPinned(group_id)
+			
 			if(data.value) setItemToStart(group_id, {
 				...image, has_been_accepted: true,
 			});
@@ -211,57 +219,33 @@
 				type: "success",
 				duration: 5000,
 			});
-		
-		};
-
-		const handleApproveError = async ({ error, actions }: ErrorResponse) => {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			else actions.setErrors({ message: ["An error occurred, unable to approve the image! Please try again later."] });
-		};
-
-		updateModalValue({
-			open: true,
-			type: "image:approve",
-			name: "Alert",
-			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
-			onSuccess: handleApproveSuccess,
-			onError: handleApproveError,
-		});
-	}
+		})
+	};
 
 	/*
 	 ************************************************************************************
 	 */
 
 	const rejectImage = async (image: any) => {
-		
-		const handleRejectSuccess = async ({ response }: SuccessResponse<Post>) => { 
-			await handleReload()
-			clearPinned(group_id)
 
+		const { onSuccess } = open({
+			open: true,
+			type: "image:reject",
+			name: "Alert",
+			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
+		})
+
+		onSuccess( async () => {
+
+			await handleReload();
+			clearPinned(group_id)
+			
 			addToast({
 				message: `Image rejected successfully!`,
 				type: "success",
 				duration: 5000,
 			});
-		};
-			
-		const handleRejectError = async ({ error, actions }: ErrorResponse) => {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			else actions.setErrors({ message: ["An error occurred, unable to approve the image! Please try again later."] });
-		};
-		
-		updateModalValue({
-			open: true,
-			type: "image:reject",
-			name: "Alert",
-			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
-			onSuccess: handleRejectSuccess,
-			onError: handleRejectError,
-		});
-		
+		})
 	}
 
 	/*
@@ -270,9 +254,17 @@
 
 	const approvePinned = async () => {
 
-		const handleAllApproveSuccess = async ({ response }: SuccessResponse<Post>) => { 
-			await handleReload()
+		const { onSuccess } = open({
+			open: true,
+			type: "images:multiple:approve",
+			name: "Alert",
+			requestUrl: `/api/moments/pending/marked/${group_id}`,
+		})
 
+		onSuccess( async () => {
+
+			await handleReload();
+		
 			getPinnedList(group_id).details.forEach((image: any) => {
 				setItemToStart(group_id, {
 					...image, has_been_accepted: true,
@@ -280,29 +272,13 @@
 			});
 
 			clearPinned(group_id);
-
+			
 			addToast({
 				message: `Images approved successfully!`,
 				type: "success",
 				duration: 5000,
 			});
-		};
-			
-		const handleAllApproveError = async ({ error, actions }: ErrorResponse) => {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			else actions.setErrors({ message: ["An error occurred, unable to approve the images! Please try again later."] });
-		};
-		
-		updateModalValue({
-			open: true,
-			type: "images:multiple:approve",
-			name: "Alert",
-			requestUrl: `/api/moments/pending/marked/${group_id}`,
-			onSuccess: handleAllApproveSuccess,
-			onError: handleAllApproveError,
-		});
-
+		})
 	}
 
 	/*
@@ -311,8 +287,16 @@
 
 	const rejectPinned = async () => {
 		
-		const handleAllRejectSuccess = async ({ response }: SuccessResponse<Post>) => { 
-			await handleReload()
+		const { onSuccess } = open({
+			open: true,
+			type: "images:multiple:reject",
+			name: "Alert",
+			requestUrl: `/api/moments/pending/marked/${group_id}`,
+		})
+
+		onSuccess( async () => {
+
+			await handleReload();
 			clearPinned(group_id)
 
 			addToast({
@@ -320,22 +304,7 @@
 				type: "success",
 				duration: 5000,
 			});
-		};
-			
-		const handleAllRejectError = async ({ error, actions }: ErrorResponse) => {
-			await new Promise((resolve) => setTimeout(resolve, 1000));
-			if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			else actions.setErrors({ message: ["An error occurred, unable to reject the images! Please try again later."] });
-		};
-		
-		updateModalValue({
-			open: true,
-			type: "images:multiple:reject",
-			name: "Alert",
-			requestUrl: `/api/moments/pending/marked/${group_id}`,
-			onSuccess: handleAllRejectSuccess,
-			onError: handleAllRejectError,
-		});
+		})
 	}
 
 

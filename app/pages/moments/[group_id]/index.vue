@@ -162,6 +162,18 @@
 		updateGroupValue(name.value);
 	};
 
+	const fetchPending = async () => {
+		await makePendingRequest(`/api/moments/pending/${group_id}`);
+
+		if (pending.value) {
+			accepted.value = pending.value.data.accepted;
+			need_approval.value = pending.value.data.need_approval;
+			has_permisons.value = pending.value.data.has_permisons;
+			has_interaction.value = pending.value.data.has_interaction;
+			posts_count_need_approval.value = pending.value.data.posts_count_need_approval;
+		}
+	}
+
 	/*
 	 ************************************************************************************
 	 */
@@ -176,16 +188,7 @@
 	const group: any = getGroupData(group_id);
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
-
-	await makePendingRequest(`/api/moments/pending/${group_id}`);
-
-	if (pending.value) {
-		accepted.value = pending.value.data.accepted;
-		need_approval.value = pending.value.data.need_approval;
-		has_permisons.value = pending.value.data.has_permisons;
-		has_interaction.value = pending.value.data.has_interaction;
-		posts_count_need_approval.value = pending.value.data.posts_count_need_approval;
-	}
+	await fetchPending()
 
 	/*
 	 ************************************************************************************
@@ -258,57 +261,29 @@
 	 ************************************************************************************
 	 */
 
+	const { open } = useModal()
 	const { addToast } = useToast();
 
-	const { updateModalValue } = inject<any>("modal");
-
 	const createUploadFunction = () => {
-		updateModalValue({
+
+		const { onSuccess } = open({
 			open: true,
 			type: "images",
 			name: "Create experience",
 			requestUrl: `/api/moments/${group_id}`,
-			resize: false,
-			minimized: false,
-			loading: false,
-			onSuccess: handleSuccess,
-			onError: handleError,
-		});
-	};
+		})
 
-	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		onSuccess(async () => {
+			if (need_approval.value) await fetchPending();
+			else handleReload();
 
-		if (need_approval.value) {
-			await makePendingRequest(`/api/moments/pending/${group_id}`);
-
-			if (pending.value) {
-				accepted.value = pending.value.data.accepted;
-				need_approval.value = pending.value.data.need_approval;
-				has_permisons.value = pending.value.data.has_permisons;
-				has_interaction.value = pending.value.data.has_interaction;
-				posts_count_need_approval.value = pending.value.data.posts_count_need_approval;
-			}
-
-			return addToast({
-				message: "Your image has been submitted for approval.",
-				type: "success",
-				duration: 5000,
-			});
-		} else
 			addToast({
-				message: "Your image has been posted successfully.",
+				message: need_approval.value 
+					? "Your image has been submitted for approval." 
+					: "Your image has been posted successfully.",
 				type: "success",
 				duration: 5000,
 			});
-
-		if (response.status.redirect) navigateTo(response.status.redirect);
-		if (response.status.refresh) handleReload();
-	};
-
-	const handleError = async ({ error, actions }: ErrorResponse) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-		else actions.setErrors({ message: ["An error occurred, unable to post an image! Please try again later."] });
+		});
 	};
 </script>

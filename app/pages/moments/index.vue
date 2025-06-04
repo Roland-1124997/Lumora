@@ -9,7 +9,7 @@
 			<button :disabled="searchLoading" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="searchLoading ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 			</button>
-			<button id="createGroup" title="createGroup" @click="createFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+			<button id="createGroup" title="createGroup" @click="createGroupFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:image-circle-ai-line" size="1.4em" />
 			</button>
 		</div>
@@ -35,7 +35,7 @@
 				<button v-if="!searched" @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon name="ri:attachment-2" size="1.4em" />
 				</button>
-				<button @click="createFunction()" class="flex items-center justify-center w-full gap-2 px-4 py-2 font-medium text-gray-700 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100">
+				<button @click="createGroupFunction()" class="flex items-center justify-center w-full gap-2 px-4 py-2 font-medium text-gray-700 border border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100">
 					<Icon name="ri:image-circle-ai-line" class="w-4 h-4" />
 					Create Group
 				</button>
@@ -83,7 +83,6 @@
 	const searchLoading = ref(false);
 	const searched = ref(!!query.search);
 
-	const { addToast } = useToast();
 	const { makeRequest, data } = useRetryableFetch<ApiResponse<GroupOverview[]>>({ throwOnError: false });
 
 	/*
@@ -162,52 +161,36 @@
 	 ************************************************************************************
 	 */
 
-	const { updateModalValue } = <any>inject("modal");
-	const createFunction = () => {
-		updateModalValue({
+	const { open } = useModal()
+	const { addToast } = useToast();
+
+	const createGroupFunction = async () => {
+
+		const { onSuccess } = open({
 			open: true,
-			type: "Create",
-			name: "Create group",
-			requestUrl: "/api/moments",
-			resize: false,
-			minimized: false,
-			loading: false,
-			onSuccess: handleSuccess,
-			onError: handleError,
-		});
-	};
+			type: 'Create',
+			name: 'Create Group',
+			requestUrl: '/api/moments',
+		})
 
-	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (response.status.redirect) navigateTo(response.status.redirect);
-
-		setTimeout(() => {
-			addToast({
+		onSuccess(async () => {
+			setTimeout(() => addToast({
 				message: `Group has been created`,
 				type: "success",
 				duration: 5000,
-			});
-		}, 800);
-	};
-
-	const handleError = async ({ error, actions }: ErrorResponse) => {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		if (error.data.error.type == "fields") actions.setErrors(error.data.error.details);
-		else actions.setErrors({ message: ["An error occurred, unable to create the group! Please try again later."] });
+			}), 800);
+		})
 	};
 
 	/*
 	 ************************************************************************************
 	 */
 
-	const createLinkFunction = () => {
-		updateModalValue({
-			open: true,
-			type: "join",
-			name: "Join group",
-			requestUrl: "/api/invitations/",
-			onSuccess: () => {},
-			onError: () => {},
-		});
-	};
+	const createLinkFunction = () => open({
+		open: true,
+		type: "join",
+		name: "Join group",
+		requestUrl: "/api/invitations/",
+	})
+	
 </script>
