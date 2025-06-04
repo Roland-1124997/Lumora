@@ -1,8 +1,7 @@
 <template>
 	<div v-if="List">
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
-
-			<div class="items-center hidden gap-2 md:flex ">
+			<div class="items-center hidden gap-2 md:flex">
 				<button :disabled="!has_pinned || List.length < 1 || reload" id="approvePinned" title="approvePinned" @click="approvePinned" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
 					<icon name="ri:checkbox-circle-line" size="1.2em" />
 					<span> Approve ({{ pinned_count }})</span>
@@ -23,20 +22,19 @@
 				<icon name="ri:indeterminate-circle-line" size="1.2em" />
 				<span> Reject ({{ pinned_count }}) </span>
 			</button>
-			
-			<div class="flex items-center gap-2 ">
-				<button :disabled=" reload" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-					<icon :class=" reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
+
+			<div class="flex items-center gap-2">
+				<button :disabled="reload" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+					<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 				<NuxtLink :to="`/moments/settings/${group_id}`" aria-label="settings" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon name="ri:settings-3-fill" size="1.4em" />
 				</NuxtLink>
-				
 			</div>
 		</div>
 		<hr class="mb-2" />
 
-		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class=" h-[80vh] overflow-y-scroll">
+		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
 				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
 					<LazyCardImage v-if="content" :content="content" :methods="[() => approveImage(content), () => rejectImage(content)]" :has_interaction="true" />
@@ -128,10 +126,8 @@
 	const updateListData = (response: ApiResponse<Post[]>, page: number = 1, options: { set?: boolean; update?: boolean; reload?: boolean } = {}) => {
 		if (options.reload) {
 			List.value = response.data as Post[];
-			
 		} else if (options.set || page === 1) {
 			List.value = response.data as Post[];
-			
 		} else if (options.update || page > 1) {
 			if (Array.isArray(response.data)) List.value.push(...response.data);
 		}
@@ -177,7 +173,7 @@
 	 */
 
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
-	const { scrollPercentage,  scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
+	const { scrollPercentage, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
 
 	useInfiniteScroll(
 		containerProps.ref,
@@ -188,38 +184,36 @@
 		{ direction: "bottom", distance: 20 }
 	);
 
-	
 	/*
 	 ************************************************************************************
 	 */
 
-	const { open } = useModal()
+	const { open } = useModal();
 	const { addToast } = useToast();
-	
-	const approveImage = async (image: any) => {
 
+	const approveImage = async (image: any) => {
 		const { onSuccess } = open({
-			open: true,
 			type: "image:approve",
 			name: "Alert",
 			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
-		})
+		});
 
-		onSuccess( async () => {
-
+		onSuccess(async () => {
 			await handleReload();
-			clearPinned(group_id)
-			
-			if(data.value) setItemToStart(group_id, {
-				...image, has_been_accepted: true,
-			});
+			clearPinned(group_id);
+
+			if (data.value)
+				setItemToStart(group_id, {
+					...image,
+					has_been_accepted: true,
+				});
 
 			addToast({
 				message: `Image approved successfully!`,
 				type: "success",
 				duration: 5000,
 			});
-		})
+		});
 	};
 
 	/*
@@ -227,86 +221,77 @@
 	 */
 
 	const rejectImage = async (image: any) => {
-
 		const { onSuccess } = open({
-			open: true,
 			type: "image:reject",
 			name: "Alert",
 			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
-		})
+		});
 
-		onSuccess( async () => {
-
+		onSuccess(async () => {
 			await handleReload();
-			clearPinned(group_id)
-			
+			clearPinned(group_id);
+
 			addToast({
 				message: `Image rejected successfully!`,
 				type: "success",
 				duration: 5000,
 			});
-		})
-	}
+		});
+	};
 
 	/*
 	 ************************************************************************************
 	 */
 
 	const approvePinned = async () => {
-
 		const { onSuccess } = open({
-			open: true,
 			type: "images:multiple:approve",
 			name: "Alert",
 			requestUrl: `/api/moments/pending/marked/${group_id}`,
-		})
+		});
 
-		onSuccess( async () => {
-
+		onSuccess(async () => {
 			await handleReload();
-		
+
 			getPinnedList(group_id).details.forEach((image: any) => {
 				setItemToStart(group_id, {
-					...image, has_been_accepted: true,
+					...image,
+					has_been_accepted: true,
 				});
 			});
 
 			clearPinned(group_id);
-			
+
 			addToast({
 				message: `Images approved successfully!`,
 				type: "success",
 				duration: 5000,
 			});
-		})
-	}
+		});
+	};
 
 	/*
 	 ************************************************************************************
 	 */
 
 	const rejectPinned = async () => {
-		
 		const { onSuccess } = open({
-			open: true,
 			type: "images:multiple:reject",
 			name: "Alert",
 			requestUrl: `/api/moments/pending/marked/${group_id}`,
-		})
+		});
 
-		onSuccess( async () => {
-
+		onSuccess(async () => {
 			await handleReload();
-			clearPinned(group_id)
+			clearPinned(group_id);
 
 			addToast({
 				message: `Images rejected successfully!`,
 				type: "success",
 				duration: 5000,
 			});
-		})
-	}
-
+		});
+	};
 
 	/*
 	 ************************************************************************************
@@ -317,7 +302,7 @@
 	const handleReload = async () => {
 		const page = ref(1);
 		reload.value = true;
-		
+
 		while (page.value <= totalPages.value) {
 			await makeRequest(`/api/moments/${group_id}?page=${page.value}&pending=true`);
 
@@ -340,6 +325,4 @@
 	/*
 	 ************************************************************************************
 	 */
-
-	
 </script>

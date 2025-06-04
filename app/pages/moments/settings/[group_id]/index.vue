@@ -221,6 +221,7 @@
 		</div>
 	</div>
 </template>
+
 <script setup lang="ts">
 	import { toTypedSchema } from "@vee-validate/zod";
 	import * as zod from "zod";
@@ -441,7 +442,6 @@
 
 	const createDeleteFunction = () => {
 		const { onSuccess } = open({
-			open: true,
 			type: "negative:group",
 			name: "Alert",
 			requestUrl: `/api/moments/${group_id}`,
@@ -473,7 +473,6 @@
 
 	const createInviteFunction = () => {
 		const { onSuccess } = open({
-			open: true,
 			type: "links",
 			name: "Generate",
 			requestUrl: `/api/moments/invitations/${group_id}`,
@@ -482,7 +481,7 @@
 		onSuccess(async ({ response }) => {
 			if (response.status.refresh)
 				await $fetch(`/api/moments/invitations/${group_id}`)
-					.then((response: any) => {
+					.then(({ response }: SuccessResponse<InviteLink>) => {
 						inviteLinks.value = response.data;
 
 						addToast({
@@ -501,7 +500,6 @@
 
 	const createLeaveFunction = () => {
 		const { onSuccess, onError } = open({
-			open: true,
 			type: "Group:leave",
 			name: "Alert",
 			requestUrl: `/api/moments/members/${group_id}`,
@@ -542,7 +540,6 @@
 		member_id.value = id;
 
 		const { onSuccess, onError } = open({
-			open: true,
 			type: "Group:Reject",
 			name: "Alert",
 			requestUrl: `/api/moments/members/${group_id}/${id}`,
@@ -583,7 +580,6 @@
 		member_id.value = id;
 
 		const { onSuccess, onError } = open({
-			open: true,
 			type: "Group:kick",
 			name: "Alert",
 			requestUrl: `/api/moments/members/${group_id}/${id}`,
@@ -626,7 +622,6 @@
 
 	const createAcceptFunction = (id: string) => {
 		const { onSuccess, onError } = open({
-			open: true,
 			type: "join:group",
 			name: "join",
 			requestUrl: `/api/moments/members/${group_id}/${id}`,
@@ -667,7 +662,6 @@
 
 	const createUpdateFunction = (id: string) => {
 		const { onSuccess, onError } = open({
-			open: true,
 			type: "update:member",
 			name: "Edit Permissions",
 			requestUrl: `/api/moments/members/permissions/${group_id}/${id}`,

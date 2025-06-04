@@ -6,15 +6,6 @@ interface Media {
     url: string;
 }
 
-export interface Interactions {
-    has_liked: boolean;
-    likes: {
-        count: number;
-    };
-    comments?: {
-        count: number;
-    };
-}
 
 interface Author {
     name: string;
@@ -44,6 +35,23 @@ interface Pagination {
 interface Error {
     type: 'fields' | 'auth';
     details: ZodIssue[] | AuthError
+}
+
+export interface Interactions {
+    has_liked: boolean;
+    likes: {
+        count: number;
+    };
+    comments?: {
+        count: number;
+    };
+}
+
+export interface InviteLink {
+    id: string;
+    code: string;
+    expiresAt: string | null;
+    uses: number;
 }
 
 export interface pending {

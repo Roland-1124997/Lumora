@@ -1,5 +1,4 @@
 interface ModalRequestConfig {
-    open: boolean
     type: string
     name: string
     requestUrl: string
@@ -30,6 +29,7 @@ export const useModal = () => {
 
         updateModalValue({
             ...config,
+            open: true,
             resize: config.resize ?? false,
             minimized: config.minimized ?? false,
             loading: config.loading ?? false,

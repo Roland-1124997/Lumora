@@ -99,7 +99,7 @@
 
 	const { updateGroupValue } = inject<any>("group");
 	const { setGroupData, getGroupData, getScrollData, updateGroupData, updateScrollData, removeData } = useGroupStore();
-	
+
 	/*
 	 ************************************************************************************
 	 */
@@ -149,7 +149,6 @@
 			updateListData(response, Page.value, options);
 		}
 
-
 		setTimeout(() => (load.value = false), timer);
 	};
 
@@ -172,7 +171,7 @@
 			has_interaction.value = pending.value.data.has_interaction;
 			posts_count_need_approval.value = pending.value.data.posts_count_need_approval;
 		}
-	}
+	};
 
 	/*
 	 ************************************************************************************
@@ -188,7 +187,7 @@
 	const group: any = getGroupData(group_id);
 	if (!group) await useFetchData({ set: true }, loading);
 	else useDisplayStorageData(group);
-	await fetchPending()
+	await fetchPending();
 
 	/*
 	 ************************************************************************************
@@ -261,26 +260,22 @@
 	 ************************************************************************************
 	 */
 
-	const { open } = useModal()
+	const { open } = useModal();
 	const { addToast } = useToast();
 
 	const createUploadFunction = () => {
-
 		const { onSuccess } = open({
-			open: true,
 			type: "images",
 			name: "Create experience",
 			requestUrl: `/api/moments/${group_id}`,
-		})
+		});
 
 		onSuccess(async () => {
 			if (need_approval.value) await fetchPending();
 			else handleReload();
 
 			addToast({
-				message: need_approval.value 
-					? "Your image has been submitted for approval." 
-					: "Your image has been posted successfully.",
+				message: need_approval.value ? "Your image has been submitted for approval." : "Your image has been posted successfully.",
 				type: "success",
 				duration: 5000,
 			});

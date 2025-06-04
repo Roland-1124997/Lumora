@@ -27,7 +27,7 @@
 						<h1 class="font-bold">Profile</h1>
 						<button ref="hidden" class="sr-only"></button>
 					</div>
-					<p class="text-sm text-red-700" v-if="disabled"> Disabled you are signed in with {{ user.data.provider }}</p>
+					<p class="text-sm text-red-700" v-if="disabled">Disabled you are signed in with {{ user.data.provider }}</p>
 					<p class="mb-3 text-sm text-gray-500">Update your account information and profile picture.</p>
 					<hr class="mb-2" />
 					<div class="flex flex-col w-full gap-2">
@@ -42,7 +42,7 @@
 						<h1 class="font-bold">Password</h1>
 						<button ref="hidden-password" class="sr-only"></button>
 					</div>
-					<p class="text-sm text-red-700" v-if="disabled"> Disabled you are signed in with {{ user.data.provider }}</p>
+					<p class="text-sm text-red-700" v-if="disabled">Disabled you are signed in with {{ user.data.provider }}</p>
 					<p class="mb-3 text-sm text-gray-500">Change your password to keep your account secure.</p>
 					<hr class="mb-2" />
 					<div>
@@ -56,18 +56,18 @@
 			<div class="p-4 border rounded-xl">
 				<div>
 					<div class="flex items-center justify-between mb-1">
-					<h1 class="font-bold">Security</h1>
+						<h1 class="font-bold">Security</h1>
 					</div>
 					<p class="mb-3 text-sm text-gray-500">Enhance the security of your account.</p>
 					<hr class="mb-2" />
-					<button class="flex items-center justify-between w-full p-3 text-left border-2 border-dashed rounded-md ">
+					<button class="flex items-center justify-between w-full p-3 text-left border-2 border-dashed rounded-md">
 						<div>
-							<div class="font-bold">{{ mfa_active ? 'Disable' : 'Enable' }} Multi-Factor</div>
+							<div class="font-bold">{{ mfa_active ? "Disable" : "Enable" }} Multi-Factor</div>
 							<div class="text-xs opacity-70">Add an extra layer of security</div>
 						</div>
 						<label for="mfa" class="cursor-pointer">
 							<input type="checkbox" name="mfa" id="mfa" aria-labelledby="mfa" v-model="mfa_active" class="sr-only" />
-							<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ ' bg-yellow-800': mfa_active, 'bg-gray-300 ':  !mfa_active, }">
+							<div class="w-12 h-6 p-1 transition duration-300 bg-gray-200 rounded-full" :class="{ ' bg-yellow-800': mfa_active, 'bg-gray-300 ': !mfa_active }">
 								<div class="w-4 h-4 mt-[0.020rem] transition duration-300 transform bg-white rounded-full shadow-md" :class="{ 'translate-x-6': mfa_active }"></div>
 							</div>
 						</label>
@@ -142,27 +142,29 @@
 
 	const user = await store.getSession();
 
-	const mfa_active = ref(user.data.factors)
+	const mfa_active = ref(user.data.factors);
 	const username = ref(user.data.name);
 	const email = ref(user.data.email);
 	const disabled = ref(user.data.provider !== "email");
 
-	const password = ref('')
-	const originalUsername = ref(user.data.name)
+	const password = ref("");
+	const originalUsername = ref(user.data.name);
 	const originalEmail = ref(user.data.email);
 
 	/*
 	 ************************************************************************************
 	 */
-	
-	const blocked = ref(false)
 
-	watch([username, email, password], () => {
-		const changed =
-		username.value !== originalUsername.value ||
-		email.value !== originalEmail.value || password.value !== ""
-		if (blocked.value !== changed) blocked.value = changed;
-	}, { deep: true });
+	const blocked = ref(false);
+
+	watch(
+		[username, email, password],
+		() => {
+			const changed = username.value !== originalUsername.value || email.value !== originalEmail.value || password.value !== "";
+			if (blocked.value !== changed) blocked.value = changed;
+		},
+		{ deep: true }
+	);
 
 	onBeforeRouteLeave((event) => {
 		if (blocked.value) {
@@ -171,22 +173,21 @@
 				type: "warning",
 				duration: 10000,
 				discard: () => {
-						blocked.value = false
-						navigateTo(event.fullPath)
-					},
-					save: () => {
-						blocked.value = false
+					blocked.value = false;
+					navigateTo(event.fullPath);
+				},
+				save: () => {
+					blocked.value = false;
 
-						if(password.value !== "") clickPasswordButton()
-						else clickButton()
-						
-						navigateTo(event.fullPath)
-					}
+					if (password.value !== "") clickPasswordButton();
+					else clickButton();
+
+					navigateTo(event.fullPath);
+				},
 			});
 			return false;
 		}
 	});
-
 
 	/*
 	 ************************************************************************************
@@ -200,14 +201,15 @@
 	);
 
 	const schema_password = toTypedSchema(
-		zod.object({
-			New_password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
-			Confirm_password: zod.string({ message: "This field is required" }),
-		})
-		.refine((data) => data.New_password === data.Confirm_password, {
-			message: "Passwords do not match",
-			path: ["Confirm_password"],
-		})
+		zod
+			.object({
+				New_password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
+				Confirm_password: zod.string({ message: "This field is required" }),
+			})
+			.refine((data) => data.New_password === data.Confirm_password, {
+				message: "Passwords do not match",
+				path: ["Confirm_password"],
+			})
 	);
 
 	/*
@@ -217,17 +219,17 @@
 	const loading = ref(false);
 	const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
 		loading.value = true;
-		blocked.value = false
+		blocked.value = false;
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 		await $fetch("/api/user", { method: "patch", body: values })
 			.then(async (response) => {
 				updateUsername(response.data.name);
 
-				username.value = response.data.name
+				username.value = response.data.name;
 				email.value = response.data.email;
 
-				originalUsername.value = response.data.name
+				originalUsername.value = response.data.name;
 				originalEmail.value = response.data.email;
 
 				addToast({
@@ -253,7 +255,7 @@
 	const loading_password = ref(false);
 	const handlePasswordSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
 		loading_password.value = true;
-		blocked.value = false
+		blocked.value = false;
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 		await $fetch("/api/user", { method: "put", body: values })
@@ -286,7 +288,6 @@
 
 	const createDeleteFunction = () => {
 		updateModalValue({
-			open: true,
 			type: "negative:account",
 			name: "Alert",
 			requestUrl: `/api/auth`,
@@ -318,9 +319,8 @@
 	 */
 
 	watch(mfa_active, async (value) => {
-		if(value) {
+		if (value) {
 			updateModalValue({
-				open: true,
 				type: "create:totp",
 				name: "Authentication",
 				requestUrl: ``,
@@ -329,7 +329,6 @@
 			});
 		} else {
 			updateModalValue({
-				open: true,
 				type: "negative:totp",
 				name: "Authentication",
 				requestUrl: `/api/auth/totp`,
@@ -337,7 +336,7 @@
 				onError: handleDeleteMFAError,
 			});
 		}
-	})
+	});
 
 	const handleDeleteMFASuccess = async () => {
 		setTimeout(() => {
@@ -360,7 +359,7 @@
 	const logout = () => {
 		$fetch("/api/auth/logout", { method: "POST" }).then((response) => {
 			store.clearSession();
-			groupStore.clearAllData()
+			groupStore.clearAllData();
 			navigateTo(response.status.redirect);
 		});
 	};

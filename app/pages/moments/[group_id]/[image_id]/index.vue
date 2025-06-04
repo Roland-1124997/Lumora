@@ -302,17 +302,15 @@
 	 ************************************************************************************
 	 */
 
-	const { open } = useModal()
+	const { open } = useModal();
 	const { addToast } = useToast();
 
 	const createDeleteFunction = () => {
-
 		const { onSuccess } = open({
-			open: true,
 			type: "negative:post",
 			name: "Alert",
 			requestUrl: `/api/moments/${group_id}/${image_id}`,
-		})
+		});
 
 		onSuccess(async () => {
 			removeItemByMetaId(group_id, image_id);
@@ -345,10 +343,9 @@
 					message: `post has been deleted`,
 					type: "success",
 					duration: 5000,
-				})
-
+				});
 			}, 500);
-		})
+		});
 	};
 
 	/*
@@ -356,24 +353,21 @@
 	 */
 
 	const createDeleteCommentFunction = (comment: UserComments) => {
-
 		const { onSuccess } = open({
-			open: true,
 			type: "negative:comment",
 			name: "Alert",
 			requestUrl: `/api/moments/comments/${group_id}/${content.value?.id}/${comment.id}`,
-		})
+		});
 
-		onSuccess( async () => {
-			await fetchComments()
+		onSuccess(async () => {
+			await fetchComments();
 
 			addToast({
 				message: `comment has been deleted`,
 				type: "success",
 				duration: 5000,
-			})
-		})
-	
+			});
+		});
 	};
 
 	/*

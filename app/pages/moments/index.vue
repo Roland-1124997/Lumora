@@ -167,7 +167,6 @@
 	const createGroupFunction = async () => {
 
 		const { onSuccess } = open({
-			open: true,
 			type: 'Create',
 			name: 'Create Group',
 			requestUrl: '/api/moments',
@@ -187,7 +186,6 @@
 	 */
 
 	const createLinkFunction = () => open({
-		open: true,
 		type: "join",
 		name: "Join group",
 		requestUrl: "/api/invitations/",
