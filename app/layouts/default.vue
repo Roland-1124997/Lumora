@@ -184,7 +184,10 @@
 	const router = useRouter();
 	const route = useRoute();
 
-	const { data, send, open, close } = useWebSocket(`wss://${location?.host || ""}/sockets`)
+	const config = useRuntimeConfig()
+	const secure = config.public.build ? 'wss' : 'ws'
+
+	const { data, send, open, close } = useWebSocket(`${secure}://${location?.host || ""}/sockets`)
 	const { removeData } = useGroupStore();
 
 	watch(data, (value => {

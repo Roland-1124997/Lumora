@@ -42,6 +42,7 @@ export default defineNuxtConfig({
       uri: process.env.RENDER_URI
     },
     public: {
+      build: process.env.NODE_ENV !== "development",
       googleClientId: process.env.GOOGLE_CLIENT_ID,
     },
     rateLimit: {
