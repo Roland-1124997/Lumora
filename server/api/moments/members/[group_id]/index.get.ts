@@ -43,15 +43,12 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
                 can_delete_group: data.can_delete_group,
                 can_delete_messages_all: data.can_delete_messages_all,
             }
-
         }
     })
 
     if (currentSearch) usersData = usersData.filter((user: Record<string, any>) => {
         return user.name.toLowerCase().includes(currentSearch)
     })
-
-    if(usersData.length == 0) return useReturnResponse(event, notFoundError)
 
     /*
     ************************************************************************************
@@ -63,6 +60,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             message: "Ok",
             code: 200
         },
-        data: usersData
+        data: usersData || []
     });
 })

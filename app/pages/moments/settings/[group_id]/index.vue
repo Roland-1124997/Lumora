@@ -23,7 +23,7 @@
 
 			<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="flex flex-col gap-4 overflow-scroll">
 				<div v-if="content?.permision?.change" class="p-4 border rounded-xl">
-					<Form :validation-schema="schema" v-slot="{ meta, errors }: any" @submit="handleSubmit">
+					<Form :validation-schema="schema" @submit="handleSubmit">
 						<div class="flex items-center justify-between mb-1">
 							<h1 class="font-bold">Group details</h1>
 							<button ref="hidden" id="hidden" title="hidden" :disabled="loading" v-if="content?.permision?.edit" class="sr-only"></button>
@@ -164,7 +164,7 @@
 										</div>
 										<span v-else-if="isLinkExpired(link)" class="px-2 py-1 ml-2 text-xs font-semibold text-red-600 bg-red-100 rounded">Expired</span>
 
-										<span v-else>{{ useDateFormat(link.expiresAt, "DD-MM HH:mm") }}</span>
+										<span v-else>{{ useDateFormat(link.expiresAt || "", "DD-MM HH:mm") }}</span>
 									</td>
 									<td class="p-3 font-semibold text-center text-gray-600">
 										<div v-if="getRemainingUses(link) === null">
@@ -265,7 +265,7 @@
 	 ************************************************************************************
 	 */
 
-	const share = (link: any) => {
+	const share = (link: InviteLink) => {
 		if (isLinkExpired(link) || getRemainingUses(link) === 0)
 			return addToast({
 				message: `The invitation link has already expired: ${link.code}`,
@@ -310,18 +310,19 @@
 	const searchLoading = ref(true);
 	const InviteLoading = ref(true);
 
-	const handleSearch = (data: any, error: any, loading: boolean) => {
+	const handleSearch = (data: Ref<ApiResponse<GroupMember[]>>, error: Ref<ErrorResponse>, loading: boolean) => {
 		searchLoading.value = loading;
+		memberList.value = []
 
-		if (data.value) memberList.value = data.value.data;
+		if(!searchLoading.value) {
 
-		if (error.value) {
-			memberList.value = [];
-			addToast({
-				message: `An error occurred while searching. Please try again later.`,
+			if(data.value?.data.length <= 0 || error.value) return addToast({
+				message: `An error occurred while searching. unable to find member.`,
 				type: "error",
 				duration: 5000,
 			});
+
+			memberList.value = data.value.data;
 		}
 	};
 
@@ -329,29 +330,34 @@
 	 ************************************************************************************
 	 */
 
-	const isLinkExpired = (link: any) => {
+	const isLinkExpired = (link: InviteLink) => {
 		if (link.expiresAt === null) return link.expiresAt;
 		return new Date(link.expiresAt) < new Date();
 	};
-	const getRemainingUses = (link: any) => link.uses;
+	const getRemainingUses = (link: InviteLink) => link.uses;
 
-	const handleDeleteInviteLink = async (invite: any) => {
-		await $fetch(`/api/moments/invitations/${group_id}/${invite.id}?token=${invite.code}`, { method: "delete" })
-			.then(() => {
-				inviteLinks.value = inviteLinks.value.filter((link: any) => link.id !== invite.id);
-				addToast({
-					message: `The invitation link has been deleted: ${invite.code}`,
-					type: "success",
-					duration: 5000,
-				});
-			})
-			.catch(() =>
-				addToast({
-					message: `An error occurred, unable to delete invitation link`,
-					type: "error",
-					duration: 5000,
-				})
-			);
+	const handleDeleteInviteLink = async (invite: InviteLink) => {
+
+		const { success } = await invites.update({
+			url: invite.id, 
+			params: { token: invite.code },
+			method: "DELETE"
+		});
+
+		await invites.reload()
+
+		if(success) return addToast({
+			message: `The invitation link has been deleted: ${invite.code}`,
+			type: "success",
+			duration: 5000,
+		});
+
+		addToast({
+			message: `An error occurred, unable to delete invitation link`,
+			type: "error",
+			duration: 5000,
+		})
+
 	};
 
 	/*
@@ -362,20 +368,18 @@
 	const originalDescription = ref("");
 	const originalConfig = ref<Record<string, boolean>>({});
 
-	const inviteLinks = ref<any[]>([]);
-	const memberList = ref<any[]>([]);
+	const inviteLinks = ref<InviteLink[]>([]);
+	const memberList = ref<GroupMember[]>([]);
 
-	const activeTab = ref();
+	const activeTab = ref('members');
 
 	const setActiveTab = async (tab: string) => {
 		searchLoading.value = true;
 		activeTab.value = tab;
 
-		const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>({ throwOnError: false });
-
-		await makeRequest(`/api/moments/members/${group_id}?pending=${tab == "requests"}`);
-		if (data.value) memberList.value = data.value.data;
-		if (error.value) memberList.value = [];
+		await members.reload({
+			params: { pending: tab == "requests" }
+		})
 
 		setTimeout(() => {
 			searchLoading.value = false;
@@ -410,9 +414,9 @@
 	 */
 
 	settings.prepare({
-		url: `/api/moments/settings/${group_id}`,
-		options: { signal: abortController.signal },
+		baseURL: `/api/moments/settings/${group_id}`,
 		onSuccess: ({ response }) => {
+
 			content.value = response.data;
 			name.value = response.data.name;
 			description.value = response.data.description;
@@ -429,38 +433,36 @@
 
 			updateGroupValue(name.value);
 		},
-		onError: ({ error }) => {
-			throw createError({
-				statusCode: error.data.meta.code,
-				message: error.data.meta.message,
-				fatal: true,
-			});
+		onError: ({ error, updated }) => {
+			if(!updated) useThrowError(error)
 		},
 	});
 
 	members.prepare({
-		url: `/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`,
+		baseURL: `/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`,
 		options: { signal: abortController.signal },
-		onSuccess: ({ response }) => (memberList.value = response.data),
-		onError: () => (memberList.value = []),
+		onSuccess: ({ response }) => memberList.value = response.data,
+		onError: () => memberList.value = [],
 	});
 
 	invites.prepare({
-		url: `/api/moments/invitations/${group_id}`,
+		baseURL: `/api/moments/invitations/${group_id}`,
 		options: { signal: abortController.signal },
-		onSuccess: ({ response }) => (inviteLinks.value = response.data),
-		onError: () => (inviteLinks.value = []),
+		onSuccess: ({ response }) => inviteLinks.value = response.data,
+		onError: ({ error, updated }) => {
+			if(!updated) inviteLinks.value = []
+		},
 	});
 
 	/*
 	 ************************************************************************************
 	 */
 
-	await settings.fetch();
+	await settings.load();
 
 	setTimeout(async () => {
-		await members.fetch();
-		await invites.fetch();
+		await members.load();
+		await invites.load();
 
 		searchLoading.value = false;
 		InviteLoading.value = false;
@@ -793,22 +795,31 @@
 			});
 		});
 
-		await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
-			.then(async () => {
-				const { success } = await settings.reload();
+		const { success, error } = await settings.update({ 
+			replaceUrl: `/api/moments/${content.value.id}`,
+			method: "PATCH", 
+			body: values 
+		});
 
-				if (success)
-					return addToast({
-						message: `Group settings have been updated`,
-						type: "success",
-						duration: 5000,
-					});
-			})
-			.catch(async ({ error }: ErrorResponse) => {
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-				if (error.data && error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			})
-			.finally(() => (loading.value = false));
+		await settings.reload()
+
+		if(success) addToast({
+			message: `Group settings have been updated`,
+			type: "success",
+			duration: 5000,
+		});
+
+		else {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			if (error.data && error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+			else addToast({
+				message: `An error occurred, unable to update the settings`,
+				type: "error",
+				duration: 5000,
+			});
+		}
+
+		loading.value = false
 	};
 </script>
 

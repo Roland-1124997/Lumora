@@ -1,103 +1,81 @@
+type FetchUrl = Parameters<typeof $fetch>[0];
+type FetchOptions = Parameters<typeof $fetch>[1];
+
 interface Config<T> {
-    url: Parameters<typeof $fetch>[0];
-    options: Parameters<typeof $fetch>[1];
+    baseURL: FetchUrl;
+    options?: FetchOptions;
     onSuccess: ({ response }: SuccessResponse<T>) => void;
-    onError: ({ error }: any) => void;
+    onError: ({ error, updated }: { error: Ref<ErrorResponse>, updated?: boolean}) => void;
+}
+
+interface UpdateParams extends NonNullable<FetchOptions> {
+    url?: FetchUrl;
+    replaceUrl?: FetchUrl
 }
 
 export const useApi = <T>() => {
-    const { makeRequest, data, error } = useRetryableFetch<ApiResponse<T>>();
+    const { makeRequest, data, error } = useRetryableFetch<ApiResponse<T>>({ throwOnError: false });
     const prepared = ref<Config<T> | null>(null);
+    let lastOptions: UpdateParams | undefined;
 
     const prepare = (config: Config<T>) => {
         prepared.value = config;
     };
 
-    const fetch = async () => {
-        if (!prepared.value?.url) throw new Error("No URL prepared.");
-        const { url, options, onSuccess, onError } = prepared.value;
+    const load = async () => {
+        if (!prepared.value?.baseURL) throw new Error("No URL prepared.");
+        const { baseURL, options, onSuccess, onError } = prepared.value;
 
-        await makeRequest(url, options);
+        await makeRequest(baseURL, options);
 
         if (data.value) onSuccess({ response: data.value as ApiResponse<T> });
-        if (error.value) onError({ error })
+        if (error.value) onError({ error });
     };
 
-    const reload = async () => {
-        await fetch()
+    const getSuccess = () => ({
+        success: !error.value,
+        error: error.value as ErrorResponse["error"],
+    })
+    
+    const reload = async (options?: FetchOptions) => {
+        if (!prepared.value?.baseURL) throw new Error("No URL prepared.");
+        const { baseURL, options: defaultOptions, onSuccess, onError } = prepared.value;
 
-        if (data.value) return { success: true}
-        else return { success: false }
+        const finalOptions = options || defaultOptions;
 
+        await makeRequest(baseURL, finalOptions);
+
+        if (data.value) onSuccess({ response: data.value as ApiResponse<T> });
+        if (error.value) onError({ error });
+
+        return getSuccess();
+    };
+
+    const update = async (options: UpdateParams) => {
+        lastOptions = options;
+
+        if (!prepared.value?.baseURL) throw new Error("No URL prepared.");
+        if (!lastOptions) throw new Error("No update options set.");
+
+        const baseUrl = prepared.value.baseURL.toString().replace(/\/$/, "");
+        const extraPath = lastOptions.url?.toString().replace(/^\//, "");
+        const replaceUrl = lastOptions.replaceUrl || null
+
+        const urlToUseForUpdate = extraPath ? `${baseUrl}/${extraPath}` : (replaceUrl ?? baseUrl);
+
+        const { url: _ignored, ...restOptions } = lastOptions;
+
+        await makeRequest(urlToUseForUpdate, restOptions);
+
+        if (error.value) prepared.value.onError({ error, updated: true });
+        
+        return getSuccess();
     };
 
     return {
         prepare,
-        fetch,
+        load,
         reload,
+        update,
     };
 };
-
-
-
-
-
-
-// export const useApi = () => {
-
-//     let uri: Parameters<typeof $fetch>[0]
-//     let options: Parameters<typeof $fetch>[1]
-
-//     const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>();
-//     const { updateGroupValue } = inject<any>("group");
-
-//     const test = ref()
-
-//     const prepare = ( configuration: any) =>{
-//         test.value = configuration
-//     }
-
-//     const fetch = async (url: Parameters<typeof $fetch>[0], options: Parameters<typeof $fetch>[1] ) => {
-
-//         uri = url
-//         options = options
-
-//         await makeRequest(url, options);
-
-//     }
-
-//     const reload = async () => {
-//         await makeRequest(uri, options);
-//     }
-
-
-//     return {
-//         prepare,
-//         fetch,
-//         reload
-//     }
-// }
-
-
-
-
-
-// await makeRequest(`/api/moments/settings/${group_id}`);
-// if (data.value) {
-//     content.value = data.value.data;
-//     name.value = data.value.data.name;
-//     description.value = data.value.data.description;
-//     config.value = data.value.data.configuration;
-//     activeTab.value = data.value.data.accepted ? "members" : "requests";
-
-//     originalName.value = data.value.data.name;
-//     originalDescription.value = data.value.data.description;
-
-//     data.value.data.configuration.sections.forEach((section: any) => {
-//         section.options.forEach((option: any) => {
-//             originalConfig.value[option.key] = option.value;
-//         });
-//     });
-
-//     updateGroupValue(name.value);
-// }

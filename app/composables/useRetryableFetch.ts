@@ -1,6 +1,6 @@
 export function useRetryableFetch<T>(configuration: { maxAttempts?: number; delay?: number; throwOnError?: boolean } = {}) {
     const data = ref<T | null>(null);
-    const error = ref<any>(null);
+    const error = ref<any | null>(null);
     const loading = ref(false);
 
     const { maxAttempts, delay, throwOnError } = { maxAttempts: 2, delay: 250, throwOnError: true, ...configuration };
