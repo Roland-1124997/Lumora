@@ -6,6 +6,17 @@ interface Media {
     url: string;
 }
 
+interface ConfigSection {
+    title: string;
+    options: ConfigOption[];
+}
+
+interface ConfigOption {
+    key: string;
+    label: string;
+    value: boolean;
+}
+
 
 interface Author {
     name: string;
@@ -37,6 +48,48 @@ interface Error {
     details: ZodIssue[] | AuthError
 }
 
+export interface GroupSettings {
+    id: string;
+    name: string;
+    thumbnail: string;
+    last_active: string;
+    last_photo_posted_by: string | null;
+    owner_id: string;
+    description: string;
+    last_action: string;
+    accepted: boolean;
+    permision: {
+        change: boolean;
+        delete: boolean;
+        create: boolean;
+        edit: boolean;
+    };
+    media: Media
+    configuration: {
+        sections: ConfigSection[];
+    };
+}
+
+export interface GroupMember {
+    id: string;
+    name: string;
+    avatar: string;
+    accepted: boolean;
+    Permissions: MemberPermissions;
+}
+
+interface MemberPermissions {
+    can_edit_group: boolean;
+    can_delete_group: boolean;
+    can_delete_messages_all: boolean;
+}
+
+
+export interface Actions {
+    setErrors: (field: Record<string, string[]>) => void;
+    resetForm: () => void;
+}
+
 export interface Interactions {
     has_liked: boolean;
     likes: {
@@ -48,10 +101,16 @@ export interface Interactions {
 }
 
 export interface InviteLink {
-    id: string;
-    code: string;
+    created_at: string;
     expiresAt: string | null;
+    code: string;
     uses: number;
+    group_id: string;
+    id: string;
+    user_id: string;
+    permision: {
+        delete: boolean;
+    };
 }
 
 export interface pending {
@@ -113,7 +172,6 @@ export interface ApiUserComments {
     comments: UserComments[]
 }
 
-
 export interface Post {
     id: string;
     created_at: string;
@@ -153,10 +211,7 @@ export interface ErrorResponse {
             error: Error | Record<string, any>;
         }
     };
-    actions: {
-        setErrors: (errors: Record<string, string[]>) => void;
-        resetForm: () => void;
-    };
+    actions: Actions
 }
 
 export interface ApiResponse<Type> {

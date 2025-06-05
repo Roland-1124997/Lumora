@@ -345,24 +345,25 @@
 					duration: 5000,
 				});
 			})
-			.catch((error) => {});
+			.catch(() =>
+				addToast({
+					message: `An error occurred, unable to delete invitation link`,
+					type: "error",
+					duration: 5000,
+				})
+			);
 	};
 
 	/*
 	 ************************************************************************************
 	 */
-	const content = ref();
-	const config = ref();
-
-	const { value: name }: any = useField<string>("name");
-	const { value: description }: any = useField<string>("description");
 
 	const originalName = ref("");
 	const originalDescription = ref("");
-	const originalConfig = ref<any[]>([]);
+	const originalConfig = ref<Record<string, boolean>>({});
 
-	const inviteLinks: any = ref([]);
-	const memberList: any = ref([]);
+	const inviteLinks = ref<any[]>([]);
+	const memberList = ref<any[]>([]);
 
 	const activeTab = ref();
 
@@ -383,50 +384,83 @@
 
 	const reloadInvite = async () => {
 		InviteLoading.value = true;
-
-		await makeRequest(`/api/moments/invitations/${group_id}`);
-		if (data.value) inviteLinks.value = data.value.data;
-
-		setTimeout(() => {
-			InviteLoading.value = false;
-		}, 1500);
+		await invites.reload();
+		setTimeout(() => (InviteLoading.value = false), 1500);
 	};
 
 	/*
 	 ************************************************************************************
 	 */
 
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<any>>();
 	const { updateGroupValue } = inject<any>("group");
-
-	await makeRequest(`/api/moments/settings/${group_id}`);
-	if (data.value) {
-		content.value = data.value.data;
-		name.value = data.value.data.name;
-		description.value = data.value.data.description;
-		config.value = data.value.data.configuration;
-		activeTab.value = data.value.data.accepted ? "members" : "requests";
-
-		originalName.value = data.value.data.name;
-		originalDescription.value = data.value.data.description;
-
-		data.value.data.configuration.sections.forEach((section: any) => {
-			section.options.forEach((option: any) => {
-				originalConfig.value[option.key] = option.value;
-			});
-		});
-
-		updateGroupValue(name.value);
-	}
-
 	const abortController = new AbortController();
 
-	setTimeout(async () => {
-		await makeRequest(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`, { signal: abortController.signal });
-		if (data.value) memberList.value = data.value.data;
+	const settings = useApi<GroupSettings>();
+	const members = useApi<GroupMember[]>();
+	const invites = useApi<InviteLink[]>();
 
-		await makeRequest(`/api/moments/invitations/${group_id}`, { signal: abortController.signal });
-		if (data.value) inviteLinks.value = data.value.data;
+	const content = ref();
+	const config = ref();
+
+	const { value: name } = useField<string>("name");
+	const { value: description } = useField<string>("description");
+
+	/*
+	 ************************************************************************************
+	 */
+
+	settings.prepare({
+		url: `/api/moments/settings/${group_id}`,
+		options: { signal: abortController.signal },
+		onSuccess: ({ response }) => {
+			content.value = response.data;
+			name.value = response.data.name;
+			description.value = response.data.description;
+			config.value = response.data.configuration;
+
+			originalName.value = response.data.name;
+			originalDescription.value = response.data.description;
+
+			response.data.configuration.sections.forEach((section) => {
+				section.options.forEach((option) => {
+					originalConfig.value[option.key] = option.value;
+				});
+			});
+
+			updateGroupValue(name.value);
+		},
+		onError: ({ error }) => {
+			throw createError({
+				statusCode: error.data.meta.code,
+				message: error.data.meta.message,
+				fatal: true,
+			});
+		},
+	});
+
+	members.prepare({
+		url: `/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`,
+		options: { signal: abortController.signal },
+		onSuccess: ({ response }) => (memberList.value = response.data),
+		onError: () => (memberList.value = []),
+	});
+
+	invites.prepare({
+		url: `/api/moments/invitations/${group_id}`,
+		options: { signal: abortController.signal },
+		onSuccess: ({ response }) => (inviteLinks.value = response.data),
+		onError: () => (inviteLinks.value = []),
+	});
+
+	/*
+	 ************************************************************************************
+	 */
+
+	await settings.fetch();
+
+	setTimeout(async () => {
+		await members.fetch();
+		await invites.fetch();
 
 		searchLoading.value = false;
 		InviteLoading.value = false;
@@ -447,23 +481,19 @@
 			requestUrl: `/api/moments/${group_id}`,
 		});
 
-		onSuccess(async ({ response }) => {
-			if (response.status.redirect) {
-				setTimeout(() => navigateTo(response.status.redirect), 500);
+		onSuccess(async () => {
+			webSocket.send(
+				JSON.stringify({
+					type: "delete",
+					group_id,
+				})
+			);
 
-				webSocket.send(
-					JSON.stringify({
-						type: "delete",
-						group_id,
-					})
-				);
-
-				addToast({
-					message: `You have deleted the group`,
-					type: "success",
-					duration: 5000,
-				});
-			}
+			addToast({
+				message: `You have deleted the group`,
+				type: "success",
+				duration: 5000,
+			});
 		});
 	};
 
@@ -472,25 +502,20 @@
 	 */
 
 	const createInviteFunction = () => {
-		const { onSuccess } = open({
+		const { onSuccess } = open<InviteLink>({
 			type: "links",
 			name: "Generate",
 			requestUrl: `/api/moments/invitations/${group_id}`,
 		});
 
 		onSuccess(async ({ response }) => {
-			if (response.status.refresh)
-				await $fetch(`/api/moments/invitations/${group_id}`)
-					.then(({ response }: SuccessResponse<InviteLink>) => {
-						inviteLinks.value = response.data;
-
-						addToast({
-							message: `Invitation link has been created: ${response.data.code}`,
-							type: "success",
-							duration: 5000,
-						});
-					})
-					.catch((error) => {});
+			const { success } = await invites.reload();
+			if (success)
+				return addToast({
+					message: `Invitation link has been created: ${response.data.code}`,
+					type: "success",
+					duration: 5000,
+				});
 		});
 	};
 
@@ -507,7 +532,6 @@
 
 		onSuccess(async ({ response }) => {
 			if (response.status.redirect) navigateTo(response.status.redirect);
-
 			webSocket.send(
 				JSON.stringify({
 					type: "update-topics",
@@ -546,25 +570,23 @@
 		});
 
 		onSuccess(async () => {
-			await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
-				.then((response: any) => {
-					memberList.value = response.data;
+			const { success } = await members.reload();
 
-					webSocket.send(
-						JSON.stringify({
-							type: "kick",
-							group_id,
-							member_id: member_id.value,
-						})
-					);
+			if (success) {
+				webSocket.send(
+					JSON.stringify({
+						type: "kick",
+						group_id,
+						member_id: member_id.value,
+					})
+				);
 
-					addToast({
-						message: `Member has been rejected to join the group`,
-						type: "success",
-						duration: 5000,
-					});
-				})
-				.catch((error) => (memberList.value = []));
+				addToast({
+					message: `Member has been rejected to join the group`,
+					type: "success",
+					duration: 5000,
+				});
+			}
 		});
 
 		onError(async () => {
@@ -586,25 +608,23 @@
 		});
 
 		onSuccess(async () => {
-			await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
-				.then((response: any) => {
-					memberList.value = response.data;
+			const { success } = await members.reload();
 
-					webSocket.send(
-						JSON.stringify({
-							type: "kick",
-							group_id,
-							member_id: member_id.value,
-						})
-					);
+			if (success) {
+				webSocket.send(
+					JSON.stringify({
+						type: "kick",
+						group_id,
+						member_id: member_id.value,
+					})
+				);
 
-					addToast({
-						message: `Member has been kicked from the group`,
-						type: "success",
-						duration: 5000,
-					});
-				})
-				.catch((error) => (memberList.value = []));
+				addToast({
+					message: `Member has been kicked from the group`,
+					type: "success",
+					duration: 5000,
+				});
+			}
 		});
 
 		onError(async () => {
@@ -628,23 +648,21 @@
 		});
 
 		onSuccess(async () => {
-			await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
-				.then((response: any) => {
-					memberList.value = response.data;
+			const { success } = await members.reload();
 
-					webSocket.send(
-						JSON.stringify({
-							type: "update-topics",
-						})
-					);
+			if (success) {
+				webSocket.send(
+					JSON.stringify({
+						type: "update-topics",
+					})
+				);
 
-					addToast({
-						message: `Member has been accepted to the group`,
-						type: "success",
-						duration: 5000,
-					});
-				})
-				.catch((error) => (memberList.value = []));
+				addToast({
+					message: `Member has been accepted to the group`,
+					type: "success",
+					duration: 5000,
+				});
+			}
 		});
 
 		onError(async () => {
@@ -669,23 +687,23 @@
 
 		onSuccess(async () => {
 			searchLoading.value = true;
-			await $fetch(`/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`)
-				.then((response: any) => {
-					memberList.value = response.data;
 
-					webSocket.send(
-						JSON.stringify({
-							type: "update-topics",
-						})
-					);
+			const { success } = await members.reload();
 
-					addToast({
-						message: `Member permissions updated`,
-						type: "success",
-						duration: 5000,
-					});
-				})
-				.catch((error) => (memberList.value = []));
+			if (success) {
+				webSocket.send(
+					JSON.stringify({
+						type: "update-topics",
+					})
+				);
+
+				addToast({
+					message: `Member permissions updated`,
+					type: "success",
+					duration: 5000,
+				});
+			}
+
 			setTimeout(() => (searchLoading.value = false), 1500);
 		});
 
@@ -701,7 +719,7 @@
 	/*
 	 ************************************************************************************
 	 */
-	const blocked: any = ref(false);
+	const blocked = ref(false);
 
 	function getOriginalOptionsMap() {
 		const map: Record<string, any> = {};
@@ -727,14 +745,10 @@
 		return false;
 	}
 
-	watch(
-		[name, description, config],
-		() => {
-			const changed = name.value !== originalName.value || description.value !== originalDescription.value || isConfigChanged();
-			if (blocked.value !== changed) blocked.value = changed;
-		},
-		{ deep: true }
-	);
+	watch([name, description, config], () => {
+		const changed = name.value !== originalName.value || description.value !== originalDescription.value || isConfigChanged();
+		if (blocked.value !== changed) blocked.value = changed;
+	}, { deep: true });
 
 	onBeforeRouteLeave((event) => {
 		abortController.abort();
@@ -766,55 +780,31 @@
 		})
 	);
 
-	const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
+	const handleSubmit = async (values: Record<string, any>, actions: Actions) => {
 		loading.value = true;
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		values.configuration = {};
 
-		config.value.sections.forEach((section: any) => {
-			section.options.forEach((option: any) => {
+		config.value.sections.forEach((section: { options: { key: string; value: boolean }[] }) => {
+			section.options.forEach((option) => {
 				values.configuration[option.key] = option.value;
 			});
 		});
 
 		await $fetch(`/api/moments/${content.value.id}`, { method: "PATCH", body: values })
-			.then(async (response: any) => {
-				if (response.status.refresh)
-					await $fetch(`/api/moments/settings/${group_id}`)
-						.then((response) => {
-							content.value = response.data;
-							name.value = response.data.name;
-							config.value = response.data.configuration;
-							description.value = response.data.description;
+			.then(async () => {
+				const { success } = await settings.reload();
 
-							originalConfig.value = [];
-
-							originalName.value = response.data.name;
-							originalDescription.value = response.data.description;
-
-							response.data.configuration.sections.forEach((section: any) => {
-								section.options.forEach((option: any) => {
-									originalConfig.value[option.key] = option.value;
-								});
-							});
-
-							addToast({
-								message: `Group settings have been updated`,
-								type: "success",
-								duration: 5000,
-							});
-						})
-						.catch((error) => {
-							throw createError({
-								statusCode: error.data.meta.code,
-								message: error.data.meta.message,
-								fatal: true,
-							});
-						});
+				if (success)
+					return addToast({
+						message: `Group settings have been updated`,
+						type: "success",
+						duration: 5000,
+					});
 			})
-			.catch(async (error) => {
+			.catch(async ({ error }: ErrorResponse) => {
 				await new Promise((resolve) => setTimeout(resolve, 1000));
 				if (error.data && error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
 			})

@@ -49,7 +49,7 @@
 	const { addToast } = useToast();
 
 	// Handle form submission and validation using Vee-Validate
-	const handleSubmit = async (values: Record<string, any>, actions: Record<string, any>) => {
+	const handleSubmit = async (values: Record<string, any>, actions: Actions) => {
 		loading.value = true;
 
 		if (method == "DELETE") await new Promise((resolve) => setTimeout(resolve, 2000));

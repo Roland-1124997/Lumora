@@ -60,5 +60,4 @@ const defaultErrorHandler = async ({ error, actions }: ErrorResponse) => {
     await new Promise((resolve) => setTimeout(resolve, 500))
     if (error?.data?.error?.type === 'fields') actions.setErrors(error.data.error.details)
     else actions.setErrors({ message: ['Something went wrong. Please try again later.'] })
-    
 }

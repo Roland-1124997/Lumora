@@ -17,7 +17,7 @@
     "@pinia/nuxt": "^0.11.0",
     "@vee-validate/zod": "^4.14.7",
     "@vite-pwa/nuxt": "^1.0.3",
-    "nuxt": "^3.17.4",
+    "nuxt": "^3.17.5",
     "nuxt-charts": "^0.1.9",
     "pinia": "^3.0.2",
     "splitpanes": "^4.0.2",
