@@ -241,7 +241,9 @@
 		const page = ref(1);
 		reload.value = true;
 
-		while (page.value <= totalPages.value) {
+		const group: any = getGroupData(group_id)
+
+		while (page.value <= group.pagination.page) {
 			await makeRequest(`/api/moments/${group_id}?page=${page.value}`);
 
 			if (data.value) {
@@ -249,8 +251,7 @@
 				updateListData(response, page.value);
 			}
 
-			if (page.value < totalPages.value) page.value++;
-			else break;
+			page.value++;
 		}
 
 		setTimeout(() => (reload.value = false), 2000);
@@ -271,8 +272,9 @@
 		});
 
 		onSuccess(async () => {
+
 			if (need_approval.value) await fetchPending();
-			else handleReload();
+			else await handleReload()
 
 			addToast({
 				message: need_approval.value ? "Your image has been submitted for approval." : "Your image has been posted successfully.",

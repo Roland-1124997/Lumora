@@ -31,7 +31,7 @@
 							<div class="text-sm font-normal text-red-800 text-balance">{{ notification.reason }}</div>
 						</div>
 
-						<NuxtLink :to="notification.post?.url || notification.group.url" class="flex items-center gap-2 mt-2">
+						<NuxtLink :to="notification.post?.url || notification.group?.url" class="flex items-center gap-2 mt-2">
 							<div v-if="notification.group || notification.post" class="text-sm flex items-center border p-1 px-2 rounded-md text-[#756145]">
 								<icon name="ri:group-line" size="1em" class="inline-block mr-1" />
 								<span>{{ notification.group.name }}</span>

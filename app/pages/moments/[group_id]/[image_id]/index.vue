@@ -37,7 +37,7 @@
 
 						<div v-if="content?.has_interactions">
 							<hr class="my-2 mt-4" />
-							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
+							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="comment.reload" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
 							<div class="flex flex-col gap-3 -mt-3">
 								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
 							</div>
@@ -68,7 +68,7 @@
 
 					<div class="mb-36" v-if="content?.has_interactions">
 						<hr class="my-2 mt-4" />
-						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="fetchComments" :onSubmit="handleSubmitComments" ref="commentForm" />
+						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="comment.reload" :onSubmit="handleSubmitComments" ref="commentForm" />
 						<div class="flex flex-col gap-3 -mt-3">
 							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
 						</div>
@@ -106,14 +106,196 @@
 		middleware: "unauthorized",
 	});
 
+	
+	/*
+	 ************************************************************************************
+	 */
+
+	const loaded = ref(false);
+	setTimeout(() => loaded.value = true, 1500);
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const { addToast } = useToast();
+	const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId, updateItemByMetaId } = useGroupStore();
+	const { updateGroupValue } = inject<any>("group");
+		
+	const group_id: any = useRoute().params.group_id;
+	const image_id: any = useRoute().params.image_id;
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const image = useApi<PostUserDetails>()
+	const content = ref<PostUserDetails | null>(null);
+	const abortController = new AbortController();
+	const thumbnail = ref<any>(null);
+
+	image.prepare({
+		baseURL: `/api/moments/${group_id}/${image_id}`,
+		onSuccess: ({ response }) => {
+			content.value = response.data;
+			updateGroupValue(response.meta?.name);
+		},
+		onError: ({ error, updated }) => {
+
+			if(updated) return addToast({
+				message: "An error occurred, unable to complete this action",
+				type: "error",
+				duration: 5000
+			})
+
+			removeItemByMetaId(group_id, image_id);
+			useThrowError(error)
+			
+		},
+	})
+
+	await image.load()
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const post = useApi<PostUserDetails[]>()
+	let list: PostUserDetails[] = [];
+	let [page, total] = [1, 0]
+	
+	post.prepare({
+		baseURL: `/api/moments/${group_id}`,
+		onSuccess: ({ response }) => {
+
+			total = response.pagination?.total || 0
+			const name = response.meta?.name || "";
+
+			if (page === 1) {
+				list = response.data;
+				removeData(group_id, { partial: true });
+				setTimeout(() => setGroupData(group_id, name, page, total, list), 200);
+			} 
+					
+			else {
+				list.push(...response.data);
+				setTimeout(() => updateGroupData(group_id, name, page, total, list), 200);
+			}
+			
+		},
+		onError: ({ error, updated }) => addToast({
+			message: `An error occurred, unable to update the post state`,
+			type: "error",
+			duration: 5000,
+		})
+	})
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const loading = ref(true);
+	const comment = useApi<ApiUserComments>()
+	const comments = ref<UserComments[]>([]);
+	const comment_id = ref();
+
+	comment.prepare({
+		baseURL: `/api/moments/comments/${group_id}/${content.value?.id}`,
+		options: { signal: abortController.signal },
+		onSuccess: ({ response }) => {
+			loading.value = true;
+			
+			comments.value = response.data.comments;
+			total_comment_count.value = response.data.count;
+
+			setTimeout(() => (loading.value = false), 1000);
+		},
+		onError: ({ error, updated }) => {
+			
+			if(updated) addToast({
+				message: `An error occurred, unable to complete this action`,
+				type: "error",
+				duration: 5000,
+			});
+			
+		},
+	})
+
+	setTimeout( async () => {
+		await comment.load()
+		loading.value = false
+	}, 1500);
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const { open } = useModal();
+	
+
+	const createDeleteFunction = () => {
+		const { onSuccess } = open({
+			type: "negative:post",
+			name: "Alert",
+			requestUrl: `/api/moments/${group_id}/${image_id}`,
+		});
+
+		onSuccess(async () => {
+			removeItemByMetaId(group_id, image_id);
+			list = [];
+
+			const group: any = getGroupData(group_id)
+
+			while (page <= group.pagination.page) {
+
+				await post.reload({
+					params: { page: page }
+				})
+
+				if (page === group.pagination.page) break;
+				page++;
+			}
+
+			const router = useRouter();
+			router.replace(`/moments/${group_id}`);
+
+			addToast({
+				message: `post has been deleted`,
+				type: "success",
+				duration: 5000,
+			});
+			
+		});
+	};
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const createDeleteCommentFunction = (values: UserComments) => {
+		const { onSuccess } = open({
+			type: "negative:comment",
+			name: "Alert",
+			requestUrl: `/api/moments/comments/${group_id}/${content.value?.id}/${values.id}`,
+		});
+
+		onSuccess(async () => {
+			await comment.reload();
+
+			addToast({
+				message: `comment has been deleted`,
+				type: "success",
+				duration: 5000,
+			});
+		});
+	};
+
 	/*
 	 ************************************************************************************
 	 */
 
 	const mobileCommentForm = ref<any>(null);
 	const commentForm = ref<any>(null);
-	const thumbnail = ref<any>(null);
-	const comment_id = ref();
 	const type = ref("");
 
 	const focusEditable = () => {
@@ -121,28 +303,6 @@
 		mobileCommentForm.value?.editable?.focus();
 		comment_id.value = null;
 	};
-
-	/*
-	 ************************************************************************************
-	 */
-
-	const loaded = ref(false);
-	setTimeout(() => {
-		loaded.value = true;
-	}, 1500);
-
-	/*
-	 ************************************************************************************
-	 */
-
-	const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId, updateItemByMetaId } = useGroupStore();
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<PostUserDetails>>();
-	const { makeRequest: makeCommentRequest, data: commentsList, error: commentError } = useRetryableFetch<ApiResponse<ApiUserComments>>();
-
-	const { updateGroupValue } = inject<any>("group");
-
-	const group_id: any = useRoute().params.group_id;
-	const image_id: any = useRoute().params.image_id;
 
 	const handleReply = (comment: UserComments) => {
 		focusEditable();
@@ -161,18 +321,10 @@
 		comment_id.value = comment.id;
 	};
 
-	const content = ref<PostUserDetails | null>(null);
-	const group: any = getGroupData(group_id);
+	/*
+	 ************************************************************************************
+	 */
 
-	await makeRequest(`/api/moments/${group_id}/${image_id}`);
-	if (error.value) removeItemByMetaId(group_id, image_id);
-
-	if (data.value) {
-		content.value = data.value.data;
-		updateGroupValue(data.value.meta?.name);
-	}
-
-	const comments = ref<UserComments[]>([]);
 	const total_comment_count = ref(0);
 	const comments_count = computed(() => total_comment_count.value);
 	const likes_count = computed(() => content.value?.has_interactions?.likes.count || 0);
@@ -201,25 +353,6 @@
 		});
 	};
 
-	const loading = ref(false);
-
-	const abortController = new AbortController();
-
-	const fetchComments = async () => {
-		loading.value = true;
-		await makeCommentRequest(`/api/moments/comments/${group_id}/${content.value?.id}`, { signal: abortController.signal });
-		if (commentsList.value) {
-			comments.value = commentsList.value.data.comments;
-			total_comment_count.value = commentsList.value.data.count;
-		}
-
-		setTimeout(() => (loading.value = false), 500);
-	};
-
-	/*
-	 ************************************************************************************
-	 */
-
 	onUnmounted(() => {
 		abortController.abort();
 	});
@@ -230,38 +363,22 @@
 	});
 
 	setTimeout(async () => {
-		if (content.value?.has_interactions) await fetchComments();
+		if (content.value?.has_interactions) await comment.reload();
 	}, 2500);
 
 	/*
 	 ************************************************************************************
 	 */
 
-	const handleSubmitComments = async (comment: UserComments) => {
-		if (type.value == "Update")
-			await $fetch(`/api/moments/comments/${group_id}/${content.value?.id}/${comment_id.value}`, { method: "PATCH", body: { comment } }).then(async (response) => {
-				await fetchComments();
-				comment_id.value = null;
-			});
-		else if (comment_id.value)
-			await $fetch(`/api/moments/comments/${group_id}/${content.value?.id}`, { method: "POST", body: { comment, parent_id: comment_id.value } }).then(async (response) => {
-				await fetchComments();
-				comment_id.value = null;
-			});
-		else
-			await $fetch(`/api/moments/comments/${group_id}/${content.value?.id}`, { method: "POST", body: { comment } }).then(async (response) => {
-				await fetchComments();
-			});
+	const handleSubmitComments = async (values: UserComments) => {
+		const url = type.value === "Update" ? `/${comment_id.value}` : ""
+		const method = type.value === "Update" ? "PATCH" : "POST"
+		const body = { parent_id: comment_id.value || undefined, comment: values }
+
+		await comment.update({url, method, body});
+		await comment.reload();
+		comment_id.value = null;
 	};
-
-	/*
-	 ************************************************************************************
-	 */
-
-	const page = ref(1);
-	const total = ref();
-	const list = ref<PostUserDetails[]>([]);
-	const name = ref();
 
 	/*
 	 ************************************************************************************
@@ -269,13 +386,13 @@
 
 	const webSocket = inject<any>("WebSocket");
 
-	watch(webSocket.data, (payload) => {
+	watch(webSocket.data, async (payload) => {
 		const data = JSON.parse(payload);
 
 		if (data.image_id === image_id && data.group_id === group_id && content.value) {
 			content.value.has_interactions.likes.count = data.likes.count;
 			updateStoreInteractions();
-			fetchComments();
+			await comment.reload()
 		}
 	});
 
@@ -286,88 +403,15 @@
 	const isAnimating = ref(false);
 
 	const likeImage = async () => {
-		const group_id = useRoute().params.group_id;
 		isAnimating.value = true;
 		setTimeout(() => (isAnimating.value = false), 300);
 
-		const response = await $fetch<ApiResponse<Interactions>>(`/api/moments/${group_id}/${content.value?.id}`, { method: "PATCH" });
+		await image.update({
+			method: "PATCH"
+		})
 
-		if (content.value) {
-			content.value.has_interactions.likes.count = response.data.likes.count;
-			content.value.has_interactions.has_liked = response.data.has_liked;
-		}
-	};
+		image.reload()
 
-	/*
-	 ************************************************************************************
-	 */
-
-	const { open } = useModal();
-	const { addToast } = useToast();
-
-	const createDeleteFunction = () => {
-		const { onSuccess } = open({
-			type: "negative:post",
-			name: "Alert",
-			requestUrl: `/api/moments/${group_id}/${image_id}`,
-		});
-
-		onSuccess(async () => {
-			removeItemByMetaId(group_id, image_id);
-			list.value = [];
-
-			while (page.value <= group.pagination.page) {
-				await $fetch(`/api/moments/${group_id}?page=${page.value}`).then((response) => {
-					total.value = response.pagination.total;
-					name.value = response.meta.name;
-
-					if (page.value === 1) {
-						list.value = response.data;
-						removeData(group_id, { partial: true });
-						setTimeout(() => setGroupData(group_id, name.value, page.value, total.value, list.value), 200);
-					} else {
-						list.value.push(...response.data);
-						setTimeout(() => updateGroupData(group_id, name.value, page.value, total.value, list.value), 200);
-					}
-				});
-
-				if (page.value < total.value) page.value++;
-				else break;
-			}
-
-			setTimeout(() => {
-				const router = useRouter();
-				router.replace(`/moments/${group_id}`);
-
-				addToast({
-					message: `post has been deleted`,
-					type: "success",
-					duration: 5000,
-				});
-			}, 500);
-		});
-	};
-
-	/*
-	 ************************************************************************************
-	 */
-
-	const createDeleteCommentFunction = (comment: UserComments) => {
-		const { onSuccess } = open({
-			type: "negative:comment",
-			name: "Alert",
-			requestUrl: `/api/moments/comments/${group_id}/${content.value?.id}/${comment.id}`,
-		});
-
-		onSuccess(async () => {
-			await fetchComments();
-
-			addToast({
-				message: `comment has been deleted`,
-				type: "success",
-				duration: 5000,
-			});
-		});
 	};
 
 	/*

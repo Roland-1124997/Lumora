@@ -4,13 +4,12 @@ type FetchOptions = Parameters<typeof $fetch>[1];
 interface Config<T> {
     baseURL: FetchUrl;
     options?: FetchOptions;
-    onSuccess: ({ response }: SuccessResponse<T>) => void;
-    onError: ({ error, updated }: { error: Ref<ErrorResponse>, updated?: boolean}) => void;
+    onSuccess?: ({ response }: SuccessResponse<T>) => void;
+    onError: ({ error, updated }: { error: Ref<ErrorResponse["error"]>, updated?: boolean}) => void;
 }
 
 interface UpdateParams extends NonNullable<FetchOptions> {
     url?: FetchUrl;
-    replaceUrl?: FetchUrl
 }
 
 export const useApi = <T>() => {
@@ -28,7 +27,7 @@ export const useApi = <T>() => {
 
         await makeRequest(baseURL, options);
 
-        if (data.value) onSuccess({ response: data.value as ApiResponse<T> });
+        if (onSuccess && data.value) onSuccess({ response: data.value as ApiResponse<T> });
         if (error.value) onError({ error });
     };
 
@@ -45,7 +44,7 @@ export const useApi = <T>() => {
 
         await makeRequest(baseURL, finalOptions);
 
-        if (data.value) onSuccess({ response: data.value as ApiResponse<T> });
+        if (onSuccess && data.value) onSuccess({ response: data.value as ApiResponse<T> });
         if (error.value) onError({ error });
 
         return getSuccess();
@@ -59,9 +58,8 @@ export const useApi = <T>() => {
 
         const baseUrl = prepared.value.baseURL.toString().replace(/\/$/, "");
         const extraPath = lastOptions.url?.toString().replace(/^\//, "");
-        const replaceUrl = lastOptions.replaceUrl || null
 
-        const urlToUseForUpdate = extraPath ? `${baseUrl}/${extraPath}` : (replaceUrl ?? baseUrl);
+        const urlToUseForUpdate = extraPath ? `${baseUrl}/${extraPath}` : baseUrl;
 
         const { url: _ignored, ...restOptions } = lastOptions;
 

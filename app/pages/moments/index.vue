@@ -72,7 +72,7 @@
 	 ************************************************************************************
 	 */
 
-	const List = ref<GroupOverview[]>([]);
+	
 	const loading = ref(false);
 	
 	const totalPages = ref(0);
@@ -83,18 +83,38 @@
 	const searchLoading = ref(false);
 	const searched = ref(!!query.search);
 
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<GroupOverview[]>>({ throwOnError: false });
-
 	/*
 	 ************************************************************************************
 	 */
 
-	await makeRequest(`/api/moments?search=${searchTerm.value}`);
+	const overview = useApi<GroupOverview[]>()
+	const List = ref<GroupOverview[]>([]);
+	
+	overview.prepare({
+		baseURL: "/api/moments",
+		options: { params: { search: searchTerm.value }},
+		onSuccess: ({ response }) => {
+			List.value = response.data
+			totalPages.value = response.pagination?.total || 0
+		},
 
-	if (data.value) {
-		List.value = data.value.data;
-		totalPages.value = data.value.pagination?.total || 0;
-	}
+		onError: ({ error, updated }) => {
+
+			if(updated) addToast({
+				message: `An error occurred, unable to fetch`,
+				type: "error",
+				duration: 5000,
+			})
+			
+		},
+		
+	})
+
+	await overview.load()
+
+	/*
+	 ************************************************************************************
+	 */
 
 	const handleSearch = (result: Ref<ApiResponse<GroupOverview[]>>, error: Ref<ErrorResponse>, loading: boolean) => {
 		Page.value = 1;
@@ -115,12 +135,9 @@
 		Page.value = 1;
 		searchLoading.value = true;
 
-		await makeRequest(`/api/moments?search=${searchTerm.value}`);
-
-		if (data.value) {
-			List.value = data.value.data;
-			totalPages.value = data.value.pagination?.total || 0;
-		}
+		await overview.reload({
+			params: { search: searchTerm.value }
+		})
 
 		setTimeout(() => {
 			searchLoading.value = false;
@@ -134,6 +151,8 @@
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
 	const { scrollPercentage, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
 
+	const { makeRequest, data } = useRetryableFetch<ApiResponse<GroupOverview[]>>({ throwOnError: false });
+
 	useInfiniteScroll(
 		containerProps.ref,
 		async () => {
@@ -142,7 +161,12 @@
 			loading.value = true;
 			Page.value += 1;
 
-			await makeRequest(`/api/moments?page=${Page.value}&search=${searchTerm.value}`);
+			await makeRequest(`/api/moments`, {
+				params: {
+					page: Page.value,
+					search: searchTerm.value
+				}
+			});
 
 			if (data.value && Array.isArray(data.value.data)) {
 				new Promise((resolve) => setTimeout(resolve, 500));

@@ -399,6 +399,7 @@
 	const { updateGroupValue } = inject<any>("group");
 	const abortController = new AbortController();
 
+	const group = useApi<null>()
 	const settings = useApi<GroupSettings>();
 	const members = useApi<GroupMember[]>();
 	const invites = useApi<InviteLink[]>();
@@ -412,6 +413,8 @@
 	/*
 	 ************************************************************************************
 	 */
+
+	
 
 	settings.prepare({
 		baseURL: `/api/moments/settings/${group_id}`,
@@ -437,6 +440,16 @@
 			if(!updated) useThrowError(error)
 		},
 	});
+
+	group.prepare({
+		baseURL: `/api/moments`,
+		onSuccess: () => {},
+		onError: () => addToast({
+			message: `An error occurred, unable to update the settings`,
+			type: "error",
+			duration: 5000,
+		})
+	})
 
 	members.prepare({
 		baseURL: `/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`,
@@ -547,13 +560,11 @@
 			});
 		});
 
-		onError(async () => {
-			addToast({
-				message: `An error occurred, unable to leave the group`,
-				type: "error",
-				duration: 5000,
-			});
-		});
+		onError(async () => addToast({
+			message: `An error occurred, unable to leave the group`,
+			type: "error",
+			duration: 5000,
+		}))
 	};
 
 	/*
@@ -591,14 +602,16 @@
 			}
 		});
 
-		onError(async () => {
-			addToast({
-				message: `An error occurred, unable to reject the member`,
-				type: "error",
-				duration: 5000,
-			});
-		});
+		onError(async () => addToast({
+			message: `An error occurred, unable to reject the member`,
+			type: "error",
+			duration: 5000,
+		}));
 	};
+
+	/*
+	 ************************************************************************************
+	 */
 
 	const createKickFunction = (id: string) => {
 		member_id.value = id;
@@ -629,13 +642,11 @@
 			}
 		});
 
-		onError(async () => {
-			addToast({
-				message: `An error occurred, unable to kick the member`,
-				type: "error",
-				duration: 5000,
-			});
-		});
+		onError(async () => addToast({
+			message: `An error occurred, unable to kick the member`,
+			type: "error",
+			duration: 5000,
+		}));
 	};
 
 	// /*
@@ -667,13 +678,11 @@
 			}
 		});
 
-		onError(async () => {
-			addToast({
-				message: `An error occurred, unable to accept the member`,
-				type: "error",
-				duration: 5000,
-			});
-		});
+		onError(async () => addToast({
+			message: `An error occurred, unable to accept the member`,
+			type: "error",
+			duration: 5000,
+		}));
 	};
 
 	/*
@@ -709,13 +718,11 @@
 			setTimeout(() => (searchLoading.value = false), 1500);
 		});
 
-		onError(async () => {
-			addToast({
-				message: `An error occurred, unable to update the member`,
-				type: "error",
-				duration: 5000,
-			});
-		});
+		onError(async () => addToast({
+			message: `An error occurred, unable to update the member`,
+			type: "error",
+			duration: 5000,
+		}));
 	};
 
 	/*
@@ -795,8 +802,8 @@
 			});
 		});
 
-		const { success, error } = await settings.update({ 
-			replaceUrl: `/api/moments/${content.value.id}`,
+		const { success, error } = await group.update({ 
+			url: content.value.id,
 			method: "PATCH", 
 			body: values 
 		});
@@ -812,11 +819,6 @@
 		else {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 			if (error.data && error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-			else addToast({
-				message: `An error occurred, unable to update the settings`,
-				type: "error",
-				duration: 5000,
-			});
 		}
 
 		loading.value = false
