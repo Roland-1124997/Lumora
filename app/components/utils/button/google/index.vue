@@ -13,9 +13,16 @@
 </template>
 
 <script setup lang="ts">
+
+	const { makeRequest } = useRetryableFetch({ maxAttempts: 1, throwOnError: false});
+
 	const handleGoogleSuccess = async (response: any) => {
-		await $fetch("/api/auth/google/identity", { method: "POST", body: response }).then((response) => {
-			navigateTo(response.status.redirect);
-		});
+
+		const { data } = await makeRequest("/api/auth/google/identity", { 
+			method: "POST", body: response 
+		})
+
+		if(data.value) navigateTo(data.value.status.redirect);
+
 	};
 </script>

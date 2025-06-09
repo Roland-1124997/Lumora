@@ -1,5 +1,9 @@
 import type { ZodIssue } from 'zod';
 import type { AuthError } from '@supabase/auth-js';
+import type { InternalApi, } from 'nitropack'
+
+export type FetchUrl = Parameters<typeof $fetch>[0];
+export type FetchOptions = Parameters<typeof $fetch>[1];
 
 interface Media {
     type: "image";
@@ -113,7 +117,7 @@ export interface InviteLink {
     };
 }
 
-export interface pending {
+export interface Pending {
     accepted: boolean,
     need_approval: boolean,
     posts_count_need_approval: number,

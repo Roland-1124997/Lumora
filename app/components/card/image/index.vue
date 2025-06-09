@@ -93,6 +93,7 @@
 	const { addToast } = useToast();
 	const { updateItemByMetaId } = useGroupStore();
 	const { setPinned, getPinned } = usePinStore();
+	const { makeRequest } = useRetryableFetch();
 
 	const pinned = ref(false);
 	pinned.value = getPinned(group_id, { id: content.id }) ? true : false;
@@ -126,39 +127,43 @@
 		isAnimating.value = true;
 		setTimeout(() => (isAnimating.value = false), 300);
 
-		await $fetch<any>(`/api/moments/${group_id}/${content.id}`, { method: "PATCH" })
-			.then((response: any) => {
-				hearts.value = response.data.likes.count;
-				liked.value = response.data.has_liked;
+		const { data, error } = await makeRequest<Interactions>(`/api/moments/${group_id}/${content.id}`, { 
+			method: "PATCH" 
+		})
 
-				webSocket.send(
-					JSON.stringify({
-						type: "update",
-						group_id,
-						image_id: content.id,
-						likes: {
-							count: hearts.value,
-						},
-						comments: {
-							count: comments.value,
-						},
-					})
-				);
+		if(data.value) {
+			hearts.value = data.value.data.likes.count;
+			liked.value = data.value.data.has_liked;
 
-				updateItemByMetaId(group_id, content.id, {
-					has_interactions: {
-						has_liked: liked.value,
-						likes: { count: hearts.value },
-						comments: { count: comments.value },
+			webSocket.send(
+				JSON.stringify({
+					type: "update",
+					group_id,
+					image_id: content.id,
+					likes: {
+						count: hearts.value,
 					},
-				});
-			})
-			.catch(() => {
-				addToast({
-					message: `Unable to like this image at the moment.`,
-					type: "error",
-					duration: 5000,
-				});
+					comments: {
+						count: comments.value,
+					},
+				})
+			);
+
+			updateItemByMetaId(group_id, content.id, {
+				has_interactions: {
+					has_liked: liked.value,
+					likes: { count: hearts.value },
+					comments: { count: comments.value },
+				},
 			});
+
+		}
+
+		if(error.value) addToast({
+			message: `Unable to like this image at the moment.`,
+			type: "error",
+			duration: 5000,
+		});
+			
 	};
 </script>

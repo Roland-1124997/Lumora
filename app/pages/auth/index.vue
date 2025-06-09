@@ -5,7 +5,7 @@
 			<p class="text-base text-gray-500">Enter your email and password to log in</p>
 		</div>
 
-		<FieldFormAuth requestUrl="/api/auth" :schema="LoginSchema" :onSuccess="handleSuccess" :onError="handleError" />
+		<FieldFormAuth url="/api/auth" :schema="LoginSchema" :onSuccess="handleSuccess" :onError="handleError" />
 		<UtilsSeparator />
 		<UtilsButtonGoogle />
 

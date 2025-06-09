@@ -1,5 +1,5 @@
 <template>
-	<FieldFormBaseLayer :requestUrl :onSuccess :onError :method :schema label="Register">
+	<FieldFormBaseLayer :url :onSuccess :onError :method :schema label="Register">
 		<div class="space-y-4">
 			<FieldInputEmail name="email" placeholder="Enter your email" required />
 			<FieldInputPassword name="password" placeholder="Enter your password" required rerender enableToggle />
@@ -9,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-	const { requestUrl, onSuccess, onError, method } = defineProps({
-		requestUrl: { type: String, required: true },
+	const { url, onSuccess, onError, method } = defineProps({
+		url: { type: String, required: true },
 		onSuccess: { type: Function, required: true },
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },

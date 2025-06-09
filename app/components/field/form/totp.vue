@@ -1,5 +1,5 @@
 <template>
-	<FieldFormBaseLayer :requestUrl :onSuccess :onError :method :onReturn :schema label="Confirm">
+	<FieldFormBaseLayer :url :onSuccess :onError :method :onReturn :schema label="Confirm">
 		<div class="space-y-4 md:pt-12">
 			<field name="code" v-model="value" v-slot="{ field, meta }: any">
 				<transition name="fade">
@@ -19,22 +19,27 @@
 </template>
 
 <script setup lang="ts">
-	const { requestUrl, onSuccess, onError, method } = defineProps({
-		requestUrl: { type: String, required: true },
+	const { url, onSuccess, onError, method } = defineProps({
+		url: { type: String, required: true },
 		onSuccess: { type: Function, required: true },
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },
 		schema: { type: Object, required: true },
 	});
 
+	const { makeRequest } = useRetryableFetch();
 	const store = useSessionsStore();
 	const pasted = ref(false);
 
-	const onReturn = () => {
-		$fetch("/api/auth/logout", { method: "POST" }).then((response) => {
+	const onReturn = async () => {
+
+		const { data }  = await makeRequest<null>("/api/auth/logout", { method: "POST" })
+
+		if(data.value) {
 			store.clearSession();
-			navigateTo(response.status.redirect);
-		});
+			navigateTo(data.value.status.redirect);
+		}
+
 	};
 
 	const { value } = useField<string>(`code`);

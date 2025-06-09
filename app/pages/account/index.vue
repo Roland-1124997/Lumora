@@ -127,6 +127,7 @@
 	const { updateUsername } = inject<any>("username");
 	const { addToast } = useToast();
 
+	const { makeRequest } = useRetryableFetch();
 	const store = useSessionsStore();
 	const groupStore = useGroupStore();
 
@@ -222,31 +223,38 @@
 		blocked.value = false;
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
-		await $fetch("/api/user", { method: "patch", body: values })
-			.then(async (response) => {
-				updateUsername(response.data.name);
+		
+		const { data, error } = await makeRequest<User>("/api/user", {
+			method: "patch", body: values
+		})
 
-				username.value = response.data.name;
-				email.value = response.data.email;
+		if(data.value) {
+			
+			username.value = data.value.data.name;
+			email.value = data.value.data.email;
 
-				originalUsername.value = response.data.name;
-				originalEmail.value = response.data.email;
+			originalUsername.value = data.value.data.name;
+			originalEmail.value = data.value.data.email;
 
-				addToast({
-					message: `User profile have been updated`,
-					type: "success",
-					duration: 5000,
-				});
-			})
-			.catch((error) => {
-				if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-				addToast({
-					message: `Something went wrong updating the user profile`,
-					type: "error",
-					duration: 5000,
-				});
-			})
-			.finally(() => (loading.value = false));
+			updateUsername(data.value.data.name);
+
+			addToast({
+				message: `User profile have been updated`,
+				type: "success",
+				duration: 5000,
+			});
+		}
+
+		if(error.value) {
+			if (error.value.data.error?.type == "fields") actions.setErrors(error.value.data.error.details);
+			addToast({
+				message: `Something went wrong updating the user profile`,
+				type: "error",
+				duration: 5000,
+			});
+		}
+
+		loading.value = false
 	};
 
 	/*
@@ -258,26 +266,30 @@
 		blocked.value = false;
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
-		await $fetch("/api/user", { method: "put", body: values })
-			.then(async (response) => {
-				setTimeout(() => navigateTo(response.status.redirect), 500);
-				addToast({
-					message: `Password has been updated`,
-					type: "success",
-					duration: 5000,
-				});
-			})
-			.catch((error) => {
-				if (error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
-				addToast({
-					message: `Something went wrong updating the password`,
-					type: "error",
-					duration: 5000,
-				});
-			})
-			.finally(() => {
-				loading_password.value = false;
+
+		const { data, error } = await makeRequest<User>("/api/user", {
+			method: "patch", body: values
+		})
+
+		if(data.value) {
+			setTimeout(() => navigateTo(data.value?.status.redirect),  500)
+			addToast({
+				message: `Password has been updated`,
+				type: "success",
+				duration: 5000,
 			});
+		}
+
+		if(error.value) {
+			if (error.value.data.error?.type == "fields") actions.setErrors(error.value.data.error.details);
+			addToast({
+				message: `Something went wrong updating the password`,
+				type: "error",
+				duration: 5000,
+			});
+		}
+
+		loading_password.value = false;
 	};
 
 	/*
@@ -290,7 +302,7 @@
 		updateModalValue({
 			type: "negative:account",
 			name: "Alert",
-			requestUrl: `/api/auth`,
+			url: `/api/auth`,
 			onSuccess: handleSuccess,
 			onError: handleError,
 		});
@@ -323,7 +335,7 @@
 			updateModalValue({
 				type: "create:totp",
 				name: "Authentication",
-				requestUrl: ``,
+				url: ``,
 				onSuccess: () => {},
 				onError: () => {},
 			});
@@ -331,7 +343,7 @@
 			updateModalValue({
 				type: "negative:totp",
 				name: "Authentication",
-				requestUrl: `/api/auth/totp`,
+				url: `/api/auth/totp`,
 				onSuccess: handleDeleteMFASuccess,
 				onError: handleDeleteMFAError,
 			});
@@ -356,11 +368,15 @@
 	 ************************************************************************************
 	 */
 
-	const logout = () => {
-		$fetch("/api/auth/logout", { method: "POST" }).then((response) => {
+	const logout = async () => {
+
+		const { data }  = await makeRequest<null>("/api/auth/logout", { method: "POST" })
+
+		if(data.value) {
 			store.clearSession();
 			groupStore.clearAllData();
-			navigateTo(response.status.redirect);
-		});
+			navigateTo(data.value.status.redirect);
+		}
+
 	};
 </script>

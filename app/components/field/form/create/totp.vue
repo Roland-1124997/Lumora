@@ -1,18 +1,16 @@
 <template>
-	<FieldFormBaseLayer class="mb-5" :callback :requestUrl :onSuccess :onError :resize :method :schema>
+	<FieldFormBaseLayer class="mb-5" :callback :url :onSuccess :onError :resize :method :schema>
 		<template v-slot="{ errors }">
 			<div class="py-3 mt-5 border-y h-fit md:h-[68vh]">
 				<img v-if="qr_code" class="object-contain w-full h-full border rounded-xl aspect-square bg-gray-50" :src="qr_code" />
 				<div @click="copy" class="flex items-center justify-center gap-2 p-2 mt-2 bg-gray-100 border rounded-xl">
-					<Icon :class=" copied ? 'text-green-600' : ''" :name=" copied ? 'ri:checkbox-circle-fill' : 'ri:attachment-2'" size="1.4rem" />
-					
+					<Icon :class="copied ? 'text-green-600' : ''" :name="copied ? 'ri:checkbox-circle-fill' : 'ri:attachment-2'" size="1.4rem" />
+
 					<NuxtLink :to="uri" class="pl-2 text-sm font-semibold underline truncate border-l-2 border-black opacity-80">
 						{{ secret }}
 					</NuxtLink>
 				</div>
-                <p v-if="failed" class="mt-5 text-red-700 ">
-					An error occurred, unable to create an qr code! Please try again later.
-				</p>
+				<p v-if="failed" class="mt-5 text-red-700">An error occurred, unable to create an qr code! Please try again later.</p>
 			</div>
 		</template>
 	</FieldFormBaseLayer>
@@ -22,9 +20,9 @@
 	import { toTypedSchema } from "@vee-validate/zod";
 	import * as zod from "zod";
 
-	const { requestUrl, onSuccess, onError, method } = defineProps({
+	const { url, onSuccess, onError, method } = defineProps({
 		callback: { type: Function, required: false },
-		requestUrl: { type: String, required: true },
+		url: { type: String, required: true },
 		onSuccess: { type: Function, required: true },
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },
@@ -33,22 +31,23 @@
 
 	const qr_code = ref();
 	const secret = ref();
-	const uri = ref()
-    const copied = ref()
-    const failed = ref(false)
+	const uri = ref();
+	const copied = ref();
+	const failed = ref(false);
 
-	await $fetch("/api/auth/totp").then((response) => {
-        qr_code.value = response.data.qr_code
-        secret.value = response.data.secret
-		uri.value = response.data.uri
-	}).catch((error) => {
-        failed.value = true
-    })
+	const { makeRequest } = useRetryableFetch();
+	const { data, error } = await makeRequest<any>("/api/auth/totp")
 
-	
+	if(data.value) {
+		qr_code.value = data.value.data.qr_code;
+		secret.value = data.value.data.secret;
+		uri.value = data.value.data.uri;
+	}
+
+	if(error.value) failed.value = true;
+
 	const copy = () => {
-
-        if(!secret.value) return
+		if (!secret.value) return;
 
 		const dummy = document.createElement("input");
 
@@ -63,9 +62,9 @@
 		document.execCommand("copy");
 		document.body.removeChild(dummy);
 
-        copied.value = true
+		copied.value = true;
 
-        setTimeout(() => copied.value = false, 2000)
+		setTimeout(() => (copied.value = false), 2000);
 	};
 
 	const schema = toTypedSchema(zod.object({}));

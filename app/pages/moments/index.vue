@@ -7,7 +7,7 @@
 				<icon name="ri:attachment-2" size="1.4em" />
 			</button>
 			<button :disabled="searchLoading" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-					<icon :class="searchLoading ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
+				<icon :class="searchLoading ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 			</button>
 			<button id="createGroup" title="createGroup" @click="createGroupFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 				<icon name="ri:image-circle-ai-line" size="1.4em" />
@@ -17,7 +17,7 @@
 
 		<section v-if="List.length >= 1 && !searchLoading" @scroll="updateScrollPercentage" v-bind="containerProps" class="overflow-y-auto h-[80vh]">
 			<div v-bind="wrapperProps" class="flex flex-col w-full gap-3">
-				<div :id="content.id " class="last:pb-[9.6rem]" v-for="(content, index) in List" :key="content.id ">
+				<div :id="content.id" class="last:pb-[9.6rem]" v-for="(content, index) in List" :key="content.id">
 					<LazyCardGroup :content />
 				</div>
 			</div>
@@ -72,9 +72,8 @@
 	 ************************************************************************************
 	 */
 
-	
 	const loading = ref(false);
-	
+
 	const totalPages = ref(0);
 	const Page = ref(1);
 
@@ -87,30 +86,27 @@
 	 ************************************************************************************
 	 */
 
-	const overview = useApi<GroupOverview[]>()
+	const overview = useApi<GroupOverview[]>();
 	const List = ref<GroupOverview[]>([]);
-	
+
 	overview.prepare({
 		baseURL: "/api/moments",
-		options: { params: { search: searchTerm.value }},
-		onSuccess: ({ response }) => {
-			List.value = response.data
-			totalPages.value = response.pagination?.total || 0
+		options: { params: { search: searchTerm.value } },
+		onSuccess: ({ response, action }) => {
+			List.value = response.data;
+			totalPages.value = response.pagination?.total || 0;
 		},
-
 		onError: ({ error, updated }) => {
-
-			if(updated) addToast({
-				message: `An error occurred, unable to fetch`,
-				type: "error",
-				duration: 5000,
-			})
-			
+			if (updated)
+				addToast({
+					message: `An error occurred, unable to fetch`,
+					type: "error",
+					duration: 5000,
+				});
 		},
-		
-	})
+	});
 
-	await overview.load()
+	await overview.load();
 
 	/*
 	 ************************************************************************************
@@ -129,20 +125,18 @@
 		if (error.value) List.value = [];
 	};
 
-
 	const handleManualReload = async () => {
-
 		Page.value = 1;
 		searchLoading.value = true;
 
 		await overview.reload({
-			params: { search: searchTerm.value }
-		})
+			params: { search: searchTerm.value },
+		});
 
 		setTimeout(() => {
 			searchLoading.value = false;
-		}, 1500)
-	}
+		}, 1500);
+	};
 
 	/*
 	 ************************************************************************************
@@ -151,7 +145,7 @@
 	const { containerProps, wrapperProps } = useVirtualList(List, { itemHeight: 0, overscan: 10 });
 	const { scrollPercentage, scrollToTop, scrollToBottom, updateScrollPercentage } = useScroller(containerProps.ref);
 
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<GroupOverview[]>>({ throwOnError: false });
+	const { makeRequest } = useRetryableFetch({ throwOnError: false });
 
 	useInfiniteScroll(
 		containerProps.ref,
@@ -161,11 +155,11 @@
 			loading.value = true;
 			Page.value += 1;
 
-			await makeRequest(`/api/moments`, {
+			const { data } = await makeRequest<GroupOverview[]>(`/api/moments`, {
 				params: {
 					page: Page.value,
-					search: searchTerm.value
-				}
+					search: searchTerm.value,
+				},
 			});
 
 			if (data.value && Array.isArray(data.value.data)) {
@@ -185,34 +179,37 @@
 	 ************************************************************************************
 	 */
 
-	const { open } = useModal()
+	const { open } = useModal();
 	const { addToast } = useToast();
 
 	const createGroupFunction = async () => {
-
 		const { onSuccess } = open({
-			type: 'Create',
-			name: 'Create Group',
-			requestUrl: '/api/moments',
-		})
+			type: "Create",
+			name: "Create Group",
+			url: "/api/moments",
+		});
 
 		onSuccess(async () => {
-			setTimeout(() => addToast({
-				message: `Group has been created`,
-				type: "success",
-				duration: 5000,
-			}), 800);
-		})
+			setTimeout(
+				() =>
+					addToast({
+						message: `Group has been created`,
+						type: "success",
+						duration: 5000,
+					}),
+				800
+			);
+		});
 	};
 
 	/*
 	 ************************************************************************************
 	 */
 
-	const createLinkFunction = () => open({
-		type: "join",
-		name: "Join group",
-		requestUrl: "/api/invitations/",
-	})
-	
+	const createLinkFunction = () =>
+		open({
+			type: "join",
+			name: "Join group",
+			url: "/api/invitations/",
+		});
 </script>

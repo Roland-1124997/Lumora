@@ -80,29 +80,29 @@
 		layout: "invite",
 	});
 
+	const { makeRequest } = useRetryableFetch({ throwOnError: false});
+
 	const verifyInvite = async (id: string, token: string) => {
 
-		await $fetch(`/api/invitations/${id}/${token}`)
-			.then((response) => {
-				sessionStorage.removeItem(`${response.status.redirect.split("/")[2]}_List`);
-				sessionStorage.removeItem(`${response.status.redirect.split("/")[2]}_Scroll`);
+		const { data, error } = await makeRequest<any>(`/api/invitations/${id}/${token}`)
 
-				result.value = response;
-				success.value = true;
+		if(data.value) {
+			sessionStorage.removeItem(`${data.value.status.redirect?.split("/")[2]}_List`);
+			sessionStorage.removeItem(`${data.value.status.redirect?.split("/")[2]}_Scroll`);
 
-				name.value = response.data.details.name;
+			result.value = data.value;
+			success.value = true;
 
-			})
-			.catch(() => (failed.value = true))
-			.finally( async() =>{
+			name.value = data.value.data.details.name;
+		}
 
-				await new Promise((resolve) => setTimeout(resolve, 2000));
-				if (result.value?.status?.joined) {
-					if (result.value.status.redirect) navigateTo(result.value.status.redirect);
-				} 
-				else loading.value = false;
-					
-			});
+		if(error.value) failed.value = true
+
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+		
+		if (result.value?.status?.joined && result.value.status.redirect) navigateTo(result.value.status.redirect)
+		else loading.value = false;
+
 	};
 
 	const router = useRouter();
@@ -112,8 +112,6 @@
 	const success = ref(false);
 	const failed = ref(false);
 
-	
-
 	onMounted(async () => {
 		await verifyInvite(id, token)
 	});
@@ -121,14 +119,17 @@
 	const join = async () => {
 
 		loadButton.value = true
+		const { data, error } = await makeRequest<any>(`/api/invitations/accept/${id}/${token}`)
 
-		await $fetch(`/api/invitations/accept/${id}/${token}`).then((response) => {
-
-			setTimeout(() => {
+		setTimeout(() => {
+			if(data.value) {
 				loadButton.value = false
-				if (response.status.redirect) navigateTo(response.status.redirect);
-			}, 1000);
-		}).catch(() => { navigateTo("/moments") })
+				if (data.value.status.redirect) navigateTo(data.value.status.redirect);
+			}
+		}, 1000);
+
+		if(error.value) navigateTo("/moments")
+
 	};
 </script>
 

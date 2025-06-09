@@ -5,7 +5,7 @@
 			<p class="text-base text-gray-500">Provide your details to create an account</p>
 		</div>
 
-		<FieldFormRegister requestUrl="/api/auth/register" :schema="RegisterSchema" :onSuccess="handleSuccess" :onError="handleError" />
+		<FieldFormRegister url="/api/auth/register" :schema="RegisterSchema" :onSuccess="handleSuccess" :onError="handleError" />
 		<UtilsSeparator />
 		<UtilsButtonGoogle />
 

@@ -10,8 +10,16 @@
 						<icon :name="isActionDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem" />
 					</button>
 					<ul v-if="isActionDropdownOpen" class="absolute left-0 z-50 w-full mt-1 overflow-scroll bg-white border rounded-md shadow-xl">
-						<li v-for="option in FilterByActionOptions" :key="option.value" @click="actions = option.value; isActionDropdownOpen = false;" class="p-2 border-b cursor-pointer hover:bg-gray-100">
-						{{ option.label }}
+						<li
+							v-for="option in FilterByActionOptions"
+							:key="option.value"
+							@click="
+								actions = option.value;
+								isActionDropdownOpen = false;
+							"
+							class="p-2 border-b cursor-pointer hover:bg-gray-100"
+						>
+							{{ option.label }}
 						</li>
 					</ul>
 				</div>
@@ -22,8 +30,16 @@
 						<icon :name="isTimeDropdownOpen ? 'ri:arrow-up-s-line' : 'ri:arrow-down-s-line'" size="1.4rem" />
 					</button>
 					<ul v-if="isTimeDropdownOpen" class="absolute left-0 z-50 w-full mt-1 overflow-scroll bg-white border shadow-md rounded-xl">
-						<li v-for="option in FilterByTimeOptions" :key="option.value" @click="time = option.value; isTimeDropdownOpen = false;" class="p-2 border-b cursor-pointer hover:bg-gray-100">
-						{{ option.label }}
+						<li
+							v-for="option in FilterByTimeOptions"
+							:key="option.value"
+							@click="
+								time = option.value;
+								isTimeDropdownOpen = false;
+							"
+							class="p-2 border-b cursor-pointer hover:bg-gray-100"
+						>
+							{{ option.label }}
 						</li>
 					</ul>
 				</div>
@@ -32,12 +48,12 @@
 					<icon :class="searchLoading ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 			</div>
-			<FieldInputSearch :disabled="searchLoading " class="md:hidden" :uri="`/api/moments/logbook/${group_id}?action=${actions}&timestamp=${time}`" placeholder="Search logs..." :update="handleSearch" />
+			<FieldInputSearch :disabled="searchLoading" class="md:hidden" :uri="`/api/moments/logbook/${group_id}?action=${actions}&timestamp=${time}`" placeholder="Search logs..." :update="handleSearch" />
 			<hr class="pb-3 mt-3" />
 		</div>
-		<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="relative ">
-			<div v-if="!searchLoading && logs.length >= 1" >
-				<UtilsTimeline :loading="searchLoading" :content="logs" :hidden="Page >= totalPages" :onLastItemVisible/>
+		<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="relative">
+			<div v-if="!searchLoading && logs.length >= 1">
+				<UtilsTimeline :loading="searchLoading" :content="logs" :hidden="Page >= totalPages" :onLastItemVisible />
 			</div>
 			<UtilsSearchIndicator v-else :loading="searchLoading">
 				<icon class="text-gray-500" name="ri:emotion-sad-line" size="5em" />
@@ -79,23 +95,23 @@
 	 */
 
 	const { PWAInstalled } = inject<any>("PWA");
-	
+
 	const group_id = useRoute().params.group_id;
 
-	const totalPages = ref(0)
+	const totalPages = ref(0);
 	const Page = ref(1);
 
 	const time = ref(7);
 	const actions = ref("all");
-	
-	const searchLoading = ref(false)
-	const searchTerm = ref("");
-	
-	/*
-	************************************************************************************
-	*/
 
-	const loading = ref(false)
+	const searchLoading = ref(false);
+	const searchTerm = ref("");
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const loading = ref(false);
 
 	const onLastItemVisible = async () => {
 		if (Page.value >= totalPages.value || loading.value) return;
@@ -103,12 +119,17 @@
 		loading.value = true;
 		Page.value += 1;
 
-		await makeRequest(`/api/moments/logbook/${group_id}?page=${Page.value}&action=${actions.value}&timestamp=${time.value}&search=${searchTerm.value}`);
+		const { data } = await makeRequest(`/api/moments/logbook/${group_id}`, {
+			params: {
+				page: Page.value,
+				action: actions.value,
+				timestamp: time.value,
+				search: searchTerm.value,
+			},
+		});
 
 		if (data.value && Array.isArray(data.value.data)) {
-			
 			data.value.data.forEach((newItem) => {
-					
 				const existingGroup = logs.value.find((group: any) => group.date === newItem.date);
 
 				if (existingGroup) existingGroup.items.push(...newItem.items);
@@ -119,28 +140,27 @@
 		}
 
 		loading.value = false;
-	}
-
+	};
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const isActionDropdownOpen = ref(false);
 
 	watch(isActionDropdownOpen, (value) => {
-        if (value && isTimeDropdownOpen.value) isTimeDropdownOpen.value = false;
-    });
+		if (value && isTimeDropdownOpen.value) isTimeDropdownOpen.value = false;
+	});
 
 	const isTimeDropdownOpen = ref(false);
-	
+
 	watch(isTimeDropdownOpen, (value) => {
-        if (value && isActionDropdownOpen.value) isActionDropdownOpen.value = false;
-    });
+		if (value && isActionDropdownOpen.value) isActionDropdownOpen.value = false;
+	});
 
 	/*
-	************************************************************************************
-	*/
+	 ************************************************************************************
+	 */
 
 	const FilterByActionOptions = [
 		{ label: "All actions", value: "all" },
@@ -160,95 +180,115 @@
 	 ************************************************************************************
 	 */
 
-	const logs: any = ref([])
-	const { makeRequest, data, error } = useRetryableFetch<ApiResponse<any>>();
+	const logs: any = ref([]);
+	const { makeRequest } = useRetryableFetch();
 	const { updateGroupValue } = inject<any>("group");
 
-		
-	await makeRequest(`/api/moments/logbook/${group_id}?action=${actions.value}&timestamp=${time.value}&search=${searchTerm.value}`);
-			
-	if(data.value) {
-		logs.value = data.value.data
+	const { data, error } = await makeRequest(`/api/moments/logbook/${group_id}`, {
+		params: {
+			action: actions.value,
+			timestamp: time.value,
+			search: searchTerm.value,
+		},
+	});
+
+	if (data.value) {
+		logs.value = data.value.data;
 		totalPages.value = data.value.pagination?.total || 0;
 
 		updateGroupValue(data.value.meta?.name);
 	}
-	
-	if(error.value) logs.value = []
 
-	/*
-	************************************************************************************
-	*/
-
-	watch(actions, (value) => {
-		searchLoading.value = true
-		Page.value = 1
-		setTimeout(async () => {
-			await makeRequest(`/api/moments/logbook/${group_id}?action=${value}&timestamp=${time.value}&search=${searchTerm.value}`);
-			
-			if(data.value) {
-				logs.value = data.value.data
-				totalPages.value = data.value.pagination?.total || 0;
-			}
-			if(error.value) logs.value = []
-			
-			searchLoading.value = false
-		}, 1500)
-	})
-
-	watch(time, (value) => {
-		searchLoading.value = true
-		Page.value = 1
-		setTimeout(async () => {
-			await makeRequest(`/api/moments/logbook/${group_id}?action=${actions.value}&timestamp=${value}&search=${searchTerm.value}`);
-			
-			if(data.value) {
-				logs.value = data.value.data
-				totalPages.value = data.value.pagination?.total || 0;
-			}
-			if(error.value) logs.value = []
-			
-			searchLoading.value = false
-		}, 1500)
-	})
+	if (error.value) logs.value = [];
 
 	/*
 	 ************************************************************************************
 	 */
 
-	const searched = ref(false)
+	watch(actions, (value) => {
+		searchLoading.value = true;
+		Page.value = 1;
+		setTimeout(async () => {
+			const { data, error } = await makeRequest(`/api/moments/logbook/${group_id}`, {
+				params: {
+					action: value,
+					timestamp: time.value,
+					search: searchTerm.value,
+				},
+			});
+
+			if (data.value) {
+				logs.value = data.value.data;
+				totalPages.value = data.value.pagination?.total || 0;
+			}
+			if (error.value) logs.value = [];
+
+			searchLoading.value = false;
+		}, 1500);
+	});
+
+	watch(time, (value) => {
+		searchLoading.value = true;
+		Page.value = 1;
+		setTimeout(async () => {
+			const { data, error } = await makeRequest(`/api/moments/logbook/${group_id}`, {
+				params: {
+					action: actions.value,
+					timestamp: value,
+					search: searchTerm.value,
+				},
+			});
+
+			if (data.value) {
+				logs.value = data.value.data;
+				totalPages.value = data.value.pagination?.total || 0;
+			}
+			if (error.value) logs.value = [];
+
+			searchLoading.value = false;
+		}, 1500);
+	});
+
+	/*
+	 ************************************************************************************
+	 */
+
+	const searched = ref(false);
 
 	const handleSearch = (data: any, error: any, loading: boolean, term: string) => {
+		Page.value = 1;
 
-		Page.value = 1
-		
 		searchLoading.value = loading;
 		searched.value = true;
 
-		searchTerm.value = term
+		searchTerm.value = term;
 
-		if(data.value) {
-			logs.value = data.value.data
+		if (data.value) {
+			logs.value = data.value.data;
 			totalPages.value = data.value.pagination?.total || 0;
 		}
-		if(error.value) logs.value = [];
+		if (error.value) logs.value = [];
 	};
 
 	const handleManualReload = async () => {
 		searchLoading.value = true;
-		Page.value = 1
-		await makeRequest(`/api/moments/logbook/${group_id}?action=${actions.value}&timestamp=${time.value}&search=${searchTerm.value}`);
+		Page.value = 1;
+		const { data, error } = await makeRequest(`/api/moments/logbook/${group_id}`, {
+			params: {
+				action: actions.value,
+				timestamp: time.value,
+				search: searchTerm.value,
+			},
+		});
 
-		if(data.value) {
-			logs.value = data.value.data
+		if (data.value) {
+			logs.value = data.value.data;
 			totalPages.value = data.value.pagination?.total || 0;
 		}
-		if(error.value) logs.value = []
+		if (error.value) logs.value = [];
 
 		setTimeout(() => {
 			searchLoading.value = false;
-		}, 1500)
-	}
-
+		}, 1500);
+	};
 </script>
-

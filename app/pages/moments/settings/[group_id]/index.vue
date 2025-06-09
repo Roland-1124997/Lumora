@@ -312,15 +312,15 @@
 
 	const handleSearch = (data: Ref<ApiResponse<GroupMember[]>>, error: Ref<ErrorResponse>, loading: boolean) => {
 		searchLoading.value = loading;
-		memberList.value = []
+		memberList.value = [];
 
-		if(!searchLoading.value) {
-
-			if(data.value?.data.length <= 0 || error.value) return addToast({
-				message: `An error occurred while searching. unable to find member.`,
-				type: "error",
-				duration: 5000,
-			});
+		if (!searchLoading.value) {
+			if (data.value?.data.length <= 0 || error.value)
+				return addToast({
+					message: `An error occurred while searching. unable to find member.`,
+					type: "error",
+					duration: 5000,
+				});
 
 			memberList.value = data.value.data;
 		}
@@ -337,27 +337,26 @@
 	const getRemainingUses = (link: InviteLink) => link.uses;
 
 	const handleDeleteInviteLink = async (invite: InviteLink) => {
-
 		const { success } = await invites.update({
-			url: invite.id, 
+			url: invite.id,
 			params: { token: invite.code },
-			method: "DELETE"
+			method: "DELETE",
 		});
 
-		await invites.reload()
+		await invites.reload();
 
-		if(success) return addToast({
-			message: `The invitation link has been deleted: ${invite.code}`,
-			type: "success",
-			duration: 5000,
-		});
+		if (success)
+			return addToast({
+				message: `The invitation link has been deleted: ${invite.code}`,
+				type: "success",
+				duration: 5000,
+			});
 
 		addToast({
 			message: `An error occurred, unable to delete invitation link`,
 			type: "error",
 			duration: 5000,
-		})
-
+		});
 	};
 
 	/*
@@ -371,15 +370,15 @@
 	const inviteLinks = ref<InviteLink[]>([]);
 	const memberList = ref<GroupMember[]>([]);
 
-	const activeTab = ref('members');
+	const activeTab = ref("members");
 
 	const setActiveTab = async (tab: string) => {
 		searchLoading.value = true;
 		activeTab.value = tab;
 
 		await members.reload({
-			params: { pending: tab == "requests" }
-		})
+			params: { pending: tab == "requests" },
+		});
 
 		setTimeout(() => {
 			searchLoading.value = false;
@@ -396,10 +395,10 @@
 	 ************************************************************************************
 	 */
 
+	const { makeRequest } = useRetryableFetch({ throwOnError: false });
 	const { updateGroupValue } = inject<any>("group");
 	const abortController = new AbortController();
 
-	const group = useApi<null>()
 	const settings = useApi<GroupSettings>();
 	const members = useApi<GroupMember[]>();
 	const invites = useApi<InviteLink[]>();
@@ -414,12 +413,9 @@
 	 ************************************************************************************
 	 */
 
-	
-
 	settings.prepare({
 		baseURL: `/api/moments/settings/${group_id}`,
 		onSuccess: ({ response }) => {
-
 			content.value = response.data;
 			name.value = response.data.name;
 			description.value = response.data.description;
@@ -437,33 +433,23 @@
 			updateGroupValue(name.value);
 		},
 		onError: ({ error, updated }) => {
-			if(!updated) useThrowError(error)
+			if (!updated) useThrowError(error);
 		},
 	});
-
-	group.prepare({
-		baseURL: `/api/moments`,
-		onSuccess: () => {},
-		onError: () => addToast({
-			message: `An error occurred, unable to update the settings`,
-			type: "error",
-			duration: 5000,
-		})
-	})
 
 	members.prepare({
 		baseURL: `/api/moments/members/${group_id}?pending=${activeTab.value == "requests"}`,
 		options: { signal: abortController.signal },
-		onSuccess: ({ response }) => memberList.value = response.data,
-		onError: () => memberList.value = [],
+		onSuccess: ({ response }) => (memberList.value = response.data),
+		onError: () => (memberList.value = []),
 	});
 
 	invites.prepare({
 		baseURL: `/api/moments/invitations/${group_id}`,
 		options: { signal: abortController.signal },
-		onSuccess: ({ response }) => inviteLinks.value = response.data,
+		onSuccess: ({ response }) => (inviteLinks.value = response.data),
 		onError: ({ error, updated }) => {
-			if(!updated) inviteLinks.value = []
+			if (!updated) inviteLinks.value = [];
 		},
 	});
 
@@ -493,7 +479,7 @@
 		const { onSuccess } = open({
 			type: "negative:group",
 			name: "Alert",
-			requestUrl: `/api/moments/${group_id}`,
+			url: `/api/moments/${group_id}`,
 		});
 
 		onSuccess(async () => {
@@ -520,17 +506,16 @@
 		const { onSuccess } = open<InviteLink>({
 			type: "links",
 			name: "Generate",
-			requestUrl: `/api/moments/invitations/${group_id}`,
+			url: `/api/moments/invitations/${group_id}`,
 		});
 
 		onSuccess(async ({ response }) => {
 			const { success } = await invites.reload();
-			if (success)
-				return addToast({
-					message: `Invitation link has been created: ${response.data.code}`,
-					type: "success",
-					duration: 5000,
-				});
+			if (success) return addToast({
+				message: `Invitation link has been created: ${response.data.code}`,
+				type: "success",
+				duration: 5000,
+			});
 		});
 	};
 
@@ -542,7 +527,7 @@
 		const { onSuccess, onError } = open({
 			type: "Group:leave",
 			name: "Alert",
-			requestUrl: `/api/moments/members/${group_id}`,
+			url: `/api/moments/members/${group_id}`,
 		});
 
 		onSuccess(async ({ response }) => {
@@ -560,11 +545,13 @@
 			});
 		});
 
-		onError(async () => addToast({
-			message: `An error occurred, unable to leave the group`,
-			type: "error",
-			duration: 5000,
-		}))
+		onError(async () =>
+			addToast({
+				message: `An error occurred, unable to leave the group`,
+				type: "error",
+				duration: 5000,
+			})
+		);
 	};
 
 	/*
@@ -579,7 +566,7 @@
 		const { onSuccess, onError } = open({
 			type: "Group:Reject",
 			name: "Alert",
-			requestUrl: `/api/moments/members/${group_id}/${id}`,
+			url: `/api/moments/members/${group_id}/${id}`,
 		});
 
 		onSuccess(async () => {
@@ -602,11 +589,13 @@
 			}
 		});
 
-		onError(async () => addToast({
-			message: `An error occurred, unable to reject the member`,
-			type: "error",
-			duration: 5000,
-		}));
+		onError(async () =>
+			addToast({
+				message: `An error occurred, unable to reject the member`,
+				type: "error",
+				duration: 5000,
+			})
+		);
 	};
 
 	/*
@@ -619,7 +608,7 @@
 		const { onSuccess, onError } = open({
 			type: "Group:kick",
 			name: "Alert",
-			requestUrl: `/api/moments/members/${group_id}/${id}`,
+			url: `/api/moments/members/${group_id}/${id}`,
 		});
 
 		onSuccess(async () => {
@@ -642,11 +631,13 @@
 			}
 		});
 
-		onError(async () => addToast({
-			message: `An error occurred, unable to kick the member`,
-			type: "error",
-			duration: 5000,
-		}));
+		onError(async () =>
+			addToast({
+				message: `An error occurred, unable to kick the member`,
+				type: "error",
+				duration: 5000,
+			})
+		);
 	};
 
 	// /*
@@ -657,7 +648,7 @@
 		const { onSuccess, onError } = open({
 			type: "join:group",
 			name: "join",
-			requestUrl: `/api/moments/members/${group_id}/${id}`,
+			url: `/api/moments/members/${group_id}/${id}`,
 		});
 
 		onSuccess(async () => {
@@ -678,11 +669,13 @@
 			}
 		});
 
-		onError(async () => addToast({
-			message: `An error occurred, unable to accept the member`,
-			type: "error",
-			duration: 5000,
-		}));
+		onError(async () =>
+			addToast({
+				message: `An error occurred, unable to accept the member`,
+				type: "error",
+				duration: 5000,
+			})
+		);
 	};
 
 	/*
@@ -693,7 +686,7 @@
 		const { onSuccess, onError } = open({
 			type: "update:member",
 			name: "Edit Permissions",
-			requestUrl: `/api/moments/members/permissions/${group_id}/${id}`,
+			url: `/api/moments/members/permissions/${group_id}/${id}`,
 		});
 
 		onSuccess(async () => {
@@ -718,11 +711,13 @@
 			setTimeout(() => (searchLoading.value = false), 1500);
 		});
 
-		onError(async () => addToast({
-			message: `An error occurred, unable to update the member`,
-			type: "error",
-			duration: 5000,
-		}));
+		onError(async () =>
+			addToast({
+				message: `An error occurred, unable to update the member`,
+				type: "error",
+				duration: 5000,
+			})
+		);
 	};
 
 	/*
@@ -754,10 +749,14 @@
 		return false;
 	}
 
-	watch([name, description, config], () => {
-		const changed = name.value !== originalName.value || description.value !== originalDescription.value || isConfigChanged();
-		if (blocked.value !== changed) blocked.value = changed;
-	}, { deep: true });
+	watch(
+		[name, description, config],
+		() => {
+			const changed = name.value !== originalName.value || description.value !== originalDescription.value || isConfigChanged();
+			if (blocked.value !== changed) blocked.value = changed;
+		},
+		{ deep: true }
+	);
 
 	onBeforeRouteLeave((event) => {
 		abortController.abort();
@@ -802,26 +801,29 @@
 			});
 		});
 
-		const { success, error } = await group.update({ 
-			url: content.value.id,
-			method: "PATCH", 
-			body: values 
-		});
+		const { error } = await makeRequest<null>(`/api/moments/${content.value.id}`, { 
+			method: "PATCH", body: values 
+		})
 
-		await settings.reload()
+		await settings.reload();
 
-		if(success) addToast({
+		if (!error.value) addToast({
 			message: `Group settings have been updated`,
 			type: "success",
 			duration: 5000,
 		});
-
+		
 		else {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-			if (error.data && error.data.error?.type == "fields") actions.setErrors(error.data.error.details);
+			if (error.value.data && error.value.data.error?.type == "fields") actions.setErrors(error.value.data.error.details);
+			addToast({
+				message: `An error occurred, unable to save the changes`,
+				type: "error",
+				duration: 5000,
+			});
 		}
 
-		loading.value = false
+		loading.value = false;
 	};
 </script>
 

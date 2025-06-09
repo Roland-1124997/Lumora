@@ -99,7 +99,8 @@
 	const { updateGroupValue } = inject<any>("group");
 	const { setItemToStart } = useGroupStore();
 	const { getPinnedList, clearPinned } = usePinStore();
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
+
+	const { makeRequest } = useRetryableFetch();
 
 	const pinned_count = computed(() => {
 		return getPinnedList(group_id).details.length;
@@ -139,7 +140,12 @@
 		if (options.reload) Page.value = 1;
 		if (options.update) Page.value += 1;
 
-		await makeRequest(`/api/moments/${group_id}?page=${Page.value}&pending=true`);
+		const { data } = await makeRequest<Post[]>(`/api/moments/${group_id}`, {
+			params: {
+				page: Page.value,
+				pending: true,
+			},
+		});
 
 		if (data.value) {
 			const response = processPostsApiResponse(data);
@@ -160,13 +166,13 @@
 
 	await useFetchData({ set: true }, loading);
 
-	await $fetch(`/api/moments/pending/${group_id}`)
-		.then((response) => {
-			accepted.value = response.data.accepted;
-			need_approval.value = response.data.need_approval;
-			has_permisons.value = response.data.has_permisons;
-		})
-		.catch((error) => {});
+	const { data, error } = await makeRequest<Pending>(`/api/moments/pending/${group_id}`)
+
+	if(data.value) {
+		accepted.value = data.value.data.accepted;
+		need_approval.value = data.value.data.need_approval;
+		has_permisons.value = data.value.data.has_permisons;
+	}
 
 	/*
 	 ************************************************************************************
@@ -195,18 +201,17 @@
 		const { onSuccess } = open({
 			type: "image:approve",
 			name: "Alert",
-			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
+			url: `/api/moments/pending/${group_id}/${image.id}`,
 		});
 
 		onSuccess(async () => {
 			await handleReload();
 			clearPinned(group_id);
 
-			if (data.value)
-				setItemToStart(group_id, {
-					...image,
-					has_been_accepted: true,
-				});
+			setItemToStart(group_id, {
+				...image,
+				has_been_accepted: true,
+			});
 
 			addToast({
 				message: `Image approved successfully!`,
@@ -224,7 +229,7 @@
 		const { onSuccess } = open({
 			type: "image:reject",
 			name: "Alert",
-			requestUrl: `/api/moments/pending/${group_id}/${image.id}`,
+			url: `/api/moments/pending/${group_id}/${image.id}`,
 		});
 
 		onSuccess(async () => {
@@ -247,7 +252,7 @@
 		const { onSuccess } = open({
 			type: "images:multiple:approve",
 			name: "Alert",
-			requestUrl: `/api/moments/pending/marked/${group_id}`,
+			url: `/api/moments/pending/marked/${group_id}`,
 		});
 
 		onSuccess(async () => {
@@ -278,7 +283,7 @@
 		const { onSuccess } = open({
 			type: "images:multiple:reject",
 			name: "Alert",
-			requestUrl: `/api/moments/pending/marked/${group_id}`,
+			url: `/api/moments/pending/marked/${group_id}`,
 		});
 
 		onSuccess(async () => {
@@ -304,7 +309,12 @@
 		reload.value = true;
 
 		while (page.value <= totalPages.value) {
-			await makeRequest(`/api/moments/${group_id}?page=${page.value}&pending=true`);
+			const { data } = await makeRequest<Post[]>(`/api/moments/${group_id}`, {
+				params: {
+					page: Page.value,
+					pending: true,
+				},
+			});
 
 			if (data.value) {
 				const response = processPostsApiResponse(data);

@@ -1,6 +1,6 @@
 <template>
 	<div class="min-h-screen">
-		<header :class=" PWAInstalled ? 'top-11 md:top-0': 'top-0'" class="fixed z-50 w-full bg-white ">
+		<header :class="PWAInstalled ? 'top-11 md:top-0' : 'top-0'" class="fixed z-50 w-full bg-white">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<button @click="$route.path !== '/moments' ? handleBack() : ''" class="flex items-center justify-center gap-2">
 					<icon v-if="$route.path !== '/moments'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>
@@ -15,18 +15,18 @@
 				</button>
 				<div class="flex items-center gap-2">
 					<UtilsButton to="/account" :options="{ name: username, url: avatar }" />
-					<UtilsButton to="/moments" iconName="ri:archive-stack-fill"/>
+					<UtilsButton to="/moments" iconName="ri:archive-stack-fill" />
 					<UtilsButton v-if="part_of_team" to="/monitor" iconName="ri:database-2-fill" />
 					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 				</div>
 			</div>
-			<div >
-			<div v-show="isLoading" class="absolute z-50 w-full h-full md:top-0">
-				<div class="">
-					<div class="h-1 animate bg-[#756145]" :style="{ width: progress + '%' }"></div>
+			<div>
+				<div v-show="isLoading" class="absolute z-50 w-full h-full md:top-0">
+					<div class="">
+						<div class="h-1 animate bg-[#756145]" :style="{ width: progress + '%' }"></div>
+					</div>
 				</div>
 			</div>
-		</div>
 		</header>
 
 		<main class="fixed mt-[4.5rem] w-full h-full px-4 py-3 mx-auto overflow-y-auto flow-x-hidden over sm:px-6 lg:px-24">
@@ -35,119 +35,34 @@
 			</div>
 		</main>
 
-		<UtilsToast/>
-		
-		<ModalBaselayer v-model="modal" > 
+		<UtilsToast />
 
-			<FieldFormCreateGroup v-if="modal.type == 'Create'" 
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"
-				:resize="modal.resize"
-				v-model="modal"
-			/>
+		<ModalBaselayer v-model="modal">
+			<FieldFormCreateGroup v-if="modal.type == 'Create'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormDeleteGroup v-if="modal.type.includes('Group')"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
-			<FieldFormCreateImage v-if="modal.type == 'images'" 
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess" 
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
-			
-			<FieldFormCreateLinks v-if="modal.type == 'links'"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess" 
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
+			<FieldFormDeleteGroup v-if="modal.type.includes('Group')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
+			<FieldFormCreateImage v-if="modal.type == 'images'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormDeleteConfirm v-if="modal.type.includes('negative')"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
+			<FieldFormCreateLinks v-if="modal.type == 'links'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormJoinLink v-if="modal.type == 'join'"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
-			
-			<FieldFormJoinConfirm v-if="modal.type == 'join:group'"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
+			<FieldFormDeleteConfirm v-if="modal.type.includes('negative')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormUpdateMember v-if="modal.type == 'update:member'"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
+			<FieldFormJoinLink v-if="modal.type == 'join'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormUpdateConfirm v-if="modal.type.includes('image:')"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
+			<FieldFormJoinConfirm v-if="modal.type == 'join:group'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormUpdateMultipleConfirm v-if="modal.type.includes('images:multiple')"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
+			<FieldFormUpdateMember v-if="modal.type == 'update:member'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormCreateTotp v-if="modal.type.includes('create:totp')"
-				:callback="closeModal"
-				:requestUrl="modal.requestUrl" 
-				:onError="modal.onError" 
-				:onSuccess="modal.onSuccess"  
-				:type="modal.type"
-				:resize="modal.resize" 
-				v-model="modal"
-			/>
+			<FieldFormUpdateConfirm v-if="modal.type.includes('image:')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
+
+			<FieldFormUpdateMultipleConfirm v-if="modal.type.includes('images:multiple')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
+
+			<FieldFormCreateTotp v-if="modal.type.includes('create:totp')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
 		</ModalBaselayer>
 	</div>
 </template>
 
 <script setup>
-
 	const nuxtApp = useNuxtApp();
 
 	const { progress, isLoading, start, finish } = useLoadingIndicator({
@@ -156,25 +71,25 @@
 		estimatedProgress: (duration, elapsed) => (2 / Math.PI) * 100 * Math.atan(((elapsed / duration) * 100) / 50),
 	});
 
-	addRouteMiddleware("global-loader",(to, from) => start(),{ global: true });
+	addRouteMiddleware("global-loader", (to, from) => start(), { global: true });
 
 	nuxtApp.hook("page:finish", () => finish());
 
-	const { PWAInstalled } = useCheckPwa()
+	const { PWAInstalled } = useCheckPwa();
 
 	const store = useSessionsStore();
 	const { data: user } = await store.getSession();
 	const username = ref(user?.name);
-	const avatar = ref(user?.avatar)
-	const part_of_team = ref(user?.team || false)
+	const avatar = ref(user?.avatar);
+	const part_of_team = ref(user?.team || false);
 
 	const notificationStore = useNotificationStore();
-	await notificationStore.fetchNotifications()
-	
+	await notificationStore.fetchNotifications();
+
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
 
-	const group = ref()
-	
+	const group = ref();
+
 	const modal = ref({
 		open: false,
 		isMinimized: false,
@@ -184,55 +99,55 @@
 	const router = useRouter();
 	const route = useRoute();
 
-	const config = useRuntimeConfig()
-	const secure = config.public.build ? 'wss' : 'ws'
+	const config = useRuntimeConfig();
+	const secure = config.public.build ? "wss" : "ws";
 
-	const { data, send, open, close } = useWebSocket(`${secure}://${location?.host || ""}/sockets`)
+	const { data, send, open, close } = useWebSocket(`${secure}://${location?.host || ""}/sockets`);
 	const { removeData } = useGroupStore();
 
-	watch(data, (value => {
-		const payload = JSON.parse(value)
-		
-		if(payload.type == "kick" && payload.member_id == user.id && route.params.group_id == payload.group_id) {
-			removeData(payload.group_id); open()
-			return navigateTo("/moments")
+	watch(data, (value) => {
+		const payload = JSON.parse(value);
+
+		if (payload.type == "kick" && payload.member_id == user.id && route.params.group_id == payload.group_id) {
+			removeData(payload.group_id);
+			open();
+			return navigateTo("/moments");
 		}
 
-		if(payload.type == "delete" && route.params.group_id == payload.group_id) {
-			removeData(payload.group_id); open()
-			return navigateTo("/moments")
+		if (payload.type == "delete" && route.params.group_id == payload.group_id) {
+			removeData(payload.group_id);
+			open();
+			return navigateTo("/moments");
 		}
-		
-	}))
+	});
 
 	onUnmounted(() => {
-		close()
-	})
+		close();
+	});
 
 	const handleBack = () => {
 		return router.back();
 	};
 
 	function updateGroupValue(option) {
-		group.value = option
+		group.value = option;
 	}
 
 	function updateModalValue(option) {
-		modal.value = {...option, controller: new AbortController()};
+		modal.value = { ...option, controller: new AbortController() };
 	}
 
 	function updateUsername(name) {
-		username.value = name
+		username.value = name;
 	}
 
 	const closeModal = () => (modal.value = false);
 
-	provide("WebSocket", { data, send, close})
-	provide("username", { username, updateUsername});
-	provide("modal", { modal, updateModalValue});
-	provide("group", { group, updateGroupValue })
-	provide("PWA", { PWAInstalled })
-	
+	provide("WebSocket", { data, send, close });
+	provide("username", { username, updateUsername });
+	provide("modal", { modal, updateModalValue });
+	provide("group", { group, updateGroupValue });
+	provide("PWA", { PWAInstalled });
 </script>
 
 <style scoped>

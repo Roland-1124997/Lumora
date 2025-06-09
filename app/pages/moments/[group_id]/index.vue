@@ -104,8 +104,20 @@
 	 ************************************************************************************
 	 */
 
-	const { makeRequest, data } = useRetryableFetch<ApiResponse<Post[]>>();
-	const { makeRequest: makePendingRequest, data: pending } = useRetryableFetch<ApiResponse<pending>>();
+	const { makeRequest } = useRetryableFetch();
+	const pending = useApi<Pending>();
+
+	pending.prepare({
+		baseURL: `/api/moments/pending/${group_id}`,
+		onSuccess: ({ response }) => {
+			accepted.value = response.data.accepted;
+			need_approval.value = response.data.need_approval;
+			has_permisons.value = response.data.has_permisons;
+			has_interaction.value = response.data.has_interaction;
+			posts_count_need_approval.value = response.data.posts_count_need_approval;
+		},
+		onError: ({ error, updated }) => {},
+	});
 
 	/*
 	 ************************************************************************************
@@ -136,13 +148,17 @@
 		}
 	};
 
-	const useFetchData = async (options: Record<string, any>, load: Ref<boolean>, timer = 250) => {
+	const useFetchPost = async (options: Record<string, any>, load: Ref<boolean>, timer = 250) => {
 		load.value = true;
 
 		if (options.reload) Page.value = 1;
 		if (options.update) Page.value += 1;
 
-		await makeRequest(`/api/moments/${group_id}?page=${Page.value}`);
+		const { data } = await makeRequest<Post[]>(`/api/moments/${group_id}`, {
+			params: {
+				page: Page.value,
+			},
+		});
 
 		if (data.value) {
 			const response = processPostsApiResponse(data as Ref<ApiResponse<Post[]>>);
@@ -161,18 +177,6 @@
 		updateGroupValue(name.value);
 	};
 
-	const fetchPending = async () => {
-		await makePendingRequest(`/api/moments/pending/${group_id}`);
-
-		if (pending.value) {
-			accepted.value = pending.value.data.accepted;
-			need_approval.value = pending.value.data.need_approval;
-			has_permisons.value = pending.value.data.has_permisons;
-			has_interaction.value = pending.value.data.has_interaction;
-			posts_count_need_approval.value = pending.value.data.posts_count_need_approval;
-		}
-	};
-
 	/*
 	 ************************************************************************************
 	 */
@@ -185,9 +189,11 @@
 	const loading = ref(false);
 
 	const group: any = getGroupData(group_id);
-	if (!group) await useFetchData({ set: true }, loading);
+
+	if (!group) await useFetchPost({ set: true }, loading);
 	else useDisplayStorageData(group);
-	await fetchPending();
+
+	await pending.load();
 
 	/*
 	 ************************************************************************************
@@ -221,7 +227,7 @@
 		containerProps.ref,
 		async () => {
 			if (Page.value >= totalPages.value || loading.value) return;
-			await useFetchData({ update: true }, loading, 500);
+			await useFetchPost({ update: true }, loading, 500);
 		},
 		{ direction: "bottom", distance: 20 }
 	);
@@ -233,7 +239,7 @@
 	 */
 
 	const handleManualReload = async () => {
-		await useFetchData({ reload: true }, reload, 2000);
+		await useFetchPost({ reload: true }, reload, 2000);
 	};
 
 	const reload = ref(false);
@@ -241,10 +247,14 @@
 		const page = ref(1);
 		reload.value = true;
 
-		const group: any = getGroupData(group_id)
+		const group: any = getGroupData(group_id);
 
 		while (page.value <= group.pagination.page) {
-			await makeRequest(`/api/moments/${group_id}?page=${page.value}`);
+			const { data } = await makeRequest<Post[]>(`/api/moments/${group_id}`, {
+				params: {
+					page: Page.value,
+				},
+			});
 
 			if (data.value) {
 				const response = processPostsApiResponse(data as Ref<ApiResponse<Post[]>>);
@@ -268,13 +278,12 @@
 		const { onSuccess } = open({
 			type: "images",
 			name: "Create experience",
-			requestUrl: `/api/moments/${group_id}`,
+			url: `/api/moments/${group_id}`,
 		});
 
 		onSuccess(async () => {
-
-			if (need_approval.value) await fetchPending();
-			else await handleReload()
+			if (need_approval.value) await pending.reload();
+			else await handleReload();
 
 			addToast({
 				message: need_approval.value ? "Your image has been submitted for approval." : "Your image has been posted successfully.",

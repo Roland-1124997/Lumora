@@ -9,7 +9,7 @@
 					</h1>
 				</div>
 				<ClientOnly>
-					<div v-if="!errorValue" class="flex items-center gap-2">
+					<div v-if="!userError" class="flex items-center gap-2">
 						<UtilsButton to="/account" iconName="ri:account-circle-fill" :options="{ name, url: avatar }" />
 						<UtilsButton to="/moments" iconName="ri:archive-stack-fill"/>
 						<UtilsButton v-if="part_of_team" to="/monitor" iconName="ri:database-2-fill" />
@@ -57,14 +57,12 @@
 	</div>
 </template>
 
-<script lang="ts" setup>
+<script  setup>
 
 const { PWAInstalled } = useCheckPwa()
 
 	const error = useError();
 	const status = ref(error.value?.statusCode || 500);
-
-	const errorValue = ref(false);
 
 	const statusCode = computed(() => error.value?.statusCode || 500);
 	const statusInfo = computed(() => useStatusCodes[statusCode.value]);
@@ -76,13 +74,16 @@ const { PWAInstalled } = useCheckPwa()
 	const notificationStore = useNotificationStore();
 	const unreadNotificationsCount = computed(() => notificationStore.unreadNotificationsCount);
 
-	await $fetch<ApiResponse<User>>("/api/user").then((response) => {
-		name.value = response.data.name
-		avatar.value = response.data.avatar
-		part_of_team.value = response.data.team || false
-	}).catch(() => (errorValue.value = true));
+	const { data, error: userError } = await useFetch("/api/user")
 
-	const handleError = (to: string) => {
+	if(data.value) {
+		data.value.data.name
+		name.value = data.value.data.name
+		avatar.value = data.value.data.avatar
+		part_of_team.value = data.value.data.team || false
+	}
+
+	const handleError = (to) => {
 		if (to == "/back") return useRouter().back();
 		return clearError({ redirect: to });
 	};

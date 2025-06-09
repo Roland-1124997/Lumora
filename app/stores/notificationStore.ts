@@ -2,18 +2,17 @@ export const useNotificationStore = defineStore("notification", () => {
     const notifications = ref<any>([]);
 
     const store = useSessionsStore()
-    
-    const { makeRequest, data, error } = useRetryableFetch<ApiResponse<Group[]>>({ throwOnError: false });
-    
+    const { makeRequest } = useRetryableFetch({ throwOnError: false })
+
     const fetchNotifications = async () => {
-        await makeRequest('/api/notifications')
-        if(data.value) notifications.value = data.value.data;
+        const { data } = await makeRequest<Group[]>('/api/notifications')
+        if (data.value) notifications.value = data.value.data;
     };
 
     onMounted(async () => {
 
         const user = await store.getSession()
-        const { data: events } = useEventSource(`/events/notifications/${user.data.id}`, [], {
+        const { data: events } = useEventSource(`/events/notifications/${user.data?.id}`, [], {
             autoReconnect: true
         });
 
@@ -31,14 +30,13 @@ export const useNotificationStore = defineStore("notification", () => {
             n.id === id ? { ...n, is_read: true } : n
         );
 
-        $fetch(`/api/notifications/${id}`, { method: "PATCH" }).catch();
+        makeRequest(`/api/notifications/${id}`, { method: "PATCH" })
     };
 
     const markAllNotificationsAsRead = () => {
         notifications.value = notifications.value.map((n: any) => ({ ...n, is_read: true }));
 
-        $fetch("/api/notifications", { method: "PATCH" }).catch();
-
+        makeRequest("/api/notifications", { method: "PATCH" })
     };
 
     return {

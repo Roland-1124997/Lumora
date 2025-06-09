@@ -1,7 +1,7 @@
 interface ModalRequestConfig {
     type: string
     name: string
-    requestUrl: string
+    url: FetchUrl
     resize?: boolean
     minimized?: boolean
     loading?: boolean

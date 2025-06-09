@@ -106,13 +106,12 @@
 		middleware: "unauthorized",
 	});
 
-	
 	/*
 	 ************************************************************************************
 	 */
 
 	const loaded = ref(false);
-	setTimeout(() => loaded.value = true, 1500);
+	setTimeout(() => (loaded.value = true), 1500);
 
 	/*
 	 ************************************************************************************
@@ -121,7 +120,7 @@
 	const { addToast } = useToast();
 	const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId, updateItemByMetaId } = useGroupStore();
 	const { updateGroupValue } = inject<any>("group");
-		
+
 	const group_id: any = useRoute().params.group_id;
 	const image_id: any = useRoute().params.image_id;
 
@@ -129,7 +128,7 @@
 	 ************************************************************************************
 	 */
 
-	const image = useApi<PostUserDetails>()
+	const image = useApi<PostUserDetails>();
 	const content = ref<PostUserDetails | null>(null);
 	const abortController = new AbortController();
 	const thumbnail = ref<any>(null);
@@ -141,61 +140,57 @@
 			updateGroupValue(response.meta?.name);
 		},
 		onError: ({ error, updated }) => {
-
-			if(updated) return addToast({
-				message: "An error occurred, unable to complete this action",
-				type: "error",
-				duration: 5000
-			})
+			if (updated)
+				return addToast({
+					message: "An error occurred, unable to complete this action",
+					type: "error",
+					duration: 5000,
+				});
 
 			removeItemByMetaId(group_id, image_id);
-			useThrowError(error)
-			
+			useThrowError(error);
 		},
-	})
+	});
 
-	await image.load()
+	await image.load();
 
 	/*
 	 ************************************************************************************
 	 */
 
-	const post = useApi<PostUserDetails[]>()
+	const post = useApi<PostUserDetails[]>();
 	let list: PostUserDetails[] = [];
-	let [page, total] = [1, 0]
-	
+	let [page, total] = [1, 0];
+
 	post.prepare({
 		baseURL: `/api/moments/${group_id}`,
 		onSuccess: ({ response }) => {
-
-			total = response.pagination?.total || 0
+			total = response.pagination?.total || 0;
 			const name = response.meta?.name || "";
 
 			if (page === 1) {
 				list = response.data;
 				removeData(group_id, { partial: true });
 				setTimeout(() => setGroupData(group_id, name, page, total, list), 200);
-			} 
-					
-			else {
+			} else {
 				list.push(...response.data);
 				setTimeout(() => updateGroupData(group_id, name, page, total, list), 200);
 			}
-			
 		},
-		onError: ({ error, updated }) => addToast({
-			message: `An error occurred, unable to update the post state`,
-			type: "error",
-			duration: 5000,
-		})
-	})
+		onError: ({ error, updated }) =>
+			addToast({
+				message: `An error occurred, unable to update the post state`,
+				type: "error",
+				duration: 5000,
+			}),
+	});
 
 	/*
 	 ************************************************************************************
 	 */
 
 	const loading = ref(true);
-	const comment = useApi<ApiUserComments>()
+	const comment = useApi<ApiUserComments>();
 	const comments = ref<UserComments[]>([]);
 	const comment_id = ref();
 
@@ -204,26 +199,25 @@
 		options: { signal: abortController.signal },
 		onSuccess: ({ response }) => {
 			loading.value = true;
-			
+
 			comments.value = response.data.comments;
 			total_comment_count.value = response.data.count;
 
 			setTimeout(() => (loading.value = false), 1000);
 		},
 		onError: ({ error, updated }) => {
-			
-			if(updated) addToast({
-				message: `An error occurred, unable to complete this action`,
-				type: "error",
-				duration: 5000,
-			});
-			
+			if (updated)
+				addToast({
+					message: `An error occurred, unable to complete this action`,
+					type: "error",
+					duration: 5000,
+				});
 		},
-	})
+	});
 
-	setTimeout( async () => {
-		await comment.load()
-		loading.value = false
+	setTimeout(async () => {
+		await comment.load();
+		loading.value = false;
 	}, 1500);
 
 	/*
@@ -231,26 +225,24 @@
 	 */
 
 	const { open } = useModal();
-	
 
 	const createDeleteFunction = () => {
 		const { onSuccess } = open({
 			type: "negative:post",
 			name: "Alert",
-			requestUrl: `/api/moments/${group_id}/${image_id}`,
+			url: `/api/moments/${group_id}/${image_id}`,
 		});
 
 		onSuccess(async () => {
 			removeItemByMetaId(group_id, image_id);
 			list = [];
 
-			const group: any = getGroupData(group_id)
+			const group: any = getGroupData(group_id);
 
 			while (page <= group.pagination.page) {
-
 				await post.reload({
-					params: { page: page }
-				})
+					params: { page: page },
+				});
 
 				if (page === group.pagination.page) break;
 				page++;
@@ -264,7 +256,6 @@
 				type: "success",
 				duration: 5000,
 			});
-			
 		});
 	};
 
@@ -276,7 +267,7 @@
 		const { onSuccess } = open({
 			type: "negative:comment",
 			name: "Alert",
-			requestUrl: `/api/moments/comments/${group_id}/${content.value?.id}/${values.id}`,
+			url: `/api/moments/comments/${group_id}/${content.value?.id}/${values.id}`,
 		});
 
 		onSuccess(async () => {
@@ -371,11 +362,11 @@
 	 */
 
 	const handleSubmitComments = async (values: UserComments) => {
-		const url = type.value === "Update" ? `/${comment_id.value}` : ""
-		const method = type.value === "Update" ? "PATCH" : "POST"
-		const body = { parent_id: comment_id.value || undefined, comment: values }
+		const url = type.value === "Update" ? `/${comment_id.value}` : "";
+		const method = type.value === "Update" ? "PATCH" : "POST";
+		const body = { parent_id: comment_id.value || undefined, comment: values };
 
-		await comment.update({url, method, body});
+		await comment.update({ url, method, body });
 		await comment.reload();
 		comment_id.value = null;
 	};
@@ -392,7 +383,7 @@
 		if (data.image_id === image_id && data.group_id === group_id && content.value) {
 			content.value.has_interactions.likes.count = data.likes.count;
 			updateStoreInteractions();
-			await comment.reload()
+			await comment.reload();
 		}
 	});
 
@@ -407,11 +398,10 @@
 		setTimeout(() => (isAnimating.value = false), 300);
 
 		await image.update({
-			method: "PATCH"
-		})
+			method: "PATCH",
+		});
 
-		image.reload()
-
+		image.reload();
 	};
 
 	/*
