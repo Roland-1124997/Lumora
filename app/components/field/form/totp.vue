@@ -33,7 +33,7 @@
 
 	const onReturn = async () => {
 
-		const { data }  = await makeRequest<null>("/api/auth/logout", { method: "POST" })
+		const { data }  = await makeRequest<null>("/api/auth/cancel", { method: "POST" })
 
 		if(data.value) {
 			store.clearSession();

@@ -4,7 +4,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     
     await server.from("factor_sessions").delete().eq("user_id", user.id)
 
-    const { error } = await useDeleteSession(client)
+    const { error } = await server.rpc('delete_sessions_by_user_id', {
+        user_id_param: user.id
+    });
+
     if (error) return useReturnResponse(event, badRequestError)
 
     /*
@@ -12,8 +15,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     */
 
     await useDeleteCookies(event)
-
-    deleteCookie(event, "opt-verified")
 
     return useReturnResponse(event, {
         status: {

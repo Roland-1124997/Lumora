@@ -19,7 +19,11 @@ export const useSetSessionData = async (event: H3Event, user: User | null) => {
         const server: SupabaseClient = serverSupabaseServiceRole(event)
         const { data } = await server.from("factor_sessions").select("*").eq("user_id", user.id).single()
 
-        if (!data) return {
+        const cookie = getCookie(event, "sb-success")
+
+        
+
+        if (!data || cookie) return {
             id: user.id as string,
             name: user.user_metadata.name || "Anymouses",
             avatar: user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`,
