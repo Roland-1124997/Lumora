@@ -1,14 +1,12 @@
 import os from "os";
 
-export default defineEventHandler(async (event) => {
+export default defineSupabaseEventHandler(async (event, user) => {
 
-    const client: SupabaseClient = await serverSupabaseClient(event);
-
-    const { data } = await client.auth.getUser();
-    if (!data.user || data.user.app_metadata.plan !== "team") return;
+    if (!user || user.app_metadata.plan !== "team") return;
 
     await useRenderMemory()
     await useSupabaseUsage()
+    await useRequestLogs()
 
     const { build } = useRuntimeConfig()
 
@@ -40,6 +38,7 @@ export default defineEventHandler(async (event) => {
                 },
                 uptime: Math.floor(process.uptime()),
             },
+            requests: REQUEST_LOGS,
             supabase: {
                 bucket: {
                     id: TOTAL_STORAGE.bucket_id,

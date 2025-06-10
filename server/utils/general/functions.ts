@@ -1,3 +1,6 @@
+import { globby } from 'globby'
+import { resolve } from 'path'
+
 import sharp from "sharp";
 import os from "os";
 
@@ -17,6 +20,7 @@ let processing = false;
 export let TOTAL_MEMORY_MB: number = 520
 export let TOTAL_STORAGE: Storage
 export let TOTAL_MONTHLY_ACTIVE_USERS: object = []
+export let REQUEST_LOGS: object = []
 
 export const MAX_MEMORY_MB = (build ? TOTAL_MEMORY_MB : Math.round(os.totalmem() / 1024 / 1024)) * 0.8;
 export const MAX_STORAGE_SIZE = 1024
@@ -127,4 +131,85 @@ export const useGetCpuUsagePercent = () => {
     const idleAvg = idle / cpus.length;
     const totalAvg = total / cpus.length;
     return { idle: idleAvg, total: totalAvg };
+}
+
+export const useRequestLogs = async () => {
+
+    const supabase = useSupaBaseServer();
+    
+    const { data, error } = await supabase.rpc('request_counts')
+
+    if (data) REQUEST_LOGS = data
+    if (error) REQUEST_LOGS = []
+    
+}
+
+export const useApiRoutes = async () => {
+
+    const storage = useStorage("assets:server")
+    const data = await storage.getItem("routes.json")
+
+    if (data) return data
+
+    const apiDir = resolve(process.cwd(), 'server/api')
+    const files = await globby('**/*.{ts,js}', { cwd: apiDir })
+    const routes = files.map((file) => {
+
+        let path = file
+            .replace(/\.(get|post|put|delete|patch)?\.(ts|js)$/, '')
+            .replace(/\/index$/, '')
+
+        path = path.split('/').map(segment => {
+            if (segment.startsWith('[...') && segment.endsWith(']')) return '*'
+            if (segment.startsWith('[') && segment.endsWith(']')) return ':' + segment.slice(1, -1)
+            return segment
+        }).join('/')
+
+        return {
+            path: `/api/${path}`,
+        }
+    })
+
+    const uniqueRoutes = Array.from(
+        new Map(routes.map(route => [route.path, route])).values()
+    )
+
+    await storage.setItem("routes.json", uniqueRoutes)
+    return uniqueRoutes
+
+}
+
+export const matchRoute = (url: string, routes: any): any | null => {
+    const cleanUrl = url.split('?')[0];
+    const urlSegments = cleanUrl.split('/').filter(Boolean);
+
+    for (const routeObj of routes) {
+        const routeSegments = routeObj.path.split('/').filter(Boolean);
+
+        if (routeSegments.length !== urlSegments.length) {
+            continue;
+        }
+
+        let matched = true;
+        const params: Record<string, string> = {};
+
+        for (let i = 0; i < routeSegments.length; i++) {
+            const rSeg = routeSegments[i];
+            const uSeg = urlSegments[i];
+
+            if (rSeg.startsWith(':')) {
+                const paramName = rSeg.slice(1);
+                params[paramName] = uSeg;
+            } else if (rSeg !== uSeg) {
+                matched = false;
+                break;
+            }
+        }
+
+        if (matched) {
+            return { route: routeObj };
+        }
+    }
+
+    return null;
 }

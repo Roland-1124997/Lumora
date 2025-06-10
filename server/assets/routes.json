@@ -1,0 +1,89 @@
+[
+    {
+        "path": "/api/auth/cancel"
+    },
+    {
+        "path": "/api/auth"
+    },
+    {
+        "path": "/api/auth/logout"
+    },
+    {
+        "path": "/api/moments"
+    },
+    {
+        "path": "/api/notifications"
+    },
+    {
+        "path": "/api/requests"
+    },
+    {
+        "path": "/api/status"
+    },
+    {
+        "path": "/api/user"
+    },
+    {
+        "path": "/api/auth/totp"
+    },
+    {
+        "path": "/api/moments/:group_id"
+    },
+    {
+        "path": "/api/notifications/:notification_id"
+    },
+    {
+        "path": "/api/user/logbook"
+    },
+    {
+        "path": "/api/auth/:provider/identity"
+    },
+    {
+        "path": "/api/invitations/:invite_id/:invite_code"
+    },
+    {
+        "path": "/api/auth/verify/topt"
+    },
+    {
+        "path": "/api/moments/logbook/:group_id"
+    },
+    {
+        "path": "/api/moments/invitations/:group_id"
+    },
+    {
+        "path": "/api/moments/pending/:group_id"
+    },
+    {
+        "path": "/api/moments/members/:group_id"
+    },
+    {
+        "path": "/api/moments/settings/:group_id"
+    },
+    {
+        "path": "/api/moments/:group_id/:image_id"
+    },
+    {
+        "path": "/api/invitations/accept/:invite_id/:invite_code"
+    },
+    {
+        "path": "/api/moments/comments/:group_id/:image_id"
+    },
+    {
+        "path": "/api/moments/members/:group_id/:member_id"
+    },
+    {
+        "path": "/api/moments/comments/:group_id/:image_id/:comment_id"
+    },
+    {
+        "path": "/api/moments/invitations/:group_id/:invite_id"
+    },
+    {
+        "path": "/api/moments/pending/marked/:group_id"
+    },
+    {
+        "path": "/api/moments/pending/:group_id/:image_id"
+    },
+    {
+        "path": "/api/moments/members/permissions/:group_id/:member_id"
+    }
+]

@@ -4,13 +4,14 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { group_id, image_id, comment_id } = getRouterParams(event);
 
     const { data, error: memberError } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single<Tables<"members">>();
-    if (!data || !data.can_delete_messages_all || memberError) return useReturnResponse(event, forbiddenError);
+    if (!data || memberError) return useReturnResponse(event, forbiddenError);
 
     const { data: settings, error: settingsError } = await server.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>();
     if ((settings && !settings.social_interactions) || settingsError) return useReturnResponse(event, forbiddenError);
 
     const { data: comment, error } = await client.from("posts_comments").select("*").eq("id", comment_id).eq("post_id", image_id).eq("group_id", group_id).single<Tables<"posts_comments">>();
     if (comment?.content == "This comment has been deleted" || error) return useReturnResponse(event, notFoundError);
+    if (!data.can_delete_messages_all && comment.author_id !== user.id) return useReturnResponse(event, notFoundError);
 
     const { count: childeren } = await client.from("posts_comments").select("parent_id", { count: "exact" }).eq("parent_id", comment_id).eq("post_id", image_id).eq("group_id", group_id);
 

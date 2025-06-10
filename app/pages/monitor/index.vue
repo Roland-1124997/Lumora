@@ -166,7 +166,7 @@
 						<span class="font-semibold text-gray-600">Storage</span>
 						<div class="flex items-center justify-center gap-2">
 							<span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full">{{ monitor.supabase.bucket.id }}</span>
-							<button @click="openDetails" class="text-xs text-white bg-[#756145] px-2 py-0.5 rounded-full">expand</button>
+							
 						</div>
 					</div>
 
@@ -181,12 +181,12 @@
 						<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((monitor.supabase.bucket.size / monitor.supabase.bucket.max) * 100).toFixed(1) + '%' }"></div>
 					</div>
 
-					<div v-if="open">
+					<div>
 						<div class="flex items-center justify-between mb-2">
 							<span class="font-semibold text-gray-600">Disks</span>
 						</div>
 
-						<div class="grid grid-cols-1 gap-4">
+						<div class="grid grid-cols-1 gap-4 max-h-[20vh] overflow-auto">
 							<div v-for="group in monitor.supabase.bucket.groups" :key="group.group_id">
 								<div class="text-xs text-gray-500">{{ group.group_id }}</div>
 								<div class="flex items-center gap-2 py-1">
@@ -201,10 +201,58 @@
 						</div>
 					</div>
 				</div>
+
+				<div class="flex-col hidden gap-4 p-4 bg-white shadow md:flex rounded-xl">
+					<div class="flex items-center justify-between">
+						<span class="font-semibold text-gray-600">Endpoints</span>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<span class="text-3xl font-extrabold">{{ getFormatetTotalCount(monitor.requests) }}</span>
+						<span class="text-xl font-semibold text-gray-400">Requests</span>
+					</div>
+
+					<div class="grid grid-cols-1 gap-4 max-h-[25vh] overflow-auto">
+						<div v-for="request in monitor.requests" :key="request.path">
+							<div class="flex items-center gap-2 py-1">
+								<span class="font-bold">{{ request.method }}</span>
+								<span class="text-xs text-gray-400">{{ request.path }} </span>
+							</div>
+							<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+								<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((request.count / getTotalCount(monitor.requests) ) * 100).toFixed(1) + '%' }"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="flex flex-col gap-4 p-4 bg-white shadow md:hidden rounded-xl">
+					<div class="flex items-center justify-between">
+						<span class="font-semibold text-gray-600">Endpoints</span>
+						<button @click="openRequestsDetails" class="text-xs text-white bg-[#756145] px-2 py-0.5 rounded-full">expand</button>
+					</div>
+
+					<div class="flex items-center gap-2">
+						<span class="text-3xl font-extrabold">{{ getFormatetTotalCount(monitor.requests) }}</span>
+						<span class="text-xl font-semibold text-gray-400">Requests</span>
+					</div>
+
+					<div v-if="openRequests" class="grid grid-cols-1 gap-4">
+						<div v-for="request in monitor.requests" :key="request.path">
+							<div class="flex items-center gap-2 py-1">
+								<span class="font-bold">{{ request.method }}</span>
+								<span class="text-xs text-gray-400">{{ request.path }} </span>
+							</div>
+							<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
+								<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((request.count / getTotalCount(monitor.requests) ) * 100).toFixed(1) + '%' }"></div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
+
 
 <script setup lang="ts">
 
@@ -249,8 +297,10 @@
 	});
 
 	const open = ref(false);
+	const openRequests = ref(false)
 
 	const openDetails = () => (open.value = !open.value);
+	const openRequestsDetails = () => (openRequests.value = !openRequests.value);
 
 	const formatUptime = (seconds: number) => {
 		const h = Math.floor(seconds / 3600);
@@ -258,6 +308,25 @@
 		const s = seconds % 60;
 		return `${h}h ${m}m ${s}s`;
 	};
+
+	const getTotalCount = (data: { count: number }[]) => {
+		return data.reduce((sum, item) => sum + item.count, 0);
+	};
+
+	const getFormatetTotalCount = (data: { count: number }[]): string => {
+		const total = getTotalCount(data)
+
+		if (total >= 1_000_000) {
+			return (total / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+		} else if (total >= 1_000) {
+			return (total / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+		}
+
+		return total.toString();
+	};
+
+
+
 </script>
 
 <style scoped>
