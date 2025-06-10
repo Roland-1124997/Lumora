@@ -13,15 +13,15 @@ export const useDeleteSession = async (client: SupabaseClient) => {
 }
 export const useSetSessionData = async (event: H3Event, user: User | null) => {
     if (user) {
-        
-        fetch(user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`).catch(() => {})
+
+        fetch(user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`).catch(() => { })
 
         const server: SupabaseClient = serverSupabaseServiceRole(event)
         const { data } = await server.from("factor_sessions").select("*").eq("user_id", user.id).single()
 
-        const cookie = getCookie(event, "sb-success")
+        const cookie = getCookie(event, "sb-opt-verified")
 
-        
+
 
         if (!data || cookie) return {
             id: user.id as string,
@@ -53,7 +53,7 @@ export const useSessionExists = async (event: H3Event, client: SupabaseClient) =
 
 export const useStateChange = async (client: SupabaseClient) => {
 
-    let state: string 
+    let state: string
 
     return new Promise<string>((resolve) => {
         client.auth.onAuthStateChange((event, session) => {

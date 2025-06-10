@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-    
+
     const client = await serverSupabaseClient(event);
     const currentSession = useGetCookies(event);
     const { data, error } = await useGetSession(client, currentSession);
@@ -10,11 +10,11 @@ export default defineEventHandler(async (event) => {
 
         useSetCookies(event, data.session);
 
-        if(data.user?.factors) setCookie(event, "opt-verified", "true", {
+        if (data.user?.factors) setCookie(event, "sb-opt-verified", "true", {
             maxAge: 60 * 60 * 24 * 14,
             httpOnly: true,
         })
-        
+
         return useReturnResponse(event, {
             status: {
                 success: true,

@@ -46,21 +46,21 @@ export default defineEventHandler(async (event) => {
   if (data.user.factors) {
 
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
-    
+
     useSetCookies(event, session);
-    deleteCookie(event, "opt-verified")
+    deleteCookie(event, "sb-opt-verified")
 
     await server.from("factor_sessions").insert({
       user_id: data.user.id,
     })
-    
+
     return useReturnResponse(event, {
-        status: {
-          success: true,
-          redirect: "/auth/totp",
-          message: "Ok",
-          code: 200
-        }
+      status: {
+        success: true,
+        redirect: "/auth/totp",
+        message: "Ok",
+        code: 200
+      }
     });
   }
 

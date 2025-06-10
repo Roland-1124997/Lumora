@@ -9,14 +9,14 @@ export const defineSupabaseEventHandler = (callback: (event: H3Event, user: User
 
         if (!event.path.startsWith("/api/auth/")) {
             const { data } = await server.from("factor_sessions").select("*").eq("user_id", user?.id).single()
-            
-            const cookie = getCookie(event, "opt-verified")
+
+            const cookie = getCookie(event, "sb-opt-verified")
 
             if (!!data && !cookie) return useReturnResponse(event, unauthorizedError)
         }
 
         await useStateChange(client)
-        
+
         return callback(event, user, client, server)
 
     })
