@@ -238,9 +238,9 @@
 
 					<div v-if="openRequests" class="grid grid-cols-1 gap-4">
 						<div v-for="request in monitor.requests" :key="request.path">
-							<div class="flex items-center gap-2 py-1">
+							<div class="flex flex-col items-start pb-3">
 								<span class="font-bold">{{ request.method }}</span>
-								<span class="text-xs text-gray-400">{{ request.path }} </span>
+								<span class="text-[0.65rem] text-gray-400 ">{{ request.path }} </span>
 							</div>
 							<div class="w-full h-4 overflow-hidden bg-gray-200 rounded">
 								<div class="h-4 bg-[#756145] rounded animate" :style="{ width: ((request.count / getTotalCount(monitor.requests) ) * 100).toFixed(1) + '%' }"></div>
