@@ -37,7 +37,7 @@
 								<label class="text-sm font-medium text-gray-700" for="name">
 									Group name
 									<transition name="fade">
-										<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "Er is een probleem met dit veld" }})</span>
+										<span v-if="meta.validated && !meta.valid" class="text-red-700">({{ meta.errors[0] || "There is a problem with this field." }})</span>
 									</transition>
 								</label>
 
@@ -52,7 +52,7 @@
 								<label class="text-sm font-medium text-gray-700" for="description">
 									Description
 									<transition name="fade">
-										<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "Er is een probleem met dit veld" }}) </span>
+										<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "There is a problem with this field." }}) </span>
 									</transition>
 								</label>
 								<div class="flex gap-2">
@@ -511,11 +511,12 @@
 
 		onSuccess(async ({ response }) => {
 			const { success } = await invites.reload();
-			if (success) return addToast({
-				message: `Invitation link has been created: ${response.data.code}`,
-				type: "success",
-				duration: 5000,
-			});
+			if (success)
+				return addToast({
+					message: `Invitation link has been created: ${response.data.code}`,
+					type: "success",
+					duration: 5000,
+				});
 		});
 	};
 
@@ -801,18 +802,19 @@
 			});
 		});
 
-		const { error } = await makeRequest<null>(`/api/moments/${content.value.id}`, { 
-			method: "PATCH", body: values 
-		})
+		const { error } = await makeRequest<null>(`/api/moments/${content.value.id}`, {
+			method: "PATCH",
+			body: values,
+		});
 
 		await settings.reload();
 
-		if (!error.value) addToast({
-			message: `Group settings have been updated`,
-			type: "success",
-			duration: 5000,
-		});
-		
+		if (!error.value)
+			addToast({
+				message: `Group settings have been updated`,
+				type: "success",
+				duration: 5000,
+			});
 		else {
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 			if (error.value.data && error.value.data.error?.type == "fields") actions.setErrors(error.value.data.error.details);

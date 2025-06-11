@@ -7,7 +7,7 @@
 						<label class="text-sm font-medium text-gray-700" for="invite_link">
 							Invite Link
 							<transition name="fade">
-								<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "Er is een probleem met dit veld" }}) </span>
+								<span v-if="meta.validated && !meta.valid" class="text-red-700"> ({{ meta.errors[0] || "There is a problem with this field." }}) </span>
 							</transition>
 						</label>
 						<input v-bind="field" v-model="link" @input="stripHostFromUrl($event)" id="invite_link" type="url" :class="meta.validated && !meta.valid ? ' btn-Input-Error' : 'btn-Input'" class="z-10 w-full p-2 px-3 transition-colors duration-300 border appearance-none rounded-xl" />
