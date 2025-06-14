@@ -1,4 +1,3 @@
-import { json } from "zod/v4"
 
 export const usePush = () => {
     const isIosPwa = (): boolean => {
@@ -7,16 +6,19 @@ export const usePush = () => {
         return isIos && isStandalone
     }
 
+    const { addToast } = useToast();
+
     const subscribe = async () => {
 
         const permission = await Notification.requestPermission()
         if (permission !== 'granted') return
 
-        // if (isIosPwa()) {
-        //     alert('iOS PWA push: native PushManager is not supported.')
-        //     return
-        // }
-
+        // if (isIosPwa()) return addToast({
+        //     message: `An error occurred, iOS PWA push: native PushManager is not supported.`,
+        //     type: "error",
+        //     duration: 5000,
+        // });
+            
         try {
             const registration = await navigator.serviceWorker.ready
             const { vapidPublicKey } = useRuntimeConfig().public
@@ -35,7 +37,11 @@ export const usePush = () => {
 
         catch(error) {
 
-            alert(JSON.stringify(error))
+            addToast({
+                message: `An error occurred, ${error}`,
+                type: "error",
+                duration: 5000,
+            });
 
         }
 
