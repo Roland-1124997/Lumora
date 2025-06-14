@@ -10,7 +10,6 @@ export default defineNitroPlugin(async () => {
         
         await useRenderMemory()
         await useSupabaseUsage()
-        await useRequestLogs()
 
     }).everyMinutes(10)
 });

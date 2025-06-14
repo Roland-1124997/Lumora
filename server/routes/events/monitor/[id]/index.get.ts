@@ -6,7 +6,6 @@ export default defineSupabaseEventHandler(async (event, user) => {
 
     await useRenderMemory()
     await useSupabaseUsage()
-    await useRequestLogs()
 
     const { build } = useRuntimeConfig()
 
@@ -38,7 +37,6 @@ export default defineSupabaseEventHandler(async (event, user) => {
                 },
                 uptime: Math.floor(process.uptime()),
             },
-            requests: REQUEST_LOGS,
             supabase: {
                 bucket: {
                     id: TOTAL_STORAGE.bucket_id,

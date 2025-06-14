@@ -8,57 +8,24 @@ clientsClaim();
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
 
+self.addEventListener("push", async (event) => {
+    const { message, body, icon } = JSON.parse(event.data.text());
 
-// registerRoute(
-//     ({ url }) => {
-//         const pathSegments = url.pathname.split('/');
-//         return pathSegments.length === 2 && pathSegments[1] === 'api';
-//     },
-//     new NetworkFirst({
-//         cacheName: 'api-cache',
-//         plugins: [
-//             {
-//                 cacheableResponse: {
-//                     statuses: [0, 200, 400],
-//                 }
-//             }
-//         ]
-//     })
-// );
+    event.waitUntil(
+        self.registration.showNotification(message, {
+            body,
+            icon,
+        })
+    );
+});
 
-// registerRoute(
-//     ({ url }) => {
-//         const pathSegments = url.pathname.split('/');
-//         return pathSegments.length >= 3 && pathSegments[1] === 'api' && pathSegments[2] !== 'users';
-//     },
-//     new NetworkFirst({
-//         cacheName: 'api-cache',
-//         plugins: [
-//             {
-//                 cacheableResponse: {
-//                     statuses: [0, 200],
-//                 }
-//             }
-//         ]
-//     })
-// );
+self.addEventListener("notificationclick", (event) => {
+    event.notification.close();
 
-// registerRoute(
-//     ({ url }) => {
-//         const pathSegments = url.pathname.split('/');
-//         return pathSegments.length === 3 && pathSegments[1] === 'api' && pathSegments[2] === 'users' && url.search === '';
-//     },
-//     new NetworkFirst({
-//         cacheName: 'users-api-cache',
-//         plugins: [
-//             {
-//                 cacheableResponse: {
-//                     statuses: [0, 200, 400],
-//                 }
-//             }
-//         ]
-//     })
-// );
-
-
-
+    event.waitUntil(clients.matchAll({ type: "window"  }).then((clientList) => {
+        for (const client of clientList) {
+            if (client.url === "/" && "focus" in client) return client.focus();
+        }
+        if (clients.openWindow) return clients.openWindow("/");
+    }));
+});

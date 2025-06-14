@@ -41,9 +41,12 @@ export default defineNuxtConfig({
       resource: process.env.RENDER_RESOURCE,
       uri: process.env.RENDER_URI
     },
+    vapidPublicKey: process.env.VAPID_PUBLIC_KEY,
+    vapidPrivateKey: process.env.VAPID_PRIVATE_KEY,
     public: {
       build: process.env.NODE_ENV !== "development",
       googleClientId: process.env.GOOGLE_CLIENT_ID,
+      vapidPublicKey: process.env.VAPID_PUBLIC_KEY
     },
     rateLimit: {
       routes: {

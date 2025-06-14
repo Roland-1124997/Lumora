@@ -10,6 +10,9 @@
 					<span class="text-sm">Unread</span>
 				</button>
 			</div>
+			<button id="createGroup" title="createGroup" @click="subscribe()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+				<icon name="ri:image-circle-ai-line" size="1.4em" />
+			</button>
 			<button @click="notificationStore.markAllNotificationsAsRead()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">Mark all as read</button>
 		</div>
 
@@ -94,6 +97,11 @@
 	const notifications = computed(() => (activeTab.value == "all" ? readNotifications.value : unreadNotifications.value));
 
 	const setActiveTab = async (tab: string) => (activeTab.value = tab);
+
+	const { subscribe } = usePush()
+
+	
+
 </script>
 
 <style scoped>
