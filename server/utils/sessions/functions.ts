@@ -20,8 +20,7 @@ export const useSetSessionData = async (event: H3Event, user: User | null) => {
         const { data } = await server.from("factor_sessions").select("*").eq("user_id", user.id).single()
 
         const cookie = getCookie(event, "sb-opt-verified")
-
-
+        const { data: subscriptions }: any = await server.from("push_subscriptions").select("*").eq("user_id", user.id).single()
 
         if (!data || cookie) return {
             id: user.id as string,
@@ -31,6 +30,7 @@ export const useSetSessionData = async (event: H3Event, user: User | null) => {
             team: user.app_metadata.plan == "team" || false,
             provider: user.app_metadata.provider,
             factors: !!user.factors,
+            subscriptions: !!subscriptions
         }
 
         return {

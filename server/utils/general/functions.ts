@@ -1,6 +1,3 @@
-import { globby } from 'globby'
-import { resolve } from 'path'
-
 import webpush from "web-push";
 import sharp from "sharp";
 import os from "os";
@@ -148,19 +145,17 @@ export const useSendNotification = async (options: { title: string, message: str
     );
 
     const server = useSupaBaseServer()
-    const { data }: any = await server.from("push_subscriptions").select("*").eq("user_id", options.target_id).single()
+    const { data, error }: any = await server.from("push_subscriptions").select("*").eq("user_id", options.target_id).single()
+
+    if(error) return
 
     const payload = JSON.stringify({
         title: options.title, message: options.message,
         url: '/notifications'
     })
 
-    
     webpush.sendNotification(data.subscription, payload)
         .then(() => console.log('Notificatie verzonden'))
         .catch(err => console.error('Fout bij verzenden:', err))
     
-
-    
-
 };

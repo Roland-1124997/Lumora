@@ -10,10 +10,17 @@
 					<span class="text-sm">Unread</span>
 				</button>
 			</div>
-			<button id="createGroup" title="createGroup" @click="subscribe()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
-				<icon name="ri:image-circle-ai-line" size="1.4em" />
-			</button>
-			<button @click="notificationStore.markAllNotificationsAsRead()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">Mark all as read</button>
+
+			<div class="flex items-center gap-2">
+				<button v-if="!subscriptions" id="subscribe" title="subscribe" @click="subscribe()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+					<icon name="ri:notification-fill" size="1.25em" />
+				</button>
+				<button v-else id="unsubscribe" title="unsubscribe" @click="unsubscribe()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+					<icon name="ri:notification-off-fill" size="1.25em" />
+				</button>
+
+				<button @click="notificationStore.markAllNotificationsAsRead()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">Mark all as read</button>
+			</div>
 		</div>
 
 		<hr class="pb-3" />
@@ -90,7 +97,12 @@
 	const activeTab = ref("all");
 
 	const notificationStore = useNotificationStore();
+	const store = useSessionsStore();
+
 	await notificationStore.fetchNotifications();
+	const { data: user } = await store.getSession();
+
+	const subscriptions = ref(user.subscriptions);
 
 	const readNotifications = computed(() => notificationStore.getAllNotifications);
 	const unreadNotifications = computed(() => notificationStore.getUnreadNotifications);
@@ -98,7 +110,11 @@
 
 	const setActiveTab = async (tab: string) => (activeTab.value = tab);
 
-	const { subscribe } = usePush()
+	const { subscribe, unsubscribe, active } = usePush();
+
+	watch(active, (value) => {
+		subscriptions.value = value
+	})
 
 	
 
