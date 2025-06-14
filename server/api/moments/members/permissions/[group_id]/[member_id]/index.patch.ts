@@ -61,11 +61,17 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     await server.from("notifications").insert({
         group_id: group_id,
         target_id: member_id,
-        title: `Permissions updated`,
-        message: `Your permissions in the group have been updated by a moderator or admin`,
+        title: "Group permissions updated",
+        message: "Your permissions in the group were updated by a moderator.",
         type: "group",
     })
 
+    await useSendNotification({
+        title: "Group permissions updated",
+        message: "Your permissions in the group were updated by a moderator.",
+        target_id: member_id as string,
+    });
+    
     return useReturnResponse(event, {
         status: {
             refresh: true,

@@ -27,12 +27,19 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         group_id: group_id,
         post_id: image_id,
         target_id: data.author_id,
-        title: `Deleted your photo`,
-        message: `A moderator or admin deleted your photo`,
+        title: `Your photo has been removed`,
+        message: `Your photo was deleted by a moderator.`,
         type: "image",
     })
+    
 
     if (logError) return useReturnResponse(event, internalServerError)
+
+    await useSendNotification({
+        title: `Your photo has been removed`,
+        message: `Your photo was deleted by a moderator.`,
+        target_id: data.author_id as string,
+    })
 
     await server.from("groups").update({
         last_photo_posted_by: null,

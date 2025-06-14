@@ -25,11 +25,17 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     await server.from("notifications").insert({
         group_id: group_id,
         target_id: member_id,
-        title: data.accepted ? "Kicked from the group" : "Rejected join request",
-        message: data.accepted ? "You have been kicked from the group" : "Your join request has been rejected" + " by a moderator or admin",
+        title: data.accepted ? "Removed from the group" : "Join request declined",
+        message: data.accepted ? "You have been removed from the group by a moderator." : "Your request to join the group was declined by a moderator.",
         type: "group",
     })
 
+    await useSendNotification({
+        title: data.accepted ? "Removed from the group"  : "Join request declined",
+        message: data.accepted ? "You have been removed from the group by a moderator." : "Your request to join the group was declined by a moderator.",
+        target_id: member_id as string,
+    });
+    
     if (logError) return useReturnResponse(event, internalServerError)
 
     return useReturnResponse(event, {

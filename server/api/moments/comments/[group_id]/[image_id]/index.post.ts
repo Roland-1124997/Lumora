@@ -53,9 +53,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         post_id: image_id,
         comment_id: data.id,
         target_id: post.author_id,
-        title: `New comment`,
+        title: `You’ve got a comment`,
         message: `Somone has left a comment on your post. Check it out!`,
         type: "comment",
+    })
+
+    await useSendNotification({
+        title: `You’ve got a comment`,
+        message: `Somone has left a comment on your post. Check it out!`,
+        target_id: post.author_id as string,
     })
 
     return useReturnResponse(event, {

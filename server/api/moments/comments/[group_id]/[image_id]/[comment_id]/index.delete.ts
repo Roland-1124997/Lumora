@@ -40,9 +40,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         group_id: group_id,
         post_id: image_id,
         target_id: comment.author_id,
-        title: `Deleted your comment`,
-        message: `A moderator or admin deleted your comment`,
+        title: `Your comment was removed`,
+        message: `Your comment was deleted by a moderator.`,
         type: "comment",
+    })
+
+    if (comment.author_id != user.id) await useSendNotification({
+        title: `Your comment was removed`,
+        message: `Your comment was deleted by a moderator.`,
+        target_id: comment.author_id as string,
     })
 
     return useReturnResponse(event, {

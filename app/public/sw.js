@@ -9,11 +9,12 @@ precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
 
 self.addEventListener("push", async (event) => {
-    const { message, body, icon } = JSON.parse(event.data.text());
+    
+    const { title, message, icon } = await event.data.json();
 
     event.waitUntil(
-        self.registration.showNotification(message, {
-            body,
+        self.registration.showNotification(title, {
+            body: message,
             icon,
         })
     );

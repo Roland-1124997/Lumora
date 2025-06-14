@@ -67,9 +67,15 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	if (postData.author_id != user.id) await server.from("notifications").insert({
 		group_id: group_id,
 		target_id: postData.author_id,
-		title: `Photo has been ${request.has_been_accepted ? 'approved' : 'rejected'}`,
-		message: `A moderator or admin has ${request.has_been_accepted ? 'approved' : 'rejected'} your photo`,
+		title: `Submission was reviewed`,
+		message: `Your photo was ${request.has_been_accepted ? 'approved' : 'rejected' } by a moderator.`,
 		type: "image",
+	})
+
+	await useSendNotification({
+		title: `Your photo submission was reviewed`,
+		message: `Your photo was ${request.has_been_accepted ? 'approved' : 'rejected' } by a moderator.`,
+		target_id: postData.author_id as string,
 	})
 
 	/*

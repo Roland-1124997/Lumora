@@ -22,10 +22,16 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     await server.from("notifications").insert({
         group_id: group_id,
         target_id: member_id,
-        title: `You have been accepted`,
-        message: `You have been accepted into the group by a moderator or admin`,
+        title: `Membership approved`,
+        message: `You have been accepted into the group by a moderator`,
         type: "group",
     })
+
+    await useSendNotification({
+        title: "Membership approved",
+        message: "Your request to join the group was accepted by a moderator.",
+        target_id: member_id as string,
+    });
 
     if (logError) return useReturnResponse(event, internalServerError)
 

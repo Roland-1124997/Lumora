@@ -21,7 +21,7 @@
 		<section v-if="notifications.length >= 1" class="h-[80vh] w-full overflow-scroll">
 			<div class="mb-24 space-y-2">
 				<div v-for="notification in notifications" :key="notification.id" class="flex items-start gap-3 p-4 transition bg-white border shadow-sm rounded-xl hover:bg-gray-50">
-					<div class="flex items-center justify-center flex-shrink-0 w-10 h-10 bg-gray-100 rounded-full">
+					<div class="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full">
 						<icon :name="notification.icon || 'ri:notification-2-line'" class="text-[#756145]" size="1.5em" />
 					</div>
 
@@ -46,7 +46,7 @@
 						</p>
 					</div>
 
-					<button v-if="!notification.is_read" @click="notificationStore.markNotificationAsRead(notification.id)" class="p-2 ml-2 transition rounded-full hover:bg-gray-200" title="Mark as read">
+					<button v-if="!notification.is_read" @click="notificationStore.markNotificationAsRead(notification.id)" class="flex items-center justify-center p-2 transition rounded-full hover:bg-gray-200" title="Mark as read">
 						<icon name="ri:close-fill" size="1.3em" class="text-gray-400" />
 					</button>
 				</div>

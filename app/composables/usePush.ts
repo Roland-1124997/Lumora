@@ -1,28 +1,48 @@
+import { json } from "zod/v4"
 
 export const usePush = () => {
-
+    const isIosPwa = (): boolean => {
+        const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent)
+        const isStandalone = ('standalone' in window.navigator) && (window.navigator['standalone'] === true)
+        return isIos && isStandalone
+    }
 
     const subscribe = async () => {
-        const registration = await navigator.serviceWorker.ready
 
-        const { vapidPublicKey } = useRuntimeConfig().public
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') return
 
-        const vapidKey = vapidPublicKey?.trim().replace(/['",]/g, '')
+        // if (isIosPwa()) {
+        //     alert('iOS PWA push: native PushManager is not supported.')
+        //     return
+        // }
 
-        const subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(vapidKey)
-        })
+        try {
+            const registration = await navigator.serviceWorker.ready
+            const { vapidPublicKey } = useRuntimeConfig().public
+            const vapidKey = vapidPublicKey?.trim().replace(/['",]/g, '')
 
-        await $fetch('/api/notifications', {
-            method: 'POST',
-            body: { subscription }
-        })
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(vapidKey)
+            })
 
+            await $fetch('/api/notifications', {
+                method: 'POST',
+                body: { subscription }
+            })
+        }
+
+        catch(error) {
+
+            alert(JSON.stringify(error))
+
+        }
+
+        
     }
 
     return { subscribe }
-    
 }
 
 const urlBase64ToUint8Array = (base64String: string) => {
