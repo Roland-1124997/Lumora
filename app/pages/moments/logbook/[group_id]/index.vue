@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
+		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4 sm:mt-2 md:-mt-5 ">
 			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
 				<FieldInputSearch :disabled="searchLoading" class="hidden md:flex" :uri="`/api/moments/logbook/${group_id}?action=${actions}&timestamp=${time}`" placeholder="Search logs..." :update="handleSearch" />
 

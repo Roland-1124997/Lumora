@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div class="flex items-center gap-2 mb-3 -mt-4">
+		<div class="flex items-center gap-2 mb-3 -mt-4 sm:mt-2">
 			<FieldInputSearch :disabled="searchLoading" :update="handleSearch" uri="/api/moments" url="/moments" />
 
 			<button id="createLink" title="createLink" @click="createLinkFunction()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
@@ -15,7 +15,7 @@
 		</div>
 		<hr class="mb-3" />
 
-		<section v-if="List.length >= 1 && !searchLoading" @scroll="updateScrollPercentage" v-bind="containerProps" class="overflow-y-auto h-[80vh]">
+		<section v-if="List.length >= 1 && !searchLoading" @scroll="updateScrollPercentage" v-bind="containerProps" class="overflow-y-auto h-[75dvh] md:h-[80dvh]">
 			<div v-bind="wrapperProps" class="flex flex-col w-full gap-3">
 				<div :id="content.id" class="last:pb-[9.6rem]" v-for="(content, index) in List" :key="content.id">
 					<LazyCardGroup :content />

@@ -1,15 +1,15 @@
 <template>
 	<div>
-		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
+		<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4 sm:mt-2 md:-mt-5 sm:top-1 md:-top-4">
 			<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
-				<button :disabled="disabled || loading" @click="clickButton" class="flex items-center justify-center w-full gap-2 p-2 md:px-4 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled="disabled || loading" @click="clickButton" class="flex items-center justify-center w-full gap-2 p-2 md:px-4 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-70 rounded-xl md:w-fit">
 					<icon v-if="loading" class="animate-spin" size="1.50rem" name="ri:refresh-line" />
 					<span class="flex items-center justify-center gap-2" v-else>
 						<icon size="1.2rem" name="ri:user-fill" />
 						Update
 					</span>
 				</button>
-				<button :disabled="disabled || loading_password" @click="clickPasswordButton" class="flex items-center justify-center w-full gap-2 p-2 md:px-4 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled="disabled || loading_password" @click="clickPasswordButton" class="flex items-center justify-center w-full gap-2 p-2 md:px-4 px-1 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:hover:bg-white disabled:opacity-70 rounded-xl md:w-fit">
 					<icon v-if="loading_password" class="animate-spin" size="1.50rem" name="ri:refresh-line" />
 					<span class="flex items-center justify-center gap-2" v-else>
 						<icon size="1.2rem" name="ri:lock-password-fill" />
@@ -300,6 +300,7 @@
 
 	const createDeleteFunction = () => {
 		updateModalValue({
+			open: true,
 			type: "negative:account",
 			name: "Alert",
 			url: `/api/auth`,
@@ -333,6 +334,7 @@
 	watch(mfa_active, async (value) => {
 		if (value) {
 			updateModalValue({
+				open: true,
 				type: "create:totp",
 				name: "Authentication",
 				url: ``,
@@ -341,6 +343,7 @@
 			});
 		} else {
 			updateModalValue({
+				open: true,
 				type: "negative:totp",
 				name: "Authentication",
 				url: `/api/auth/totp`,

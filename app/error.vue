@@ -1,6 +1,6 @@
 <template>
 	<div class="min-h-screen">
-		<header :class="PWAInstalled ? 'top-11 md:top-0' : 'top-0'" class="fixed z-50 w-full bg-white">
+		<header :class="PWAInstalled ? 'top-11 lg:top-6 xl:top-0' : 'top-0'" class="fixed z-50 w-full bg-white">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<div @click="handleError('/back')" class="flex items-center justify-center gap-2">
 					<icon name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>

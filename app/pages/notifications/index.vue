@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div class="flex items-center justify-between w-full mb-3 -mt-4">
+		<div class="flex items-center justify-between w-full mb-3 -mt-4 sm:mt-2 lg:-mt-4">
 			<div class="flex items-center gap-2 justify-evenly p-1 border rounded-xl w-[10rem] overflow-hidden bg-gray-100">
 				<button @click="setActiveTab('all')" :class="activeTab == 'all' ? 'bg-white font-bold' : ''" class="flex items-center justify-center w-full p-1 rounded-lg">
 					<span class="text-sm">All</span>

@@ -14,7 +14,7 @@
 				<div v-if="content.deleted" class="flex items-center justify-end gap-2 pt-2 mt-2"></div>
 				<div v-else :class="id == content.id ? ' border-orange-200' : ''" class="flex items-center justify-end gap-2 pt-2 mt-2 border-t border-gray-200">
 					<button v-if="content.author.is_owner || permisions.can_delete_message" @click="onDelete(content)" :class="id == content.id ? ' bg-orange-200 hover:bg-orange-300 text-orange-500' : ''" class="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 transition bg-gray-300 rounded hover:text-gray-700 hover:bg-gray-200">
-						<Icon name="ri:close-circle-line" size="1.1rem" />
+						<Icon name="ri:delete-bin-2-line" size="1.1rem" />
 					</button>
 					<button v-if="content.author.is_owner" @click="onEdit(content)" :class="id == content.id ? ' bg-orange-200 hover:bg-orange-300 text-orange-500' : ''" class="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 transition bg-gray-300 rounded hover:text-gray-700 hover:bg-gray-200">
 						<Icon name="ri:edit-2-line" size="1.1rem" />

@@ -1,6 +1,6 @@
 <template>
 	<div v-if="List">
-		<div class="flex items-center justify-between gap-2 mb-3 -mt-4">
+		<div class="flex items-center justify-between gap-2 mb-3 -mt-4 sm:mt-2 lg:-mt-4">
 			<div class="items-center hidden gap-2 md:flex">
 				<button :disabled="!accepted" @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
 					<icon name="ri:image-circle-ai-line" size="1.4em" />
@@ -35,17 +35,17 @@
 		</div>
 		<hr class="mb-2" />
 
-		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" class="h-[80vh] overflow-y-scroll">
+		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" :class="PWAInstalled ? 'h-[73dvh]' : 'h-[77dvh] md:h-[74dvh] xl:h-[80dvh]'" class="overflow-y-scroll ">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
-				<div :class="PWAInstalled ? 'last:pb-24 pb:last:mb-8' : 'last:pb-4 md:last:pb-8'" v-for="(content, index) in List" :key="index">
+				<div v-for="(content, index) in List" :key="index">
 					<LazyCardImage v-if="content" :content="content" :has_interaction />
 					<LazyCardImageSkeleton v-else />
 				</div>
 			</div>
 		</section>
 
-		<section v-else class="h-[80vh] overflow-y-auto">
-			<div class="grid w-full grid-cols-2 gap-3 mb-[4.3rem] lg:grid-cols-4">
+		<section v-else :class="PWAInstalled ? 'h-[73dvh]' : 'h-[77dvh] md:h-[74dvh] xl:h-[80dvh]'" class="overflow-y-scroll ">>
+			<div class="grid w-full grid-cols-2 gap-3 mb-4 lg:grid-cols-4">
 				<div class="" v-for="i in 12">
 					<LazyCardImageSkeleton />
 				</div>
@@ -116,7 +116,9 @@
 			has_interaction.value = response.data.has_interaction;
 			posts_count_need_approval.value = response.data.posts_count_need_approval;
 		},
-		onError: ({ error, updated }) => {},
+		onError: ({ error, updated }) => {
+			if(!updated) useThrowError(error)
+		},
 	});
 
 	/*

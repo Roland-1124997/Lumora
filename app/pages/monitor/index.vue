@@ -1,5 +1,5 @@
 <template>
-	<div :class="PWAInstalled ? 'mb-32 md:mb-20' : 'mb-20'" class="p-2 mx-auto -mt-4 select-none">
+	<div :class="PWAInstalled ? 'mb-32 md:mb-20' : 'mb-20'" class="p-2 mx-auto -mt-4 select-none sm:mt-2">
 		<div v-if="monitor" class="space-y-4">
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<div class="p-4 shadow rounded-xl">

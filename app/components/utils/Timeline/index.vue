@@ -2,7 +2,7 @@
 	<div class="relative">
 		<div v-if="!loading && content.length >= 1" id="line" class="sticky top-0 z-10 w-1 h-full bg-gray-100 left-6"></div>
 		<div v-for="(group, groupIndex) in content" :key="group.date" class="mb-2">
-			<div :class="PWAInstalled ? 'top-[13.85vh] md:top-[7.56vh]' : 'top-[13.4vh] md:top-[7.56vh]'" class="sticky z-40 flex items-center justify-between px-4 py-3 mb-3 text-lg font-bold text-gray-700 border rounded-xl bg-gray-50">
+			<div :class="PWAInstalled ? 'top-[13.85vh] sm:top-[12.07vh] md:top-[7.56vh]' : 'top-[13.4vh] lg:top-[8.95vh] xl:top-[7.56vh]'" class="sticky z-40 flex items-center justify-between px-4 py-3 mb-3 text-lg font-bold text-gray-700 border rounded-xl bg-gray-50">
 				<div class="flex items-center justify-center gap-2">
 					<div class="flex z-40 justify-center flex-shrink-0 w-8 -ml-[0.35rem]">
 						<div class="flex items-center justify-center w-8 h-8 text-white bg-[#756145] border-2 border-gray-100 rounded-full">

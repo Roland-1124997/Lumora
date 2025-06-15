@@ -11,11 +11,18 @@ export const usePush = () => {
     const subscribe = () => {
         Notification.requestPermission()
             .then((permission) => {
-                if (permission !== 'granted') return
+                if (permission !== 'granted') {
+                    addToast({
+                        message: `Notification permisions denied`,
+                        type: "error",
+                        duration: 5000,
+                    })
+                    return
+                }
 
                 if (isIosPwa()) {
                     addToast({
-                        message: `iOS PWA push: native Push notifications are not supported.`,
+                        message: `Native Push notifications are not supported.`,
                         type: "error",
                         duration: 5000,
                     })

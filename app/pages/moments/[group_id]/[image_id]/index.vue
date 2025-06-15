@@ -1,15 +1,15 @@
 <template>
-	<div>
+	<div class="select-none ">
 		<div class="hidden md:flex">
 			<splitpanes :horizontal="isMobile" class="w-full h-full" @resize="savePaneSize">
 				<pane :size="paneLeft" class="pl-3 -mt-4 border-l md:pr-3" min-size="50" max-size="70">
 					<div class="hidden w-full gap-2 mb-4 md:flex">
-						<button v-if="content?.has_interactions && !content.author?.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<button v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex items-center disabled:opacity-70 justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							<UtilsCounter :count="likes_count" />
 						</button>
 						<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-							<Icon name="ri:close-circle-line" size="1.2rem" />
+							<Icon name="ri:delete-bin-2-line" size="1.2rem" />
 						</button>
 						<UtilsButtonDownload :url="content?.media?.url" />
 						<button v-if="content?.has_interactions" @click="focusEditable" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
@@ -20,12 +20,12 @@
 				<pane :size="paneRight" class="pl-3 overflow-hidden border-l mb-36 md:mb-auto">
 					<div class="md:h-[82.5vh] overflow-scroll">
 						<div class="flex w-full gap-2 mt-4 mb-2 md:hidden">
-							<button v-if="content?.has_interactions && !content.author?.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+							<button v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex disabled:opacity-70  items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 								<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 								<UtilsCounter :count="likes_count" />
 							</button>
 							<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-								<Icon name="ri:close-circle-line" size="1.2rem" />
+								<Icon name="ri:delete-bin-2-line" size="1.2rem" />
 							</button>
 							<UtilsButtonDownload :url="content?.media?.url" />
 							<button v-if="content?.has_interactions" @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
@@ -52,12 +52,12 @@
 				<div class="pl-3 -mt-4 border-l md:pr-3">
 					<CardImageThumbnail :loaded :content="content || []" ref="thumbnail" />
 					<div class="flex w-full gap-2 mt-4 mb-2">
-						<button v-if="content?.has_interactions && !content.author?.is_owner" @click="likeImage" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<button v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex items-center disabled:opacity-70 justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							<UtilsCounter :count="likes_count" />
 						</button>
 						<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
-							<Icon name="ri:close-circle-line" size="1.2rem" />
+							<Icon name="ri:delete-bin-2-line" size="1.2rem" />
 						</button>
 						<UtilsButtonDownload :url="content?.media?.url" />
 						<button v-if="content?.has_interactions" @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
@@ -438,6 +438,6 @@
 
 <style>
 	.splitpanes--vertical > .splitpanes__splitter {
-		@apply w-1 h-[82.5vh] rounded-full mr-3 bg-gray-200 hover:bg-gray-300;
+		@apply w-1 sm:w-3 xl:w-1 h-[80vh] xl:h-[82.5vh] rounded-full mr-3 bg-gray-200 hover:bg-gray-300;
 	}
 </style>

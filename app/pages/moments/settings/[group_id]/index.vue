@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div>
-			<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4">
+			<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4 sm:mt-2 md:-mt-5 ">
 				<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
 					<FieldInputSearch v-if="content?.accepted" class="hidden md:flex" placeholder="Search member..." :disabled="!content?.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
 					<NuxtLink v-if="content?.permision?.edit" aria-label="logbook" :to="`/moments/logbook/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
