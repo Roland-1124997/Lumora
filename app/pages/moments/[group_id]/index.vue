@@ -44,7 +44,7 @@
 			</div>
 		</section>
 
-		<section v-else :class="PWAInstalled ? 'h-[73dvh]' : 'h-[77dvh] md:h-[74dvh] xl:h-[80dvh]'" class="overflow-y-scroll ">>
+		<section v-else :class="PWAInstalled ? 'h-[73dvh]' : 'h-[77dvh] md:h-[74dvh] xl:h-[80dvh]'" class="overflow-y-scroll ">
 			<div class="grid w-full grid-cols-2 gap-3 mb-4 lg:grid-cols-4">
 				<div class="" v-for="i in 12">
 					<LazyCardImageSkeleton />

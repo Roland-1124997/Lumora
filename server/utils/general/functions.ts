@@ -155,7 +155,7 @@ export const useSendNotification = async (options: { title: string, message: str
     })
 
     webpush.sendNotification(data.subscription, payload)
-        .then(() => console.log('Notificatie verzonden'))
-        .catch(err => console.error('Fout bij verzenden:', err))
-    
+        .then(() => console.log('Notification sent'))
+        .catch(err => console.error('Error sending notification:', err));
+
 };

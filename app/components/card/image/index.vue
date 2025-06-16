@@ -38,7 +38,7 @@
 					<img v-if="loaded && targetIsVisible" :src="content.author.url" :alt="content.id" class="object-cover w-full h-full" />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
 				</div>
-				<div>
+				<div class="cursor-pointer " @click="!content.author.is_owner ? userDetailsFunction(content.author.id) : ''">
 					<p class="text-sm font-semibold text-gray-800 truncate">
 						{{ content.author.name }}
 					</p>
@@ -117,6 +117,32 @@
 
 		}
 	});
+
+	const { open } = useModal();
+	const route = useRoute()
+	const path = route.path
+
+	const userDetailsFunction = async (account_id: string) => {
+
+		await $fetch(`/api/user/${account_id}`).then((response: any) => {
+			navigateTo(`${path}?modal=${account_id}`);
+			open({
+				type: "details",
+				details: response.data
+			});
+		}).catch(() => {
+			addToast({
+				message: "An error occurred, unable to get the user details",
+				type: "error",
+				duration: 5000
+			})
+		})
+		
+	};
+
+	onMounted( async () => {
+		if(route.query.modal) await userDetailsFunction(route.query.modal as string)
+	})
 
 	const pinImage = async () => {
 		pinned.value = !pinned.value;

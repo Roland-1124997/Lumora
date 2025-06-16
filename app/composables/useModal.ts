@@ -1,11 +1,24 @@
-interface ModalRequestConfig {
-    type: string
-    name: string
-    url: FetchUrl
+type FetchUrl = string | (() => string) // voorbeeld, pas aan aan je definitie
+
+interface BaseModalConfig {
     resize?: boolean
     minimized?: boolean
     loading?: boolean
 }
+
+interface DetailsModalRequestConfig extends BaseModalConfig {
+    type: 'details'
+    details: Record<string, any>
+}
+
+interface OtherModalRequestConfig extends BaseModalConfig {
+    type: Exclude<string, 'details'>
+    name: string
+    url: FetchUrl
+}
+
+type ModalRequestConfig = DetailsModalRequestConfig | OtherModalRequestConfig
+
 
 export const useModal = () => {
     const context = inject<any>('modal')

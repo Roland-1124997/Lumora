@@ -38,6 +38,10 @@
 		<UtilsToast />
 
 		<ModalBaselayer v-model="modal">
+
+			<ModalSublayer v-if="modal.type == 'details'" v-model="modal" :details="modal.details"/>
+
+
 			<FieldFormCreateGroup v-if="modal.type == 'Create'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
 
 			<FieldFormDeleteGroup v-if="modal.type.includes('Group')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
