@@ -38,7 +38,7 @@
 					<img v-if="loaded && targetIsVisible" :src="content.author.url" :alt="content.id" class="object-cover w-full h-full" />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
 				</div>
-				<div class="cursor-pointer " @click="!content.author.is_owner ? userDetailsFunction(content.author.id) : ''">
+				<div :class="content.author.is_owner ? ' cursor-default' : 'cursor-pointer' " @click="!content.author.is_owner ? userDetailsFunction(content.author.id) : ''">
 					<p class="text-sm font-semibold text-gray-800 truncate">
 						{{ content.author.name }}
 					</p>
@@ -130,13 +130,11 @@
 				type: "details",
 				details: response.data
 			});
-		}).catch(() => {
-			addToast({
-				message: "An error occurred, unable to get the user details",
-				type: "error",
-				duration: 5000
-			})
-		})
+		}).catch(() => addToast({
+			message: "An error occurred, unable to get the user details",
+			type: "error",
+			duration: 5000
+		}))
 		
 	};
 

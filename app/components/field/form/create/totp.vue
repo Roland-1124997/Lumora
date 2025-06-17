@@ -10,7 +10,7 @@
 						{{ secret }}
 					</NuxtLink>
 				</div>
-				<p v-if="failed" class="mt-5 text-red-700">An error occurred, unable to create an qr code! Please try again later.</p>
+				<!-- <p v-if="failed" class="mt-5 text-red-700">An error occurred, unable to create an qr code! Please try again later.</p> -->
 			</div>
 		</template>
 	</FieldFormBaseLayer>
@@ -20,32 +20,25 @@
 	import { toTypedSchema } from "@vee-validate/zod";
 	import * as zod from "zod";
 
-	const { url, onSuccess, onError, method } = defineProps({
+	const { url, onSuccess, onError, method, details } = defineProps({
 		callback: { type: Function, required: false },
 		url: { type: String, required: true },
 		onSuccess: { type: Function, required: true },
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },
 		resize: { type: Boolean, default: false },
+		details: { type: Object, required: true },
 	});
 
 	const qr_code = ref();
 	const secret = ref();
 	const uri = ref();
 	const copied = ref();
-	const failed = ref(false);
 
-	const { makeRequest } = useRetryableFetch();
-	const { data, error } = await makeRequest<any>("/api/auth/totp")
-
-	if(data.value) {
-		qr_code.value = data.value.data.qr_code;
-		secret.value = data.value.data.secret;
-		uri.value = data.value.data.uri;
-	}
-
-	if(error.value) failed.value = true;
-
+	qr_code.value = details.data.qr_code;
+	secret.value = details.data.secret;
+	uri.value = details.data.uri;
+	
 	const copy = () => {
 		if (!secret.value) return;
 

@@ -333,14 +333,28 @@
 
 	watch(mfa_active, async (value) => {
 		if (value) {
-			updateModalValue({
-				open: true,
-				type: "create:totp",
-				name: "Authentication",
-				url: ``,
-				onSuccess: () => {},
-				onError: () => {},
-			});
+
+			const { makeRequest } = useRetryableFetch();
+			const { data, error } = await makeRequest<any>("/api/auth/totp")
+
+			if(data.value) {
+				updateModalValue({
+					open: true,
+					type: "create:totp",
+					name: "Authentication",
+					url: "",
+					details: data.value,
+					onSuccess: () =>{},
+					onError: () => {},
+				});
+			}
+			
+			if(error.value) addToast({
+				message: "An error occurred, unable to create an qr code",
+				type: "error",
+				duration: 5000
+			})
+
 		} else {
 			updateModalValue({
 				open: true,

@@ -41,13 +41,14 @@
 	import { toTypedSchema } from "@vee-validate/zod";
 	import * as zod from "zod";
 
-	const { url, onSuccess, onError, method } = defineProps({
+	const { url, onSuccess, onError, method, details } = defineProps({
 		callback: { type: Function, required: false },
 		url: { type: String, required: true },
 		onSuccess: { type: Function, required: true },
 		onError: { type: Function, required: true },
 		method: { type: String, default: "PATCH" },
 		resize: { type: Boolean, default: false },
+		details: { type: Object, required: true },
 	});
 
 	interface PermissionOption {
@@ -64,17 +65,9 @@
 		else if (option.key === "can_edit_group") member.value.can_edit_group = option.value;
 	};
 
-	const { makeRequest } = useRetryableFetch({ throwOnError: false });
-
-	const { data, error } = await makeRequest<any>(url);
-
-	if (data.value) {
-		permissions.value = data.value.data.permissions.options;
-		member.value = data.value.data;
-	}
-
-	if (error.value) onError(error.value.data);
-
+	permissions.value = details.data.permissions.options;
+	member.value = details.data;
+	
 	const schema = toTypedSchema(
 		zod.object(
 			permissions.value.reduce((acc, option) => {

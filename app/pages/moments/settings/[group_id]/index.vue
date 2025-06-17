@@ -683,42 +683,59 @@
 	 ************************************************************************************
 	 */
 
-	const createUpdateFunction = (id: string) => {
-		const { onSuccess, onError } = open({
-			type: "update:member",
-			name: "Edit Permissions",
-			url: `/api/moments/members/permissions/${group_id}/${id}`,
-		});
+	const createUpdateFunction = async (id: string) => {
+		
+		const { makeRequest } = useRetryableFetch({ throwOnError: false });
+		
+		const url = `/api/moments/members/permissions/${group_id}/${id}`
+		const { data, error } = await makeRequest<any>(url);
 
-		onSuccess(async () => {
-			searchLoading.value = true;
+		if(data.value) {
+		
+			const { onSuccess, onError } = open({
+				type: "update:member",
+				name: "Edit Permissions",
+				url: url,
+				details: data.value
+			});
 
-			const { success } = await members.reload();
+			onSuccess(async () => {
+				searchLoading.value = true;
 
-			if (success) {
-				webSocket.send(
-					JSON.stringify({
-						type: "update-topics",
-					})
-				);
+				const { success } = await members.reload();
 
+				if (success) {
+					webSocket.send(
+						JSON.stringify({
+							type: "update-topics",
+						})
+					);
+
+					addToast({
+						message: `Member permissions updated`,
+						type: "success",
+						duration: 5000,
+					});
+				}
+
+				setTimeout(() => (searchLoading.value = false), 1500);
+			});
+
+			onError(async () =>
 				addToast({
-					message: `Member permissions updated`,
-					type: "success",
+					message: `An error occurred, unable to update the member`,
+					type: "error",
 					duration: 5000,
-				});
-			}
+				})
+			);
+		}
 
-			setTimeout(() => (searchLoading.value = false), 1500);
-		});
+		if(error.value) addToast({
+			message: "An error occurred, unable to get the user",
+			type: "error",
+			duration: 5000
+		})
 
-		onError(async () =>
-			addToast({
-				message: `An error occurred, unable to update the member`,
-				type: "error",
-				duration: 5000,
-			})
-		);
 	};
 
 	/*

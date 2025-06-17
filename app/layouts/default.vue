@@ -39,8 +39,7 @@
 
 		<ModalBaselayer v-model="modal">
 
-			<ModalSublayer v-if="modal.type == 'details'" v-model="modal" :details="modal.details"/>
-
+			<ModalSublayer v-if="modal.type == 'details'" :details="modal.details" v-model="modal"/>
 
 			<FieldFormCreateGroup v-if="modal.type == 'Create'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
 
@@ -55,13 +54,13 @@
 
 			<FieldFormJoinConfirm v-if="modal.type == 'join:group'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormUpdateMember v-if="modal.type == 'update:member'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
+			<FieldFormUpdateMember v-if="modal.type == 'update:member'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" :details="modal.details" v-model="modal" />
 
 			<FieldFormUpdateConfirm v-if="modal.type.includes('image:')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
 
 			<FieldFormUpdateMultipleConfirm v-if="modal.type.includes('images:multiple')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
 
-			<FieldFormCreateTotp v-if="modal.type.includes('create:totp')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
+			<FieldFormCreateTotp v-if="modal.type.includes('create:totp')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" :details="modal.details" v-model="modal" />
 		</ModalBaselayer>
 	</div>
 </template>

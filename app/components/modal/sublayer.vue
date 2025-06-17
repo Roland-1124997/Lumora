@@ -1,6 +1,6 @@
 <template>
 	<div class="select-none">
-		<div class="flex items-center gap-4 pb-6 mb-3 -mt-5 border-b">
+		<div class="flex items-center gap-4 pb-6 mb-3 -mt-8 border-b">
 			<img :src="user.avatar" alt="Avatar" class="object-cover w-16 h-16 border border-gray-300 rounded-full" />
 			<div>
 				<h2 class="text-xl font-bold">{{ user.name }}</h2>
@@ -16,7 +16,7 @@
 				</p>
 			</div>
 
-			<div class="grid grid-cols-3 gap-2 mt-4 md:h-[18rem]">
+			<div class="grid grid-cols-3 gap-2 mt-4 sm:h-[18rem] md:h-[15rem] xl:h-[19rem]">
 				<div v-for="post in posts" :key="post.id" class="relative flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
 					<button @click="navigate(`/moments/${post.group_id}/${post.id}`)" class="">
 						<img :src="post.media.url" :alt="post.id" class="z-40 object-cover w-full h-full aspect-square" />

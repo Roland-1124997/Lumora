@@ -13,6 +13,7 @@ interface DetailsModalRequestConfig extends BaseModalConfig {
 
 interface OtherModalRequestConfig extends BaseModalConfig {
     type: Exclude<string, 'details'>
+    details?: Record<string, any>
     name: string
     url: FetchUrl
 }
