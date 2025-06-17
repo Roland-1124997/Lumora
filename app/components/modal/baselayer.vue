@@ -70,7 +70,11 @@
 	onClickOutside(modal, () => closeModal());
 
 	const closeModal = () => {
-		navigateTo(`${useRoute().path}`);
+
+		navigateTo(`${useRoute().path}`, {
+			replace: true
+		});
+		
 		modalStatus.value?.controller.abort()
 		modalStatus.value = false
 	};

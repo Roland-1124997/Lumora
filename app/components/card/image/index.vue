@@ -125,11 +125,19 @@
 	const userDetailsFunction = async (account_id: string) => {
 
 		await $fetch(`/api/user/${account_id}`).then((response: any) => {
-			navigateTo(`${path}?modal=${account_id}`);
+			
+			navigateTo({
+				query: {
+					uid : account_id
+				},
+				replace: true
+			})
+
 			open({
 				type: "details",
 				details: response.data
 			});
+			
 		}).catch(() => addToast({
 			message: "An error occurred, unable to get the user details",
 			type: "error",
@@ -138,9 +146,11 @@
 		
 	};
 
-	onMounted( async () => {
-		if(route.query.modal) await userDetailsFunction(route.query.modal as string)
-	})
+	setTimeout(() => {
+		callOnce( async () => {
+			if(route.query.uid ) await userDetailsFunction(route.query.uid  as string)
+		}, { mode: "navigation"})
+	}, 300);
 
 	const pinImage = async () => {
 		pinned.value = !pinned.value;
