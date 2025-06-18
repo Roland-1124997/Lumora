@@ -12,15 +12,14 @@ export function useRetryableFetch(configuration: { maxAttempts?: number; delay?:
         options: Parameters<typeof $fetch>[1] & { sessions?: boolean },
         attempts = 0
     ): Promise<ApiResponse<T>> => {
-        return $fetch<ApiResponse<T>>(url, options).catch((err: any) => {
+        return $fetch<ApiResponse<T>>(url, options).catch((error: any) => {
             if (++attempts < maxAttempts) {
                 return new Promise<ApiResponse<T>>((resolve) =>
                     setTimeout(resolve, delay)
                 ).then(() => fetchWithRetry<T>(url, options, attempts));
             }
             
-            if (throwOnError && !err.message?.includes("aborted")) useThrowError(err);
-            return Promise.reject(err);
+            return Promise.reject(error);
         });
     };
 
@@ -33,7 +32,10 @@ export function useRetryableFetch(configuration: { maxAttempts?: number; delay?:
 
         await fetchWithRetry<T>(url, options)
             .then((response) => data.value = response)
-            .catch((err) => error.value = err);
+            .catch((err) => {
+                error.value = err
+                if (throwOnError && !error.value.message?.includes("aborted")) useThrowError(error)
+            });
 
         return { data, error };
     };

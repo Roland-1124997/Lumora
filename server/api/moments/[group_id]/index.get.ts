@@ -9,13 +9,11 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
 	const pending = query.pending ? query.pending.toLowerCase() : false;
 
-	if(page == 1) {
-		await server.rpc('upsert_user_group_visit', {
-			p_user_id: user.id,
-			p_group_id: group_id
-		})
-	}
-
+	if(page == 1 && !pending) await server.rpc('upsert_user_group_visit', {
+		p_user_id: user.id,
+		p_group_id: group_id
+	})
+	
 	/*
 	************************************************************************************
 	*/
@@ -24,6 +22,11 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	if (settingsError) return useReturnResponse(event, notFoundError)
 
 	const { data: accepted } = await client.from("members").select("*").eq("group_id", group_id).eq("user_id", user.id).eq("accepted", true).single<Tables<"members">>()
+
+	if (pending) {
+		if (!accepted?.can_edit_group) return useReturnResponse(event, forbiddenError);
+		if (!settings.needs_review) return useReturnResponse(event, notFoundError);
+	}
 
 	const { data: media, error } = await client.rpc("get_group_with_posts", {
 		group_id_param: group_id, 
@@ -46,11 +49,6 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 	/*
 	************************************************************************************
 	*/
-
-	if (pending) {
-		if (!settings.needs_review) return useReturnResponse(event, notFoundError);
-		if (!accepted?.can_edit_group) return useReturnResponse(event, forbiddenError);
-	}
 
 	return useReturnResponse(event, {
 		status: {

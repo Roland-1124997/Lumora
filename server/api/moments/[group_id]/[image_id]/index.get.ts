@@ -12,7 +12,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     ************************************************************************************
     */
 
-    const { data, error } = await client.from('posts').select('*', { count: 'exact' }).eq('id', image_id).eq("Accepted", true).single<Tables<"posts">>()
+    const { data, error } = await client.from('posts').select('*', { count: 'exact' }).eq("group_id", group_id).eq('id', image_id).eq("Accepted", true).single<Tables<"posts">>()
     if (error && error?.details?.includes("0 rows")) return useReturnResponse(event, notFoundError);
     if (error) return useReturnResponse(event, notFoundError);
 
