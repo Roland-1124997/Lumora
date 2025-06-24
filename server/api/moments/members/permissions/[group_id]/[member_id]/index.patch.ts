@@ -70,6 +70,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         title: "Group permissions updated",
         message: "Your permissions in the group were updated by a moderator.",
         target_id: member_id as string,
+    }).catch(() => { 
+        console.error("Failed to send notification");
     });
     
     return useReturnResponse(event, {
