@@ -2,10 +2,12 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     if (!user) return useReturnResponse(event, unauthorizedError);
 
-    const {data, error } = await server.auth.admin.deleteUser(user.id)
+    const { error } = await server.auth.admin.deleteUser(user.id)
 
-    console.log(error)
+    if (error) return useReturnResponse(event, internalServerError);
 
+    await useDeleteSession(client)
+    
     /*
     ************************************************************************************
     */

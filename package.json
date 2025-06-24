@@ -25,7 +25,6 @@
     "nuxt-charts": "^0.1.9",
     "pinia": "^3.0.2",
     "splitpanes": "^4.0.2",
-    "unique-username-generator": "^1.4.0",
     "vee-validate": "^4.14.7",
     "vue": "latest",
     "vue-router": "latest",

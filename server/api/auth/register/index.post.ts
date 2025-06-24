@@ -6,14 +6,15 @@ import { render } from '@vue-email/render'
 
 
 const schema = zod.object({
+    name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(3, { message: "Must be at least 3 characters long" }),
     email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
     password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
     confirmation: zod.string({ message: "This field is required" }),
 })
-    .refine((data) => data.password === data.confirmation, {
-        message: "Passwords do not match",
-        path: ["confirmation"],
-    })
+.refine((data) => data.password === data.confirmation, {
+    message: "Passwords do not match",
+    path: ["confirmation"],
+})
 
 export default defineEventHandler(async (event) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -67,6 +68,7 @@ export default defineEventHandler(async (event) => {
     await useStorage("verify:token").setItem(session, {
         email: request.email,
         password: request.password,
+        name: request.name || null,
         created_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 20 * 60 * 1000).toISOString(), // 20 minutes
         token: token
@@ -94,7 +96,7 @@ export default defineEventHandler(async (event) => {
             <p>If you did not register, please ignore this email.</p>
         `,
     });
-    
+
     if (error) {
         return useReturnResponse(event, {
             ...internalServerError,

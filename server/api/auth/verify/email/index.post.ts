@@ -1,4 +1,3 @@
-import { generateFromEmail, generateUsername } from "unique-username-generator";
 
 const schema = zod.object({
     code: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(6, { message: "Must be at least 6 characters long" }).max(6, { message: "Must be at most 6 characters long" }),
@@ -64,17 +63,15 @@ export default defineEventHandler(async (event) => {
 
     const client = await serverSupabaseClient(event);
 
-    const username = generateFromEmail(
-        data.email,
-        3
-    );
-    
+    let name = data.name
+    if (!data.name) name = useEmailToName().process(data.email)
+
     const { error: userError } = await client.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
             data: {
-                name: username,
+                name: name,
             },
         }
     });

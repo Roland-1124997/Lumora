@@ -324,7 +324,7 @@
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
+		actions.setErrors({ message: ["An error occurred, unable to delete account! Please try again later."] });
 	};
 
 	/*
@@ -378,7 +378,7 @@
 	};
 
 	const handleDeleteMFAError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to delete the group! Please try again later."] });
+		actions.setErrors({ message: ["An error occurred, unable to disable the MFA! Please try again later."] });
 	};
 
 	/*

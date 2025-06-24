@@ -6,9 +6,8 @@
 		</div>
 
 		<FieldFormRegister url="/api/auth/register" :schema="RegisterSchema" :onSuccess="handleSuccess" :onError="handleError" />
-		<UtilsSeparator />
-		<UtilsButtonGoogle />
-
+		<UtilsSeparator :line="true" />
+		
 		<p class="text-sm text-center text-gray-500 bottom-5">Already have an account?<NuxtLink class="font-bold text-[#817a70] hover:text-[#6e675d]" to="/"> login </NuxtLink></p>
 	</div>
 </template>
@@ -44,6 +43,7 @@
 	const RegisterSchema = toTypedSchema(
 		zod
 			.object({
+				name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(3, { message: "Must be at least 3 characters long" }),
 				email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
 				password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
 				confirmation: zod.string({ message: "This field is required" }),
