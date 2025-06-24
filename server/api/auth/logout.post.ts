@@ -13,7 +13,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     await useDeleteCookies(event)
 
-    deleteCookie(event, "sb-opt-verified")
+    deleteCookie(event, "opt-verified")
 
     return useReturnResponse(event, {
         status: {

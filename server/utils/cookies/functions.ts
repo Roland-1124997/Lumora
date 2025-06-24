@@ -1,8 +1,8 @@
 
 export const useGetCookies = (event: H3Event) => {
 
-    const accessToken = getCookie(event, "sb-access-token");
-    const refreshToken = getCookie(event, "sb-refresh-token");
+    const accessToken = getCookie(event, "access-token");
+    const refreshToken = getCookie(event, "refresh-token");
 
     const currentSession: Omit<Session, "user"> | null = {
         refresh_token: refreshToken as string,
@@ -16,12 +16,12 @@ export const useGetCookies = (event: H3Event) => {
 
 export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | null) => {
     if (session) {
-        setCookie(event, "sb-access-token", session.access_token, {
+        setCookie(event, "access-token", session.access_token, {
             maxAge: 60 * 30, // Cookie valid for 30 minutes
             httpOnly: true,
         });
 
-        setCookie(event, "sb-refresh-token", session.refresh_token, {
+        setCookie(event, "refresh-token", session.refresh_token, {
             maxAge: 60 * 60 * 24 * 14, // Cookie valid for 14 days
             httpOnly: true,
         });
@@ -29,6 +29,6 @@ export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | n
 }
 
 export const useDeleteCookies = async (event: H3Event) => {
-    deleteCookie(event, "sb-access-token");
-    deleteCookie(event, "sb-refresh-token");
+    deleteCookie(event, "access-token");
+    deleteCookie(event, "refresh-token");
 }

@@ -57,7 +57,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     await server.from("factor_sessions").delete().eq("user_id", user.id)
 
-    setCookie(event, "sb-opt-verified", "true", {
+    setCookie(event, "opt-verified", "true", {
         maxAge: 60 * 60 * 24 * 14,
         httpOnly: true,
     })

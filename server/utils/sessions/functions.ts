@@ -19,7 +19,7 @@ export const useSetSessionData = async (event: H3Event, user: User | null) => {
         const server: SupabaseClient = serverSupabaseServiceRole(event)
         const { data } = await server.from("factor_sessions").select("*").eq("user_id", user.id).single()
 
-        const cookie = getCookie(event, "sb-opt-verified")
+        const cookie = getCookie(event, "opt-verified")
         const { data: subscriptions }: any = await server.from("push_subscriptions").select("*").eq("user_id", user.id).single()
 
         if (!data || cookie) return {

@@ -10,7 +10,7 @@ export const defineSupabaseEventHandler = (callback: (event: H3Event, user: User
         if (!event.path.startsWith("/api/auth/")) {
             const { data } = await server.from("factor_sessions").select("*").eq("user_id", user?.id).single()
 
-            const cookie = getCookie(event, "sb-opt-verified")
+            const cookie = getCookie(event, "opt-verified")
 
             if (!!data && !cookie) return useReturnResponse(event, unauthorizedError)
         }
@@ -34,7 +34,7 @@ export const defineCachedSupabaseEventHandler = (callback: (event: H3Event, user
         if (!event.path.startsWith("/api/auth/")) {
             const { data } = await server.from("factor_sessions").select("*").eq("user_id", user?.id).single()
 
-            const cookie = getCookie(event, "sb-opt-verified")
+            const cookie = getCookie(event, "opt-verified")
 
             if (!!data && !cookie) return useReturnResponse(event, unauthorizedError)
         }
@@ -43,7 +43,7 @@ export const defineCachedSupabaseEventHandler = (callback: (event: H3Event, user
 
         return callback(event, user, client, server)
 
-    }, { maxAge: 60 * 10, swr: false  })
+    }, { maxAge: 60 * 10, swr: false })
 }
 
 

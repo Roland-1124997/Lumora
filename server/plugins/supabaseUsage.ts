@@ -5,7 +5,7 @@ export default defineNitroPlugin(async () => {
 
     const scheduler = useScheduler();
 
-    consola.ready("monitor initialized")
+    consola.ready("Monitor initialized")
     scheduler.run(async () => {
         
         await useRenderMemory()

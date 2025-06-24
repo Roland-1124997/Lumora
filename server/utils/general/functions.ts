@@ -2,6 +2,9 @@ import webpush from "web-push";
 import sharp from "sharp";
 import os from "os";
 
+import { createTransport } from 'nodemailer'
+import { consola } from 'consola';
+
 interface Storage {
     bucket_id: string,
     total_size_megabyte: string,
@@ -157,5 +160,63 @@ export const useSendNotification = async (options: { title: string, message: str
     webpush.sendNotification(data.subscription, payload)
         .then(() => console.log('Notification sent'))
         .catch(err => console.error('Error sending notification:', err));
+
+};
+
+
+const { smtpSender, smtpToken, smtpUser, smtpServer } = useRuntimeConfig()
+
+const transporter = createTransport({
+    host: smtpServer,
+    port: 465,
+    secure: true,
+    tls: {
+        ciphers: 'SSLv3',
+        rejectUnauthorized: false
+    },
+    auth: {
+        user: smtpUser,
+        pass: smtpToken
+    },
+});
+
+transporter.verify((error) => {
+    if (error) consola.error('Server is not ready to send mail', error.message);
+    else consola.success("Mail server initialized")
+});
+
+export const useMailer = async (options: { recepient : string, subject: string, body: any}) => {
+    const { recepient, subject, body } = options
+
+    const response: any = {
+        success: null,
+        error: null
+    }
+
+    const mailOptions = {
+        from: smtpSender,
+        to: recepient,
+        subject: subject,
+        html: body,
+    }
+
+    await new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) return reject(error);
+            resolve(info);
+        });
+    })
+
+    .then((info: any) => {
+        consola.success('Email sent: ', info.response);
+        response.success = true
+    })
+
+    .catch((error) => {
+        consola.error('Email not sent: ', error.message);
+        response.error = error
+    });
+
+    return response
 
 };

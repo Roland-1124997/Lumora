@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
         useSetCookies(event, data.session);
 
-        if (data.user?.factors) setCookie(event, "sb-opt-verified", "true", {
+        if (data.user?.factors) setCookie(event, "opt-verified", "true", {
             maxAge: 60 * 60 * 24 * 14,
             httpOnly: true,
         })

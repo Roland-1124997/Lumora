@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
 
     useSetCookies(event, session);
-    deleteCookie(event, "sb-opt-verified")
+    deleteCookie(event, "opt-verified")
 
     await server.from("factor_sessions").insert({
       user_id: data.user.id,

@@ -1,5 +1,5 @@
 <template>
-	<FieldFormBaseLayer :url :onSuccess :onError :method :onReturn :schema label="Confirm">
+	<FieldFormBaseLayer :url :onSuccess :onError :method :onReturn="back ? onReturn : undefined" :schema label="Confirm">
 		<div class="space-y-4 md:pt-12">
 			<field name="code" v-model="value" v-slot="{ field, meta }: any">
 				<transition name="fade">
@@ -25,7 +25,8 @@
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },
 		schema: { type: Object, required: true },
-	});
+		back: { type: Boolean, default: true },
+	});;
 
 	const { makeRequest } = useRetryableFetch();
 	const store = useSessionsStore();

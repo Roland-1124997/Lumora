@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+import vue from '@vitejs/plugin-vue'
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
 
@@ -31,6 +33,9 @@ export default defineNuxtConfig({
     experimental: {
       websocket: true,
     },
+    rollupConfig: {
+      plugins: [vue()]
+    },
   },
 
   runtimeConfig: {
@@ -41,6 +46,10 @@ export default defineNuxtConfig({
       resource: process.env.RENDER_RESOURCE,
       uri: process.env.RENDER_URI
     },
+    smtpSender: process.env.SMTP_SENDER,
+    smtpServer: process.env.SMTP_SERVER,
+    smtpUser: process.env.SMTP_USER,
+    smtpToken: process.env.SMTP_TOKEN,
     vapidPublicKey: process.env.VAPID_PUBLIC_KEY,
     vapidPrivateKey: process.env.VAPID_PRIVATE_KEY,
     public: {
@@ -107,7 +116,7 @@ export default defineNuxtConfig({
 
   supabase: {
     redirect: false,
-    cookiePrefix: "sb-storage-token",
+    cookiePrefix: "storage-token",
     cookieOptions: {
       maxAge: 60 * 60 * 8,
       sameSite: 'lax',

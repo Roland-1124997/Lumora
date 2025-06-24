@@ -7,7 +7,7 @@ export default defineWebSocketHandler({
 
         const { data } = await useSupaBaseUser(server, peer)
 
-        if(data) {
+        if (data) {
             peer.subscribe(data.user.id)
             await useRegisterTopics(server, peer, data)
         }
@@ -17,10 +17,10 @@ export default defineWebSocketHandler({
 
         const { data } = await useSupaBaseUser(server, peer)
 
-        if(data) {
+        if (data) {
 
             const payload: Record<string, any> = message.json()
-            
+
             if (payload.type == "update-topics") await useRegisterTopics(server, peer, data)
 
             if (payload.type == "delete") {
@@ -28,12 +28,12 @@ export default defineWebSocketHandler({
                 await useRegisterTopics(server, peer, data)
             }
 
-            if(payload.type == "kick") {
+            if (payload.type == "kick") {
                 peer.publish(payload.group_id, message.toString())
                 await useRegisterTopics(server, peer, data)
             }
 
-            if(payload.type == "update") {
+            if (payload.type == "update") {
                 await useRegisterTopics(server, peer, data)
                 peer.publish(payload.group_id, message.toString())
             }
@@ -44,7 +44,7 @@ export default defineWebSocketHandler({
 })
 
 
-const useWebSocketCookie = (peer: Peer, name: string) : string | undefined => {
+const useWebSocketCookie = (peer: Peer, name: string): string | undefined => {
     const cookieHeader = peer.request.headers.get('cookie')
     if (!cookieHeader) return undefined
 
@@ -58,9 +58,9 @@ const useWebSocketCookie = (peer: Peer, name: string) : string | undefined => {
 }
 
 const useSupaBaseUser = async (server: SupabaseClient, peer: Peer) => {
-    const access_token = useWebSocketCookie(peer, 'sb-access-token')
-    const refresh_token = useWebSocketCookie(peer, 'sb-refresh-token')
-    return await server.auth.getUser(access_token || refresh_token ) as any
+    const access_token = useWebSocketCookie(peer, 'access-token')
+    const refresh_token = useWebSocketCookie(peer, 'refresh-token')
+    return await server.auth.getUser(access_token || refresh_token) as any
 }
 
 const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: Record<string, any>) => {
@@ -84,6 +84,6 @@ const useRegisterTopics = async (server: SupabaseClient, peer: Peer, data: Recor
 
 
 const useTopics = async (server: SupabaseClient, data: any) => {
-    const { data: topics } = await server.from("members").select("group_id").eq("user_id", data.user.id).overrideTypes <Array<Tables<"members">>>()
+    const { data: topics } = await server.from("members").select("group_id").eq("user_id", data.user.id).overrideTypes<Array<Tables<"members">>>()
     return topics
 }
