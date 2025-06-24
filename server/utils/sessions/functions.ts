@@ -24,7 +24,7 @@ export const useSetSessionData = async (event: H3Event, user: User | null) => {
 
         if (!data || cookie) return {
             id: user.id as string,
-            name: user.user_metadata.name || "Anymouses",
+            name: user.user_metadata.name,
             avatar: user.user_metadata.avatar_url || `/attachments/avatar/${user.id}`,
             email: user.user_metadata.email || user.email,
             team: user.app_metadata.plan == "team" || false,
