@@ -39,7 +39,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         title: `Your photo has been removed`,
         message: `Your photo was deleted by a moderator.`,
         target_id: data.author_id as string,
-    })
+    }).catch(() => {
+        console.error("Failed to send notification");
+    });
 
     await server.from("groups").update({
         last_photo_posted_by: null,

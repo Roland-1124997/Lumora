@@ -62,7 +62,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         title: `You’ve got a comment`,
         message: `Somone has left a comment on your post. Check it out!`,
         target_id: post.author_id as string,
-    })
+    }).catch(() => {
+        console.error("Failed to send notification");
+    });
 
     return useReturnResponse(event, {
         status: {

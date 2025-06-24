@@ -34,6 +34,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         title: data.accepted ? "Removed from the group"  : "Join request declined",
         message: data.accepted ? "You have been removed from the group by a moderator." : "Your request to join the group was declined by a moderator.",
         target_id: member_id as string,
+    }).catch(() => {
+        console.error("Failed to send notification");
     });
     
     if (logError) return useReturnResponse(event, internalServerError)

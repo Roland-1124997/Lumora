@@ -31,6 +31,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         title: "Membership approved",
         message: "Your request to join the group was accepted by a moderator.",
         target_id: member_id as string,
+    }).catch(() => {
+        console.error("Failed to send notification");
     });
 
     if (logError) return useReturnResponse(event, internalServerError)

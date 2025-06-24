@@ -49,7 +49,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         title: `Your comment was removed`,
         message: `Your comment was deleted by a moderator.`,
         target_id: comment.author_id as string,
-    })
+    }).catch(() => {
+        console.error("Failed to send notification");
+    });
 
     return useReturnResponse(event, {
         status: {

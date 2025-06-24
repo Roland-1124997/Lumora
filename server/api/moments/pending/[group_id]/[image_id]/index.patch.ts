@@ -76,7 +76,9 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 		title: `Your photo submission was reviewed`,
 		message: `Your photo was ${request.has_been_accepted ? 'approved' : 'rejected' } by a moderator.`,
 		target_id: postData.author_id as string,
-	})
+	}).catch(() => {
+		console.error("Failed to send notification");
+	});
 
 	/*
 	************************************************************************************
