@@ -6,6 +6,10 @@ const schema = zod.object({
 export default defineEventHandler(async (event) => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    const token = getCookie(event, "verify-token");
+    const resetToken = getCookie(event, "verify-reset-token");
+    
+    let reset = false;
     const request = await readBody(event);
     const { error: zodError } = await schema.safeParseAsync(request);
 
@@ -17,9 +21,7 @@ export default defineEventHandler(async (event) => {
         }
     });
 
-    const token = getCookie(event, "verify-token");
-
-    if (!token) return useReturnResponse(event, {
+    if (!token && !resetToken) return useReturnResponse(event, {
         ...unauthorizedError,
         error: {
             type: "fields",
@@ -29,9 +31,11 @@ export default defineEventHandler(async (event) => {
         }
     });
 
-    const data: any = await useStorage("verify:token").getItem(token);
+    let storage: any = null;
+    if (token) storage = await useStorage("verify:token").getItem(token);
+    else if (resetToken) storage = await useStorage("verify:reset:token").getItem(resetToken);
 
-    if (!data) return useReturnResponse(event, {
+    if (!storage) return useReturnResponse(event, {
         ...unauthorizedError,
         error: {
             type: "fields",
@@ -41,7 +45,7 @@ export default defineEventHandler(async (event) => {
         }
     });
 
-    if (data.token !== request.code) return useReturnResponse(event, {
+    if (storage.token !== request.code) return useReturnResponse(event, {
         ...unauthorizedError,
         error: {
             type: "fields",
@@ -51,7 +55,7 @@ export default defineEventHandler(async (event) => {
         }
     });
 
-    if (new Date(data.expires_at) < new Date()) return useReturnResponse(event, {
+    if (new Date(storage.expires_at) < new Date()) return useReturnResponse(event, {
         ...unauthorizedError,
         error: {
             type: "fields",
@@ -61,41 +65,67 @@ export default defineEventHandler(async (event) => {
         }
     });
 
-    const client = await serverSupabaseClient(event);
+    if(token) {
+        const client = await serverSupabaseClient(event);
 
-    let name = data.name
-    if (!data.name) name = useEmailToName().process(data.email)
+        let name = storage.name
+        if (!storage.name) name = useEmailToName().process(storage.email)
 
-    const { error: userError } = await client.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-            data: {
-                name: name,
-            },
-        }
-    });
-
-    if (userError) return useReturnResponse(event, {
-        ...unauthorizedError,
-        error: {
-            type: "fields",
-            details: {
-                code: [userError.message],
+        const { error: userError } = await client.auth.signUp({
+            email: storage.email,
+            password: storage.password,
+            options: {
+                data: {
+                    name: name,
+                },
             }
-        }
-    });
+        });
 
+        if (userError) return useReturnResponse(event, {
+            ...unauthorizedError,
+            error: {
+                type: "fields",
+                details: {
+                    code: [userError.message],
+                }
+            }
+        });
+    }
+
+    if (resetToken) {
+
+        const { data } = await useListUsers(serverSupabaseServiceRole(event))
+        const user = data.users.find((user) => user.user_metadata.email.toLowerCase() === storage.email.toLowerCase())
+
+        const token = crypto.randomUUID();
+        reset = true;
+
+        await useStorage("verified:email:token").setItem(token, {
+            id: user?.id,
+            email: storage.email,
+        });
+
+        setCookie(event, "verified-email-token", token, {
+            maxAge: 60 * 60 * 24 * 30, // 30
+            httpOnly: true,
+        });
+    }
+
+    if (token) await useStorage("verify:token").removeItem(token);
+    if (resetToken) await useStorage("verify:reset:token").removeItem(resetToken);
+    
     const invite = getCookie(event, "invite_token");
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
 
+    deleteCookie(event, "verify-token");
+    deleteCookie(event, "verify-reset-token");
     deleteCookie(event, "invite_token");
     useSetCookies(event, session);
 
     return useReturnResponse(event, {
         status: {
             success: true,
-            redirect: invite || "/",
+            redirect: reset ? '/auth/reset-password' : invite || "/",
             message: "Ok",
             code: 200
         }

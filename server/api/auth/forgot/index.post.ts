@@ -1,19 +1,7 @@
 import * as zod from "zod";
 
-// @ts-ignore
-import UseEmail from '~/components/emails/register.vue'
-import { render } from '@vue-email/render'
-
-
 const schema = zod.object({
-    name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(3, { message: "Must be at least 3 characters long" }),
     email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
-    password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
-    confirmation: zod.string({ message: "This field is required" }),
-})
-.refine((data) => data.password === data.confirmation, {
-    message: "Passwords do not match",
-    path: ["confirmation"],
 })
 
 export default defineEventHandler(async (event) => {
@@ -37,25 +25,14 @@ export default defineEventHandler(async (event) => {
 
     const { data } = await useListUsers(serverSupabaseServiceRole(event))
 
-    const exists = !!data.users.find((user) => user.user_metadata.email.toLowerCase() === request.email.toLowerCase())
+    const exists = !data.users.find((user) => user.user_metadata.email.toLowerCase() === request.email.toLowerCase());
 
     if (exists) return useReturnResponse(event, {
         ...unauthorizedError,
         error: {
             type: "fields",
             details: {
-                email: ["Email already exists"],
-            }
-        }
-    });
-
-    if (request.password !== request.confirmation) return useReturnResponse(event, {
-        ...badRequestError,
-        error: {
-            type: "fields",
-            details: {
-                password: ["Passwords do not match"],
-                confirmation: ["Passwords do not match"]
+                email: ["Email does not exist"],
             }
         }
     });
@@ -65,35 +42,29 @@ export default defineEventHandler(async (event) => {
         .map((n) => (n % 10).toString())
         .join('');
 
-    await useStorage("verify:token").setItem(session, {
+    await useStorage("verify:reset:token").setItem(session, {
         email: request.email,
-        password: request.password,
-        name: request.name || null,
         created_at: new Date().toISOString(),
         expires_at: new Date(Date.now() + 20 * 60 * 1000).toISOString(), // 20 minutes
         token: token
     });
 
     setTimeout(async () => {
-        await useStorage("verify:token").removeItem(session);
+        await useStorage("verify:reset:token").removeItem(session);
     }, 20 * 60 * 1000);
 
-    setCookie(event, "verify-token", session, {
+    setCookie(event, "verify-reset-token", session, {
         maxAge: 20 * 60,
         httpOnly: true,
     });
 
-    // const template = await render(UseEmail, {
-    //     token: token
-    // })
-
     const { error } = await useMailer({
         recepient: request.email,
-        subject: "Verify your email",
+        subject: "Reset your password",
         body: `
-            <p>Thank you for registering! Please verify your email by entering the following code in the verification form:</p>
+            <p>You requested a password reset. Please enter the following code in the password reset form to continue:</p>
             <h2>${token}</h2>
-            <p>If you did not register, please ignore this email.</p>
+            <p>If you did not request a password reset, you can safely ignore this email.</p>
         `,
     });
 

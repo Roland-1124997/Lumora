@@ -56,16 +56,7 @@
 
 	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
 		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-		const { data, error } = await makeRequest<User>("/api/user");
-
-		if (data.value) {
-			store.setSession(data.value.data, null);
-			succeded.value = true;
-			navigateTo(data.value.status.redirect);
-		}
-
-		if (error.value) store.setSession(null, true);
+		navigateTo(response.status.redirect);
 	};
 
 	const handleError = async ({ error, actions }: ErrorResponse) => {

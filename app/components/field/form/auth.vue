@@ -7,7 +7,7 @@
 
 		<div class="flex justify-between">
 			<FieldInputCheckBox name="remember" label="Remember me" :initialValue />
-			<NuxtLink class="text-sm font-medium text-[#817a70] hover:text-[#6e675d]" to="/"> Forgot Password? </NuxtLink>
+			<NuxtLink class="text-sm font-medium text-[#817a70] hover:text-[#6e675d]" to="/auth/forgot"> Forgot Password? </NuxtLink>
 		</div>
 	</FieldFormBaseLayer>
 </template>

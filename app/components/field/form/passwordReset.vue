@@ -1,10 +1,7 @@
 <template>
-	<FieldFormBaseLayer :url :onSuccess :onError :method :schema label="Register">
+	<FieldFormBaseLayer :url :onSuccess :onError :method :schema label="Change Password">
 		<div class="space-y-4">
-			<FieldInputEmail name="email" placeholder="Enter your email" v-model="email" required />
-			<FieldInput name="name" label="Name" placeholder="Enter your name" v-model="name" required />
-		
-			<FieldInputPassword name="password" placeholder="Enter your password" required rerender enableToggle />
+			<FieldInputPassword name="password" placeholder="Enter your new password" required rerender enableToggle />
 			<FieldInputPassword name="confirmation" label="Confirmation" placeholder="Confirm your password" required rerender enableToggle />
 		</div>
 	</FieldFormBaseLayer>
@@ -18,14 +15,6 @@
 		onError: { type: Function, required: true },
 		method: { type: String, default: "POST" },
 		schema: { type: Object, required: true },
-	});
-
-	const { process } = useEmailToName();
-
-	const email = ref()
-	const name = computed(() => {
-		if (!email.value) return "";
-		return process(email.value);
 	});
 
 </script>
