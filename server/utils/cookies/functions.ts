@@ -31,4 +31,10 @@ export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | n
 export const useDeleteCookies = async (event: H3Event) => {
     deleteCookie(event, "access-token");
     deleteCookie(event, "refresh-token");
+
+    deleteCookie(event, "storage-token");
+    deleteCookie(event, "storage-token.0");
+    deleteCookie(event, "storage-token.1");
+
+    deleteCookie(event, "opt-verified");
 }

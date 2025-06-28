@@ -1,9 +1,10 @@
-type FetchUrl = string | (() => string) // voorbeeld, pas aan aan je definitie
+type FetchUrl = string | (() => string) 
 
 interface BaseModalConfig {
     resize?: boolean
     minimized?: boolean
     loading?: boolean
+    url?: FetchUrl
 }
 
 interface DetailsModalRequestConfig extends BaseModalConfig {
@@ -15,7 +16,6 @@ interface OtherModalRequestConfig extends BaseModalConfig {
     type: Exclude<string, 'details'>
     details?: Record<string, any>
     name: string
-    url: FetchUrl
 }
 
 type ModalRequestConfig = DetailsModalRequestConfig | OtherModalRequestConfig
@@ -44,6 +44,7 @@ export const useModal = () => {
         updateModalValue({
             ...config,
             open: true,
+            url: config.url || "",
             resize: config.resize ?? false,
             minimized: config.minimized ?? false,
             loading: config.loading ?? false,

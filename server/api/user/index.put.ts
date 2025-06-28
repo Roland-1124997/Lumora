@@ -33,6 +33,8 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     ************************************************************************************
     */
 
+    await useDeleteCookies(event)
+
     return useReturnResponse(event, {
         status: {
             success: true,

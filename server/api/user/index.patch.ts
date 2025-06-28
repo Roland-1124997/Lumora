@@ -1,5 +1,5 @@
 const schema = zod.object({
-    username: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(6, { message: "Must be at be least 6 chars long" }).max(16, { message: "Must be at most 16 chars long" }),
+    username: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(3, { message: "Must be at be least 3 chars long" }).max(16, { message: "Must be at most 16 chars long" }),
     email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
 })
 

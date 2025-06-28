@@ -127,7 +127,7 @@
 	const { updateUsername } = inject<any>("username");
 	const { addToast } = useToast();
 
-	const { makeRequest } = useRetryableFetch();
+	const { makeRequest } = useRetryableFetch({ throwOnError: false });
 	const store = useSessionsStore();
 	const groupStore = useGroupStore();
 
@@ -196,21 +196,20 @@
 
 	const schema = toTypedSchema(
 		zod.object({
-			username: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(6, { message: "Must be at least be 6 chars long" }).max(16, { message: "Must be at most 16 chars long" }),
+			username: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(3, { message: "Must be at be least 3 chars long" }).max(16, { message: "Must be at most 16 chars long" }),
 			email: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).email({ message: "Must be a valid email" }),
 		})
 	);
 
 	const schema_password = toTypedSchema(
-		zod
-			.object({
-				New_password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
-				Confirm_password: zod.string({ message: "This field is required" }),
-			})
-			.refine((data) => data.New_password === data.Confirm_password, {
-				message: "Passwords do not match",
-				path: ["Confirm_password"],
-			})
+		zod.object({
+			New_password: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }).min(8, { message: "Must be at least 8 characters long" }),
+			Confirm_password: zod.string({ message: "This field is required" }),
+		})
+		.refine((data) => data.New_password === data.Confirm_password, {
+			message: "Passwords do not match",
+			path: ["Confirm_password"],
+		})
 	);
 
 	/*
@@ -223,13 +222,13 @@
 		blocked.value = false;
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
-		
-		const { data, error } = await makeRequest<User>("/api/user", {
-			method: "patch", body: values
-		})
 
-		if(data.value) {
-			
+		const { data, error } = await makeRequest<User>("/api/user", {
+			method: "patch",
+			body: values,
+		});
+
+		if (data.value) {
 			username.value = data.value.data.name;
 			email.value = data.value.data.email;
 
@@ -245,7 +244,7 @@
 			});
 		}
 
-		if(error.value) {
+		if (error.value) {
 			if (error.value.data.error?.type == "fields") actions.setErrors(error.value.data.error.details);
 			addToast({
 				message: `Something went wrong updating the user profile`,
@@ -254,7 +253,7 @@
 			});
 		}
 
-		loading.value = false
+		loading.value = false;
 	};
 
 	/*
@@ -268,11 +267,12 @@
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		const { data, error } = await makeRequest<User>("/api/user", {
-			method: "patch", body: values
-		})
+			method: "put",
+			body: values,
+		});
 
-		if(data.value) {
-			setTimeout(() => navigateTo(data.value?.status.redirect),  500)
+		if (data.value) {
+			setTimeout(() => navigateTo(data.value?.status.redirect), 500);
 			addToast({
 				message: `Password has been updated`,
 				type: "success",
@@ -280,7 +280,7 @@
 			});
 		}
 
-		if(error.value) {
+		if (error.value) {
 			if (error.value.data.error?.type == "fields") actions.setErrors(error.value.data.error.details);
 			addToast({
 				message: `Something went wrong updating the password`,
@@ -296,35 +296,31 @@
 	 ************************************************************************************
 	 */
 
-	const { updateModalValue } = inject<any>("modal");
+
+
+	const { open } = useModal();
 
 	const createDeleteFunction = () => {
-		updateModalValue({
-			open: true,
+
+		const { onSuccess} = open({
 			type: "negative:account",
 			name: "Alert",
 			url: `/api/auth`,
-			onSuccess: handleSuccess,
-			onError: handleError,
+		})
+
+		onSuccess(async ({ response }) => {
+			if (response.status.redirect) {
+				setTimeout(() => navigateTo(response.status.redirect), 500);
+
+				setTimeout(() => {
+					addToast({
+						message: `Your account has been deleted`,
+						type: "success",
+						duration: 5000,
+					});
+				}, 800);
+			}
 		});
-	};
-
-	const handleSuccess = async ({ response }: SuccessResponse<null>) => {
-		if (response.status.redirect) {
-			setTimeout(() => navigateTo(response.status.redirect), 500);
-
-			setTimeout(() => {
-				addToast({
-					message: `Your account has been deleted`,
-					type: "success",
-					duration: 5000,
-				});
-			}, 800);
-		}
-	};
-
-	const handleError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to delete account! Please try again later."] });
 	};
 
 	/*
@@ -333,67 +329,55 @@
 
 	watch(mfa_active, async (value) => {
 		if (value) {
-
 			const { makeRequest } = useRetryableFetch();
-			const { data, error } = await makeRequest<any>("/api/auth/totp")
+			const { data, error } = await makeRequest<any>("/api/auth/totp");
 
-			if(data.value) {
-				updateModalValue({
-					open: true,
+			if (data.value) {
+				open({
 					type: "create:totp",
 					name: "Authentication",
-					url: "",
 					details: data.value,
-					onSuccess: () =>{},
-					onError: () => {},
 				});
 			}
-			
-			if(error.value) addToast({
-				message: "An error occurred, unable to create an qr code",
-				type: "error",
-				duration: 5000
-			})
 
+			if (error.value)
+				addToast({
+					message: "An error occurred, unable to create an qr code",
+					type: "error",
+					duration: 5000,
+				});
 		} else {
-			updateModalValue({
-				open: true,
+
+			const { onSuccess } = open({
 				type: "negative:totp",
 				name: "Authentication",
 				url: `/api/auth/totp`,
-				onSuccess: handleDeleteMFASuccess,
-				onError: handleDeleteMFAError,
 			});
+
+			onSuccess(async () => {
+				setTimeout(() => {
+					addToast({
+						message: `MFA disabled successfully.`,
+						type: "success",
+						duration: 5000,
+					});
+				}, 800);
+			});
+
 		}
 	});
-
-	const handleDeleteMFASuccess = async () => {
-		setTimeout(() => {
-			addToast({
-				message: `MFA disabled successfully.`,
-				type: "success",
-				duration: 5000,
-			});
-		}, 800);
-	};
-
-	const handleDeleteMFAError = async ({ error, actions }: ErrorResponse) => {
-		actions.setErrors({ message: ["An error occurred, unable to disable the MFA! Please try again later."] });
-	};
 
 	/*
 	 ************************************************************************************
 	 */
 
 	const logout = async () => {
+		const { data } = await makeRequest<null>("/api/auth/logout", { method: "POST" });
 
-		const { data }  = await makeRequest<null>("/api/auth/logout", { method: "POST" })
-
-		if(data.value) {
+		if (data.value) {
 			store.clearSession();
 			groupStore.clearAllData();
 			navigateTo(data.value.status.redirect);
 		}
-
 	};
 </script>
