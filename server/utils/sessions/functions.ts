@@ -43,13 +43,11 @@ export const useSetSessionData = async (event: H3Event, user: User | null) => {
 
 export const useSessionExists = async (event: H3Event, client: SupabaseClient) => {
 
-    const currentSession = useGetCookies(event);
+    const currentSession: any = await serverSupabaseSession(event);
     const { data, error } = await useGetSession(client, currentSession);
 
     return { data: data?.user, error };
 }
-
-
 
 export const useStateChange = async (client: SupabaseClient) => {
 

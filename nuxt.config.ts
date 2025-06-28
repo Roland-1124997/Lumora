@@ -116,7 +116,7 @@ export default defineNuxtConfig({
 
   supabase: {
     redirect: false,
-    cookiePrefix: "storage-token",
+    cookiePrefix: "access-token",
     cookieOptions: {
       maxAge: 60 * 60 * 8,
       sameSite: 'lax',

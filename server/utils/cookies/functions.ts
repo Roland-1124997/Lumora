@@ -1,14 +1,14 @@
 
-export const useGetCookies = (event: H3Event) => {
+export const useGetCookies = async (event: H3Event) => {
 
-    const accessToken = getCookie(event, "access-token");
     const refreshToken = getCookie(event, "refresh-token");
+    const session: any = await serverSupabaseSession(event);
 
     const currentSession: Omit<Session, "user"> | null = {
         refresh_token: refreshToken as string,
-        access_token: accessToken as string,
-        expires_in: 0,
-        token_type: "",
+        access_token: session?.access_token || "" as string,
+        expires_in: 3600,
+        token_type: "bearer",
     };
 
     return currentSession;
@@ -16,25 +16,27 @@ export const useGetCookies = (event: H3Event) => {
 
 export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | null) => {
     if (session) {
-        setCookie(event, "access-token", session.access_token, {
-            maxAge: 60 * 30, // Cookie valid for 30 minutes
+        
+        setCookie(event, "socket-token", session.access_token, {
+            maxAge: 60 * 60, 
             httpOnly: true,
         });
-
+        
         setCookie(event, "refresh-token", session.refresh_token, {
-            maxAge: 60 * 60 * 24 * 14, // Cookie valid for 14 days
+            maxAge: 60 * 60 * 24 * 14,
             httpOnly: true,
         });
     }
 }
 
 export const useDeleteCookies = async (event: H3Event) => {
-    deleteCookie(event, "access-token");
+
+    deleteCookie(event, "socket-token");
     deleteCookie(event, "refresh-token");
 
-    deleteCookie(event, "storage-token");
-    deleteCookie(event, "storage-token.0");
-    deleteCookie(event, "storage-token.1");
+    deleteCookie(event, "access-token");
+    deleteCookie(event, "access-token.0");
+    deleteCookie(event, "access-token.1");
 
     deleteCookie(event, "opt-verified");
 }

@@ -1,7 +1,8 @@
 export default defineEventHandler(async (event) => {
 
     const client = await serverSupabaseClient(event);
-    const currentSession = useGetCookies(event);
+    const currentSession = await useGetCookies(event);
+    
     const { data, error } = await useGetSession(client, currentSession);
 
     if (error) {

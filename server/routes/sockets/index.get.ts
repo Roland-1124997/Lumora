@@ -58,7 +58,7 @@ const useWebSocketCookie = (peer: Peer, name: string): string | undefined => {
 }
 
 const useSupaBaseUser = async (server: SupabaseClient, peer: Peer) => {
-    const access_token = useWebSocketCookie(peer, 'access-token')
+    const access_token = useWebSocketCookie(peer, 'socket-token')
     const refresh_token = useWebSocketCookie(peer, 'refresh-token')
     return await server.auth.getUser(access_token || refresh_token) as any
 }
