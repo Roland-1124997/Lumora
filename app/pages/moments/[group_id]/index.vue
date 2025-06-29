@@ -12,6 +12,9 @@
 					</span>
 					<icon name="ri:folder-received-fill" size="1.4em" />
 				</NuxtLink>
+				<button id="download" title="download" @click="handleDownload()" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
+					<icon name="ri:download-2-fill" size="1.4em" />
+				</button>
 			</div>
 
 			<button :disabled="!accepted" id="uploadPhoto" title="uploadPhoto" @click="createUploadFunction()" class="flex md:hidden items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
@@ -24,6 +27,9 @@
 				</span>
 				<icon name="ri:folder-received-fill" size="1.4em" />
 			</NuxtLink>
+			<button id="download" title="download" @click="handleDownload()" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
+				<icon name="ri:download-2-fill" size="1.4em" />
+			</button>
 			<div class="flex items-center gap-2">
 				<button :disabled="reload" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
@@ -35,7 +41,7 @@
 		</div>
 		<hr class="mb-2" />
 
-		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" :class="PWAInstalled ? 'h-[73dvh]' : 'h-[77dvh] md:h-[74dvh] xl:h-[80dvh]'" class="overflow-y-scroll ">
+		<section v-if="List.length >= 1 && !reload" @scroll="updateScrollPercentage" v-bind="containerProps" :class="PWAInstalled ? 'h-[73dvh]' : 'h-[77dvh] md:h-[74dvh] xl:h-[80dvh]'" class="overflow-y-scroll">
 			<div v-bind="wrapperProps" class="grid w-full grid-cols-2 gap-3 pb-10 mb-32 lg:grid-cols-4">
 				<div v-for="(content, index) in List" :key="index">
 					<LazyCardImage v-if="content" :content="content" :has_interaction />
@@ -44,7 +50,7 @@
 			</div>
 		</section>
 
-		<section v-else :class="PWAInstalled ? 'h-[73dvh]' : 'h-[77dvh] md:h-[74dvh] xl:h-[80dvh]'" class="overflow-y-scroll ">
+		<section v-else :class="PWAInstalled ? 'h-[73dvh]' : 'h-[77dvh] md:h-[74dvh] xl:h-[80dvh]'" class="overflow-y-scroll">
 			<div class="grid w-full grid-cols-2 gap-3 mb-4 lg:grid-cols-4">
 				<div class="" v-for="i in 12">
 					<LazyCardImageSkeleton />
@@ -117,7 +123,7 @@
 			posts_count_need_approval.value = response.data.posts_count_need_approval;
 		},
 		onError: ({ error, updated }) => {
-			if(!updated) useThrowError(error)
+			if (!updated) useThrowError(error);
 		},
 	});
 
@@ -240,6 +246,38 @@
 	 ************************************************************************************
 	 */
 
+	const handleDownload = async () => {
+		const { data, error } = await makeRequest(`/api/moments/download/${group_id}`, {
+			responseType: 'blob'
+		});
+
+		if(data.value) {
+
+			const blob = new Blob([data.value as any], { type: 'application/zip' });
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `${group_id}.zip`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+	
+			addToast({
+				message: "Images downloaded successfully.",
+				type: "success",
+				duration: 5000,
+			})
+		;}
+		
+		if (error.value) addToast({
+			message: "Failed to download images.",
+			type: "error",
+			duration: 5000,
+		});
+		
+	};
+
 	const handleManualReload = async () => {
 		await useFetchPost({ reload: true }, reload, 2000);
 	};
@@ -256,7 +294,6 @@
 			return;
 		}
 
-		
 		while (page.value <= group.pagination.page) {
 			const { data } = await makeRequest<Post[]>(`/api/moments/${group_id}`, {
 				params: {

@@ -1,6 +1,6 @@
 
 export const useGetSession = async (client: SupabaseClient, currentSession: Session | Omit<Session, "user">) => {
-    return await client.auth.getUser(currentSession.access_token || "non_Existing");
+    return await client.auth.getUser(currentSession?.access_token || "non_Existing");
 }
 
 export const useRefreshSession = async (client: SupabaseClient, currentSession: Session | Omit<Session, "user">) => {
