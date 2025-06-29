@@ -247,28 +247,37 @@
 	 */
 
 	const handleDownload = async () => {
+
+
+		
+
+
+
+
 		const { data, error } = await makeRequest(`/api/moments/download/${group_id}`, {
 			responseType: 'blob'
 		});
 
 		if(data.value) {
 
-			const blob = new Blob([data.value as any], { type: 'application/zip' });
-			const url = URL.createObjectURL(blob);
-			const link = document.createElement('a');
-			link.href = url;
-			link.download = `${group_id}.zip`;
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-			URL.revokeObjectURL(url);
-	
 			addToast({
 				message: "Images downloaded successfully.",
 				type: "success",
 				duration: 5000,
 			})
-		;}
+			
+			setTimeout(() => {
+				const blob = new Blob([data.value as any], { type: 'application/zip' });
+				const url = URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = `${group_id}.zip`;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				URL.revokeObjectURL(url);
+			}, 1000);
+		}
 		
 		if (error.value) addToast({
 			message: "Failed to download images.",
