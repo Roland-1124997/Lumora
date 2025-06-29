@@ -85,7 +85,7 @@
 	 */
 
 	const { PWAInstalled } = inject<any>("PWA");
-	const group_id: any = useRoute().params.group_id;
+	const group_id = useRoute().params.group_id as string;
 
 	const totalPages = ref(1);
 	const Page = ref(1);
@@ -190,7 +190,7 @@
 	const has_interaction = ref(true);
 	const loading = ref(false);
 
-	const group: any = getGroupData(group_id);
+	const group = getGroupData(group_id);
 
 	if (!group) await useFetchPost({ set: true }, loading);
 	else useDisplayStorageData(group);
@@ -249,8 +249,14 @@
 		const page = ref(1);
 		reload.value = true;
 
-		const group: any = getGroupData(group_id);
+		const group = getGroupData(group_id);
 
+		if (!group) {
+			reload.value = false;
+			return;
+		}
+
+		
 		while (page.value <= group.pagination.page) {
 			const { data } = await makeRequest<Post[]>(`/api/moments/${group_id}`, {
 				params: {

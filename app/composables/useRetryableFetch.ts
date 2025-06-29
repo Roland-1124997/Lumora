@@ -12,13 +12,13 @@ export function useRetryableFetch(configuration: { maxAttempts?: number; delay?:
         options: Parameters<typeof $fetch>[1] & { sessions?: boolean },
         attempts = 0
     ): Promise<ApiResponse<T>> => {
-        return $fetch<ApiResponse<T>>(url, options).catch((error: any) => {
+        return $fetch<ApiResponse<T>>(url, options).catch((error: ErrorResponse) => {
             if (++attempts < maxAttempts) {
                 return new Promise<ApiResponse<T>>((resolve) =>
                     setTimeout(resolve, delay)
                 ).then(() => fetchWithRetry<T>(url, options, attempts));
             }
-            
+
             return Promise.reject(error);
         });
     };

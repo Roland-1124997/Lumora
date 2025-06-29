@@ -55,8 +55,8 @@
 <script setup lang="ts">
 
 	const route = useRoute();
-	const id: any = route.params.id || "";
-	const token: any = route.query.token || "";
+	const id = route.params.id as string;
+	const token = route.query.token as string;
 
 	const result = ref();
 
@@ -84,7 +84,7 @@
 
 	const verifyInvite = async (id: string, token: string) => {
 
-		const { data, error } = await makeRequest<any>(`/api/invitations/${id}/${token}`)
+		const { data, error } = await makeRequest<invitationsDetails>(`/api/invitations/${id}/${token}`)
 
 		if(data.value) {
 			sessionStorage.removeItem(`${data.value.status.redirect?.split("/")[2]}_List`);
@@ -119,7 +119,7 @@
 	const join = async () => {
 
 		loadButton.value = true
-		const { data, error } = await makeRequest<any>(`/api/invitations/accept/${id}/${token}`)
+		const { data, error } = await makeRequest(`/api/invitations/accept/${id}/${token}`)
 
 		setTimeout(() => {
 			if(data.value) {

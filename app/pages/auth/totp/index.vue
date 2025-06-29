@@ -53,7 +53,7 @@
 		if(data.value) {
 			store.setSession(data.value.data, null);
 			succeded.value = true;
-			navigateTo(data.value.status.redirect);
+			navigateTo(response.status.redirect);
 		}
 
 		if(error.value) store.setSession(null, true)

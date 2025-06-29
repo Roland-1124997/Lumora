@@ -59,7 +59,7 @@
 <script setup lang="ts">
 	const modal: any = defineModel();
 
-	const group_id: any = useRoute().params.group_id;
+	const group_id = useRoute().params.group_id as string;
 
 	const { details } = defineProps({
 		details: { type: Object, required: true },
@@ -71,7 +71,7 @@
 
 	user.value = details.user;
 	posts.value = details.posts;
-	groups.value = details.groups.sort((a: any, b: any) => {
+	groups.value = details.groups.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
 		if (a.id === group_id) return -1;
 		if (b.id === group_id) return 1;
 		return 0;

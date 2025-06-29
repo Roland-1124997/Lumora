@@ -21,7 +21,6 @@ interface ConfigOption {
     value: boolean;
 }
 
-
 interface Author {
     name: string;
     url: string;
@@ -50,6 +49,34 @@ interface Pagination {
 interface Error {
     type: 'fields' | 'auth';
     details: ZodIssue[] | AuthError
+}
+
+export interface GroupSummary {
+    id: string;
+    name: string;
+    description: string;
+    media: Media;
+}
+
+export interface UserPost {
+    id: string;
+    group_id: string;
+    name: string; 
+    media: Media;
+}
+
+export interface UserWithGroupsAndPosts {
+    user: Pick<User, 'id' | 'name' | 'avatar'>;
+    groups: Pick<GroupOverview, 'id' | 'name' | 'description' | 'media'>[];
+    posts: UserPost[];
+}
+
+export interface invitationsDetails {
+    details: {
+        name: string,
+        members: number,
+        auto_accept: boolean
+    }
 }
 
 export interface GroupSettings {

@@ -84,7 +84,7 @@
 	 */
 
 	const { PWAInstalled } = inject<any>("PWA");
-	const group_id: any = useRoute().params.group_id;
+	const group_id = useRoute().params.group_id as string;
 
 	const totalPages = ref(1);
 	const Page = ref(1);

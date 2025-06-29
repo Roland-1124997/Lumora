@@ -58,7 +58,7 @@
 	const isDragging = ref(false);
 	const dragEnterCounter = ref(0);
 
-	const { value }: any = useField<File[]>(name);
+	const { value } = useField<File[]>(name);
 	const fileInput = ref<HTMLInputElement | null>(null);
 
 	const onDragOver = (event: DragEvent) => event.preventDefault();

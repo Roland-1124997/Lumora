@@ -18,7 +18,7 @@
 				<div v-for="(log, logIndex) in group.items" :key="log.id" class="relative flex items-start gap-3 md:gap-4">
 					<div class="z-30 flex justify-center flex-shrink-0 w-8 ml-[0.65rem]">
 						<div class="flex items-center justify-center bg-white border-2 rounded-full w-9 h-9 aspect-square border-gray-50">
-							<Icon :class="actionStyles[log.action_type].color" :name="actionStyles[log.action_type].icon" size="1.8rem" />
+							<Icon :class="actionStyles[log.action_type]?.color" :name="actionStyles[log.action_type]?.icon || ''" size="1.8rem" />
 						</div>
 					</div>
 					<div :ref="groupIndex === content.length - 1 && logIndex === group.items.length - 1 ? 'reference' : ''" class="flex-1 rounded-xl">
@@ -65,7 +65,7 @@
 		}, 500)
 	}
 
-	const actionStyles: any = {
+	const actionStyles: Record<string, { icon: string, color: string }> = {
 		created: { icon: "ri:checkbox-circle-fill", color: "bg-green-500" },
 		deleted: { icon: "ri:close-circle-fill", color: "bg-red-500" },
 		updated: { icon: "ri:information-2-fill", color: "bg-blue-500" },

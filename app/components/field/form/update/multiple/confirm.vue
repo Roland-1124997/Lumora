@@ -36,13 +36,13 @@
 
 	const { getPinnedList } = usePinStore();
 
-	const group_id: any = useRoute().params.group_id;
+	const group_id = useRoute().params.group_id as string;
 
 	const pinned = computed(() => getPinnedList(group_id));
 
 	const schema = toTypedSchema(
 		zod.object(
-			pinned.value.ids.reduce((acc: any, item: any) => {
+			pinned.value.ids.reduce((acc: Record<string, any>, item: string) => {
 				acc[item] = zod.boolean().default(type.split(":")[2] === "approve");
 				return acc;
 			}, {})

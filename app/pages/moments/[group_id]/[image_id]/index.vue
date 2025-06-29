@@ -121,8 +121,8 @@
 	const { setGroupData, getGroupData, updateGroupData, removeData, removeItemByMetaId, updateItemByMetaId } = useGroupStore();
 	const { updateGroupValue } = inject<any>("group");
 
-	const group_id: any = useRoute().params.group_id;
-	const image_id: any = useRoute().params.image_id;
+	const group_id = useRoute().params.group_id as string;
+	const image_id = useRoute().params.image_id as string;
 
 	/*
 	 ************************************************************************************
@@ -237,7 +237,16 @@
 			removeItemByMetaId(group_id, image_id);
 			list = [];
 
-			const group: any = getGroupData(group_id);
+			const group = getGroupData(group_id);
+
+			if (!group) {
+				addToast({
+					message: `An error occurred, unable to update the post state`,
+					type: "error",
+					duration: 5000,
+				});
+				return;
+			}
 
 			while (page <= group.pagination.page) {
 				await post.reload({

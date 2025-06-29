@@ -266,7 +266,7 @@
 
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 
-		const { data, error } = await makeRequest<User>("/api/user", {
+		const { data, error } = await makeRequest("/api/user", {
 			method: "put",
 			body: values,
 		});
@@ -302,7 +302,7 @@
 
 	const createDeleteFunction = () => {
 
-		const { onSuccess} = open({
+		const { onSuccess } = open({
 			type: "negative:account",
 			name: "Alert",
 			url: `/api/auth`,
@@ -329,8 +329,8 @@
 
 	watch(mfa_active, async (value) => {
 		if (value) {
-			const { makeRequest } = useRetryableFetch();
-			const { data, error } = await makeRequest<any>("/api/auth/totp");
+	
+			const { data, error } = await makeRequest("/api/auth/totp");
 
 			if (data.value) {
 				open({
@@ -372,12 +372,20 @@
 	 */
 
 	const logout = async () => {
-		const { data } = await makeRequest<null>("/api/auth/logout", { method: "POST" });
+		const { data, error } = await makeRequest("/api/auth/logout", { method: "POST" });
 
 		if (data.value) {
 			store.clearSession();
 			groupStore.clearAllData();
 			navigateTo(data.value.status.redirect);
+		}
+
+		if (error.value) {
+			addToast({
+				message: `Something went wrong logging out`,
+				type: "error",
+				duration: 5000,
+			});
 		}
 	};
 </script>

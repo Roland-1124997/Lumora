@@ -16,6 +16,7 @@
 </template>
 
 <script setup lang="ts">
+
 	const { name } = defineProps({
 		name: { type: String, required: true },
 		label: { type: String, default: "text" },
@@ -39,8 +40,9 @@
 		handleChange(event);
 	};
 
-	const clearPreviews = (field: any = null) => {
+	const clearPreviews = (field: Record<string, unknown>) => {
 		files.value = [];
+		field.value = null;
 		value.value = null;
 	};
 

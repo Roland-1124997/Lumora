@@ -39,9 +39,9 @@ export const useApi = <T>() => {
         if (error.value) onError({ error });
     };
 
-    const getSuccess = (error: any) => ({
+    const getSuccess = (error: Ref<ErrorResponse>) => ({
         success: !error?.value,
-        error: error.value as ErrorResponse["error"],
+        error: error.value,
     })
     
     const reload = async (options?: FetchOptions) => {

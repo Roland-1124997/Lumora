@@ -88,12 +88,11 @@
 		}
 	});
 
-	const group_id: any = useRoute().params.group_id;
+	const group_id = useRoute().params.group_id as string;
 
 	const { addToast } = useToast();
 	const { updateItemByMetaId } = useGroupStore();
 	const { setPinned, getPinned } = usePinStore();
-	const { makeRequest } = useRetryableFetch();
 
 	const pinned = ref(false);
 	pinned.value = getPinned(group_id, { id: content.id }) ? true : false;
@@ -119,13 +118,17 @@
 	});
 
 	const { open } = useModal();
+	const { makeRequest } = useRetryableFetch({ throwOnError: false });
+	
 	const route = useRoute()
 	const path = route.path
 
 	const userDetailsFunction = async (account_id: string) => {
 
-		await $fetch(`/api/user/${account_id}`).then((response: any) => {
-			
+		
+		const { data, error } = await makeRequest<UserWithGroupsAndPosts>(`/api/user/${account_id}`);
+
+		if(data.value) {
 			navigateTo({
 				query: {
 					uid : account_id
@@ -135,14 +138,16 @@
 
 			open({
 				type: "details",
-				details: response.data
+				details: data.value.data
 			});
 			
-		}).catch(() => addToast({
-			message: "An error occurred, unable to get the user details",
-			type: "error",
-			duration: 5000
-		}))
+		} else if(error.value) {
+			addToast({
+				message: "An error occurred, unable to get the user details",
+				type: "error",
+				duration: 5000
+			})
+		}
 		
 	};
 
