@@ -14,67 +14,57 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     await files(event, client, group_id)
 })
 
-
 const files = defineCachedFunction(async (event: H3Event, client: SupabaseClient, id: string) => {
-
-    const allFiles: { path: string; name: string }[] = []
-
     const { data: userFolders, error: folderErr } = await client.storage.from("images")
-        .list(id, { limit: 100 })
+        .list(id, { limit: 100 });
 
-    if (folderErr || !userFolders) throw new Error('Kon user folders niet ophalen')
+    if (folderErr || !userFolders) return useReturnResponse(event, internalServerError)
 
-    for (const folder of userFolders) {
-        if (!folder.name) continue
+    const allFiles = (
+        await Promise.all(
+            userFolders
+                .filter(folder => folder.name)
+                .map(async folder => {
+                    const folderPath = `${id}/${folder.name}`;
+                    const { data: filesInUserFolder, error: fileErr } = await client.storage.from("images")
+                        .list(folderPath, { limit: 1000 });
+                    if (fileErr || !filesInUserFolder) return [];
+                    return filesInUserFolder.map(file => ({
+                        path: `${folderPath}/${file.name}`,
+                        name: `${folder.name}_${file.name}`
+                    }));
+                })
+        )
+    ).flat();
 
-        const folderPath = `${id}/${folder.name}`
-
-        const { data: filesInUserFolder, error: fileErr } = await client.storage.from("images")
-            .list(folderPath, { limit: 1000 })
-
-        if (fileErr || !filesInUserFolder) continue
-
-        for (const file of filesInUserFolder) {
-            allFiles.push({
-                path: `${folderPath}/${file.name}`,
-                name: `${folder.name}_${file.name}`
-            })
-        }
-    }
-
-    const archive = archiver('zip', { zlib: { level: 9 } })
+    const archive = archiver('zip', { zlib: { level: 9 } });
 
     archive.on('error', err => {
-        return useReturnResponse(event, internalServerError)
-    })
+        return useReturnResponse(event, internalServerError);
+    });
 
     setHeaders(event, {
         'Content-Type': 'application/zip',
         'Content-Disposition': `attachment; filename="${id}.zip"`,
         'Cache-Control': 'public, max-age=3600, must-revalidate',
-    })
+    });
 
-    archive.pipe(event.node.res)
+    archive.pipe(event.node.res);
 
-    for (const file of allFiles) {
-
-        const { data: fileData } = await client
-            .storage
-            .from('images')
-            .download(file.path)
-
+    await Promise.all(allFiles.map(async file => {
+        const { data: fileData } = await client.storage.from('images').download(file.path);
         if (fileData) {
-            const buffer = await fileData.arrayBuffer()
-            archive.append(Buffer.from(buffer), { name: file.name })
+            const buffer = await fileData.arrayBuffer();
+            archive.append(Buffer.from(buffer), { name: file.name });
         }
-    }
+    }));
 
-    await archive.finalize()
-
+    await archive.finalize();
 }, {
     maxAge: 60 * 60,
     name: 'cached-files',
     getKey: (event: H3Event, client: SupabaseClient, id: string): string => {
         return `files-${id}`;
     }
-})
+});
+//

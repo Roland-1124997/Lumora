@@ -5,6 +5,15 @@ export default defineEventHandler(async (event) => {
     
     const { data, error } = await useGetSession(client, currentSession);
 
+    console.log(currentSession)
+
+    if(currentSession.access_token) {
+        setCookie(event, "socket-token", currentSession.access_token, {
+            maxAge: 60 * 60,
+            httpOnly: true,
+        });
+    }
+
     if (error) {
         const { data, error } = await useRefreshSession(client, currentSession);
         if (!data.session || error) return useReturnResponse(event, unauthorizedError);

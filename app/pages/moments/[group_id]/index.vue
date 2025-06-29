@@ -247,44 +247,34 @@
 	 */
 
 	const handleDownload = async () => {
-
-
-		
-
-
-
+		addToast({
+			message: "Preparing your images for download. This may take a few moments...",
+			type: "info",
+			duration: 10000,
+		});
 
 		const { data, error } = await makeRequest(`/api/moments/download/${group_id}`, {
-			responseType: 'blob'
+			responseType: "blob",
 		});
 
-		if(data.value) {
-
-			addToast({
-				message: "Images downloaded successfully.",
-				type: "success",
-				duration: 5000,
-			})
-			
-			setTimeout(() => {
-				const blob = new Blob([data.value as any], { type: 'application/zip' });
-				const url = URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `${group_id}.zip`;
-				document.body.appendChild(link);
-				link.click();
-				document.body.removeChild(link);
-				URL.revokeObjectURL(url);
-			}, 1000);
+		if (data.value) {
+			const blob = new Blob([data.value as any], { type: "application/zip" });
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			link.href = url;
+			link.download = `${group_id}.zip`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
 		}
-		
-		if (error.value) addToast({
-			message: "Failed to download images.",
-			type: "error",
-			duration: 5000,
-		});
-		
+
+		if (error.value)
+			addToast({
+				message: "Failed to download images.",
+				type: "error",
+				duration: 5000,
+			});
 	};
 
 	const handleManualReload = async () => {

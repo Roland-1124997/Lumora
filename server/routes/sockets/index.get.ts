@@ -7,7 +7,7 @@ export default defineWebSocketHandler({
 
         const { data } = await useSupaBaseUser(server, peer)
 
-        if (data) {
+        if (data.user) {
             peer.subscribe(data.user.id)
             await useRegisterTopics(server, peer, data)
         }
