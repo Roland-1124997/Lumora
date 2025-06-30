@@ -12,7 +12,7 @@
 					</span>
 					<icon name="ri:folder-received-fill" size="1.4em" />
 				</NuxtLink>
-				<button id="download" title="download" @click="handleDownload()" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
+				<button :disabled="!downloadable" id="download" title="download" @click="handleDownload()" class="md:flex hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
 					<icon name="ri:download-2-fill" size="1.4em" />
 				</button>
 			</div>
@@ -27,7 +27,7 @@
 				</span>
 				<icon name="ri:folder-received-fill" size="1.4em" />
 			</NuxtLink>
-			<button id="download" title="download" @click="handleDownload()" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
+			<button :disabled="!downloadable" id="download" title="download" @click="handleDownload()" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
 				<icon name="ri:download-2-fill" size="1.4em" />
 			</button>
 			<div class="flex items-center gap-2">
@@ -246,7 +246,10 @@
 	 ************************************************************************************
 	 */
 
+	const downloadable = ref(true)
+
 	const handleDownload = async () => {
+		downloadable.value = false
 		addToast({
 			message: "Preparing your images for download. This may take a few moments...",
 			type: "info",
@@ -269,12 +272,13 @@
 			URL.revokeObjectURL(url);
 		}
 
-		if (error.value)
-			addToast({
-				message: "Failed to download images.",
-				type: "error",
-				duration: 5000,
-			});
+		if (error.value) addToast({
+			message: "Failed to download images.",
+			type: "error",
+			duration: 5000,
+		});
+
+		downloadable.value = true
 	};
 
 	const handleManualReload = async () => {

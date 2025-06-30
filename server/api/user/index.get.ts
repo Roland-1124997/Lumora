@@ -5,9 +5,9 @@ export default defineEventHandler(async (event) => {
     
     const { data, error } = await useGetSession(client, currentSession);
 
-    console.log(currentSession)
+    const token = getCookie(event, "socket-token");
 
-    if(currentSession.access_token) {
+    if(currentSession.access_token && !token) {
         setCookie(event, "socket-token", currentSession.access_token, {
             maxAge: 60 * 60,
             httpOnly: true,
