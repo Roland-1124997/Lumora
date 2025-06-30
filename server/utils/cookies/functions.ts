@@ -16,12 +16,12 @@ export const useGetCookies = async (event: H3Event) => {
 
 export const useSetCookies = (event: H3Event, session: Omit<Session, "user"> | null) => {
     if (session) {
-        
+
         setCookie(event, "socket-token", session.access_token, {
-            maxAge: 60 * 60, 
+            maxAge: 60 * 60,
             httpOnly: true,
         });
-        
+
         setCookie(event, "refresh-token", session.refresh_token, {
             maxAge: 60 * 60 * 24 * 14,
             httpOnly: true,
@@ -39,4 +39,5 @@ export const useDeleteCookies = async (event: H3Event) => {
     deleteCookie(event, "access-token.1");
 
     deleteCookie(event, "opt-verified");
+    deleteCookie(event, "redirect-page")
 }

@@ -129,7 +129,8 @@ export default defineNuxtConfig({
   routeRules: {
     "/moments/**": { ssr: false },
     "/monitor": { ssr: false},
-    "/notifications": { ssr: false}
+    "/notifications": { ssr: false},
+    "/account": { ssr: false}
   },
 
   veeValidate: {
