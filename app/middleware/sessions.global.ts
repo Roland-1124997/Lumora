@@ -1,15 +1,24 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
 
     const store = useSessionsStore()
+    const client = import.meta.client
 
     if (from.path !== "/auth/totp") {
         const { data, error } = await useFetch('/api/user')
         store.setSession(data.value?.data, !!error.value)
     }
 
-    const isRootOrAuth = (path: string) => path === "/" || path.startsWith("/auth")
+    const isAuth = (path: string) => path.startsWith("/auth")
+    const isRoot = (path: string) => path === "/"
 
-    if (!isRootOrAuth(to.path) && !isRootOrAuth(from.path)) useCookie("redirect-page").value = to.path
-    else useCookie("redirect-page").value = "/moments"
+    if (client) {
+        
+        const redirectCookie = useCookie("redirect-page", {
+            maxAge: 60 * 60 * 24 * 1,
+        })
+
+        if (!isRoot(to.path) && !isAuth(to.path)) redirectCookie.value = to.path
+        else if (isAuth(to.path)) redirectCookie.value = undefined
+    }
 
 })

@@ -129,6 +129,7 @@
 	});
 
 	const handleBack = () => {
+		if(!router.options.history.state.back) return router.replace("/moments")
 		return router.back();
 	};
 
