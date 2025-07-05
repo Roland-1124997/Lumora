@@ -60,7 +60,9 @@
 			if (callback) callback();
 
 			await new Promise((resolve) => setTimeout(resolve, 600));
-			return navigateTo(`/${url.split("/")[2]}/${values.invite_link}`);
+			const link = values.invite_link.split("/");
+	
+			return navigateTo(`/${url.split("/")[2]}/${link[4] || ""}`);
 		}
 
 		if (values.remember) {
