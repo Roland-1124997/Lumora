@@ -90,12 +90,13 @@ export const useSupabaseUsage = async () => {
         groups: groupStorage
     }
 
-    const { data: active, error: activeError } = await supabase.rpc("get_monthly_active_users");
+    const { data: active, error: activeError } = await supabase.rpc("get_monthly_active_users").limit(3).order("month", { ascending: false });
+
     if (!activeError) {
 
         const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' })
 
-        TOTAL_MONTHLY_ACTIVE_USERS = active.map((item: { month: string; active_users: number }) => ({
+        TOTAL_MONTHLY_ACTIVE_USERS = active.reverse().map((item: { month: string; active_users: number }) => ({
             month: monthFormatter.format(new Date(item.month)),
             users: item.active_users,
         }))
