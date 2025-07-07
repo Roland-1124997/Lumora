@@ -28,14 +28,11 @@
 						<icon name="ri:file-copy-line" size="1.2em"></icon>
 						Paste from clipboard
 					</div>
-
-					<div v-if="error" class="text-sm font-medium text-gray-700">
-						<transition name="fade">
-							<span  class="text-red-700"> {{ message }} </span>
-						</transition>
-					</div>
-
-					
+				</div>
+				<div v-if="error" class="mt-1 text-sm font-medium text-gray-700">
+					<transition name="fade">
+						<span  class="text-red-700"> {{ message }} </span>
+					</transition>
 				</div>
 			</div>
 		</template>
