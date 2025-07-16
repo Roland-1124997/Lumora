@@ -4,7 +4,7 @@
 			<header class="space-y-6">
 				<div class="flex items-center space-x-2">
 					<div class="p-2 bg-[#F3EEE7] rounded-lg">
-						<NuxtImg preload src="/icons/Lumora-OP0.svg" alt="Lumora" class="h-8 mix-blend-luminosity" />
+						<NuxtImg preload src="/icons/Lumora-OP0.svg" alt="Lumora" class="h-8" />
 					</div>
 					<span class="text-2xl font-semibold">Lumora</span>
 				</div>
