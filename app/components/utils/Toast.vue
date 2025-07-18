@@ -13,7 +13,7 @@
 					</div>
 				</div>
 				<button @click="toast.id !== undefined && removeToast(toast.id)" class="text-gray-800 hover:text-gray-900">
-					<Icon name="pajamas:close-xs" size="1.5rem" />
+					<Icon name="ri:close-fill" size="1.5rem" />
 				</button>
 			</div>
 		</TransitionGroup>

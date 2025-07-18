@@ -7,7 +7,7 @@
 				<div class="w-full h-full" v-else>
 					<img v-for="(thumb, index) in files" :key="index" :src="thumb" :alt="`Image-${index}`" class="object-cover w-full h-full rounded-full" />
 					<div @click="clearPreviews(field)" class="absolute flex items-center justify-center p-1 -mt-16 text-white bg-[#756145] rounded-full">
-						<Icon name="pajamas:close-xs" size="1.1em"></Icon>
+						<Icon name="ri:close-fill" size="1.1em"></Icon>
 					</div>
 				</div>
 			</div>
