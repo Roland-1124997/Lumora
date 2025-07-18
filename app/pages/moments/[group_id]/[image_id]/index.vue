@@ -422,7 +422,7 @@
 	const paneRight = ref(60);
 
 	onMounted(() => {
-		if (isMobile.value) thumbnail.value?.focus.scrollIntoView({ behavior: "auto" });
+		if (isMobile.value) thumbnail.value?.focus.scrollIntoView({ behavior: "auto", block: "end", inline: "nearest" });
 	});
 
 	const updateScreenSize = () => (isMobile.value = window.innerWidth < 768);
