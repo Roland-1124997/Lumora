@@ -4,7 +4,6 @@ export default defineEventHandler(async (event) => {
     const currentSession = await useGetCookies(event);
     
     const { data, error } = await useGetSession(client, currentSession);
-
     const token = getCookie(event, "socket-token");
 
     if(currentSession.access_token && !token) {

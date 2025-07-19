@@ -10,7 +10,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         (options.sessions || ['POST', 'PATCH', 'PUT', 'DELETE'].includes(options.method || ''))) {
             await originalFetch('/api/user');
         }
-        
+
         return originalFetch(url, options).then(async (response) => response).catch((error) => {
             throw error;
         });

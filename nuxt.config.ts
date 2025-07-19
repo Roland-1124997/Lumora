@@ -24,7 +24,6 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt',
     "@vee-validate/nuxt",
     "@nuxtjs/supabase",
-    "nuxt-scheduler",
     "@pinia/nuxt",
     "nuxt-charts",
   ],
@@ -189,6 +188,10 @@ export default defineNuxtConfig({
       suppressWarnings: true,
     },
   },
+  
+  css: [
+    '@/assets/css/tailwind.css'
+  ],
 
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },

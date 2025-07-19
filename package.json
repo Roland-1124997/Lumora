@@ -1,10 +1,10 @@
 {
-  "name": "nuxt-app",
+  "name": "lumora",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --no-fork",
     "host": "nuxt dev --host --no-fork",
     "serve": "nuxt build && node .output/server/index.mjs",
     "generate": "nuxt generate",
@@ -16,14 +16,13 @@
     "@nuxtjs/supabase": "^1.5.0",
     "@pinia/nuxt": "^0.11.0",
     "@vee-validate/zod": "^4.14.7",
-    "@vite-pwa/nuxt": "^1.0.3",
     "@vitejs/plugin-vue": "^6.0.0",
     "@vue-email/components": "^0.0.21",
     "@vue-email/render": "^0.0.9",
     "archiver": "^7.0.1",
     "nodemailer": "^7.0.3",
-    "nuxt": "^3.17.7",
-    "nuxt-charts": "^0.1.9",
+    "nuxt": "^4.0.0",
+    "nuxt-charts": "^0.2.0-beta.2",
     "pinia": "^3.0.2",
     "splitpanes": "^4.0.2",
     "vee-validate": "^4.14.7",
@@ -42,9 +41,9 @@
     "@types/nodemailer": "^6.4.17",
     "@types/web-push": "^3.6.4",
     "@vee-validate/nuxt": "^4.14.7",
+    "@vite-pwa/nuxt": "^1.0.4",
     "@vueuse/core": "^13.3.0",
-    "@vueuse/nuxt": "^13.3.0",
-    "nuxt-scheduler": "^0.1.9"
+    "@vueuse/nuxt": "^13.3.0"
   },
   "overrides": {
     "vue": "latest"
