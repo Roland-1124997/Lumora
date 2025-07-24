@@ -30,16 +30,13 @@
 							<UtilsButtonDownload :url="content?.media?.url" />
 							<button v-if="content?.has_interactions" @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 						</div>
-
 						<hr class="mt-4 mb-2 md:hidden" />
-
 						<CardImageGallery :content="content?.related || []" :loaded :id="group_id" :pane="paneRight" />
-
 						<div v-if="content?.has_interactions">
 							<hr class="my-2 mt-4" />
-							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="comment.reload" :onSubmit="handleSubmitComments" ref="mobileCommentForm" />
-							<div class="flex flex-col gap-3 -mt-3">
-								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
+							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="comment.reload" :onSubmit="handleSubmitComments" ref="mobileCommentForm" v-model="pagination" />
+							<div class="flex flex-col gap-3">
+								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply"  />
 							</div>
 						</div>
 					</div>
@@ -62,14 +59,12 @@
 						<UtilsButtonDownload :url="content?.media?.url" />
 						<button v-if="content?.has_interactions" @click="focusEditable" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 					</div>
-
 					<hr class="mt-4 mb-2 md:hidden" />
 					<CardImageGallery :content="content?.related || []" :loaded :id="group_id" :pane="paneRight" />
-
 					<div class="mb-36" v-if="content?.has_interactions">
 						<hr class="my-2 mt-4" />
-						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="comment.reload" :onSubmit="handleSubmitComments" ref="commentForm" />
-						<div class="flex flex-col gap-3 -mt-3">
+						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="comment.reload" :onSubmit="handleSubmitComments" ref="commentForm" v-model="pagination" />
+						<div class="flex flex-col gap-3 ">
 							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
 						</div>
 					</div>
@@ -194,14 +189,22 @@
 	const comments = ref<UserComments[]>([]);
 	const comment_id = ref();
 
+	
+	const pagination = reactive({
+		page: useRoute().query.page ? parseInt(useRoute().query.page as string) : 1,
+		total: 1,
+	});
+	
 	comment.prepare({
 		baseURL: `/api/moments/comments/${group_id}/${content.value?.id}`,
-		options: { signal: abortController.signal },
+		options: { signal: abortController.signal, query: { page: pagination.page } },
 		onSuccess: ({ response }) => {
 			loading.value = true;
 
+			pagination.total = response.pagination?.total || 1
+
 			comments.value = response.data.comments;
-			total_comment_count.value = response.data.count;
+			total_comment_count.value = response.data.total_count;
 
 			setTimeout(() => (loading.value = false), 1000);
 		},
@@ -219,6 +222,10 @@
 		await comment.load();
 		loading.value = false;
 	}, 1500);
+
+	watch(() => pagination.page, async (page) => await comment.reload({
+		params: { page: page },
+	}));
 
 	/*
 	 ************************************************************************************

@@ -17,7 +17,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
     if (client) {
         const redirectCookie = useCookie("redirect-page", { maxAge: 60 * 60 * 24 * 1 })
-        if (!isRoot(to.path) && !isAuth(to.path)) redirectCookie.value = to.path
+        if (!isRoot(to.path) && !isAuth(to.path)) redirectCookie.value = to.fullPath
         else if (isAuth(to.path)) redirectCookie.value = undefined
     }
 })

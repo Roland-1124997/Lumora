@@ -199,7 +199,7 @@ export interface UserComments {
 }
 
 export interface ApiUserComments {
-    count: number,
+    total_count: number,
     comments: UserComments[]
 }
 

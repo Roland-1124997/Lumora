@@ -23,12 +23,21 @@
 				</button>
 			</div>
 		</form>
+		<CardCommentsButtons v-model="pagination" />
 	</div>
 </template>
 
 <script setup lang="ts">
 	const comment = ref("");
 	const editable = ref<HTMLTextAreaElement | null>(null);
+
+	const pagination = defineModel({
+		type: Object,
+		default: () => ({
+			page: 1,
+			total: 1,
+		}),
+	});
 
 	const { onSubmit } = defineProps({
 		placeholder: { type: String, default: "Leave an message" },

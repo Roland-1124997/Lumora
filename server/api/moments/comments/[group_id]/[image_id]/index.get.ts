@@ -9,11 +9,22 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     const { data: settings, error: settingsError } = await server.from("group_settings").select("*").eq("group_id", group_id).single<Tables<"group_settings">>();
     if ((settings && !settings.social_interactions) || settingsError) return useReturnResponse(event, forbiddenError);
 
-    const { data, error: commentError } = await client.rpc("get_post_comments_with_replies", {
+    const query: query = getQuery(event);
+    const { items, page, start } = useMakePagination(10, query);
+
+    const { data, error: commentError } = await client.rpc("fetch_post_comments_with_tree", {
         input_group_id: group_id,
         input_post_id: image_id,
+        input_limit: items,
+        input_offset: start
     });
+
     if (commentError) return useReturnResponse(event, internalServerError);
+
+    const { data: parent, error } = await client.from('posts').select('author_id').eq("group_id", group_id).eq('id', image_id).single<Tables<"posts">>()
+
+    if (error && error?.details?.includes("0 rows")) return useReturnResponse(event, notFoundError);
+    if (error) return useReturnResponse(event, notFoundError);
 
     const { data: users } = await useListUsers(server);
     const userMap = new Map(users.users.map((u: User) => [u.id, u]));
@@ -32,6 +43,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
                 name: deleted ? "Deleted" : (isOwner ? `${authorName} (You)` : authorName),
                 url: deleted ? undefined : (author?.user_metadata.avatar_url || `/attachments/avatar/${reply.author_id}`),
                 is_owner: deleted ? undefined : isOwner,
+                owns_post: parent.author_id == reply.author_id,
             },
             content: { text: reply.content },
             related: reply.related?.map(mapReply) || [],
@@ -53,6 +65,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
                 name: deleted ? "Deleted" : (isOwner ? `${authorName} (You)` : authorName),
                 url: deleted ? undefined : (author?.user_metadata.avatar_url || `/attachments/avatar/${data.author_id}`),
                 is_owner: deleted ? undefined : isOwner,
+                owns_post: parent.author_id == data.author_id,
             },
             content: { text: data.content },
             related: data.related?.map(mapReply) || [],
@@ -66,8 +79,13 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
             message: "success",
             code: 200,
         },
+        pagination: {
+            page,
+            total: Math.ceil((data.parent_count ?? 1) / items),
+        },
         data: {
-            count: data.count,
+            total_count: data.total_count,
+            parent_count: data.parent_count,
             comments: updatedData
         },
     });
