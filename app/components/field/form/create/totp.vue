@@ -10,7 +10,6 @@
 						{{ secret }}
 					</NuxtLink>
 				</div>
-				<!-- <p v-if="failed" class="mt-5 text-red-700">An error occurred, unable to create an qr code! Please try again later.</p> -->
 			</div>
 		</template>
 	</FieldFormBaseLayer>

@@ -1,3 +1,8 @@
+const schema = zod.object({
+    comment: zod.string({ message: "This field is required" }).min(1, "This field is required").max(500, "Message must be less than 500 characters"),
+    parent_id: zod.string().nullable().optional(),
+});
+
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
 
     if (!user) return useReturnResponse(event, unauthorizedError);
@@ -11,6 +16,16 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     if ((settings && !settings.social_interactions) || settingsError) return useReturnResponse(event, forbiddenError)
 
     const request = await readBody(event);
+
+    const { error: zodError } = await schema.safeParseAsync(request);
+
+    if (zodError) return useReturnResponse(event, {
+        ...badRequestError,
+        error: {
+            type: "fields",
+            details: zodError.errors
+        }
+    })
 
     if (request.parent_id) {
         const { data: comment, error: commentError } = await client.from("posts_comments").select("*").eq("id", request.parent_id).eq("group_id", group_id).single<Tables<"posts_comments">>();

@@ -1,3 +1,8 @@
+
+const schema = zod.object({
+    comment: zod.string({ message: "This field is required" }).min(1, "This field is required").max(500, "Message must be less than 500 characters")
+});
+
 export default defineSupabaseEventHandler(async (event, user, client, server) => {
     if (!user) return useReturnResponse(event, unauthorizedError);
 
@@ -11,6 +16,16 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
 
     const request = await readBody(event);
 
+    const { error: zodError } = await schema.safeParseAsync(request);
+
+    if (zodError) return useReturnResponse(event, {
+        ...badRequestError,
+        error: {
+            type: "fields",
+            details: zodError.errors
+        }
+    })
+    
     const { data: comment, error: commentError } = await client.from("posts_comments").select("*").eq("id", comment_id).eq("group_id", group_id).single<Tables<"posts_comments">>();
 
     if (commentError) return useReturnResponse(event, forbiddenError);
@@ -44,3 +59,7 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
         }
     })
 });
+
+
+//api/moments/comments/26b165bf-6d57-4801-8024-23c13eac084c/931641ad-3b54-4fcf-b07c-3e869e0d2135/97b50c09-7b28-4894-abf9-a564adfe820f
+//api/moments/comments/26b165bf-6d57-4801-8024-23c13eac084c/931641ad-3b54-4fcf-b07c-3e869e0d2135/97b50c09-7b28-4894-abf9-a564adfe820f
