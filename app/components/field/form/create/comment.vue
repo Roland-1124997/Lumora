@@ -1,12 +1,12 @@
 <template>
-	<FieldFormBaseLayer class="mb-5" :callback :url :onSuccess :onError :method :resize :schema label=" Post comment">
+	<FieldFormBaseLayer class="mb-5" :callback :url :onSuccess :onError :method :resize :schema label="Comment">
 		<template v-slot="{ errors }">
 			<div class="py-3 mt-5 border-y h-fit">
 				<p class="text-gray-600 -mt-7">Share your thoughts with the community! Your comment will be visible to everyone.</p>
 
 				<div class="mb-6">
-					<div v-if="details?.content?.text" class="z-10 w-full p-2 px-3 mt-4 overflow-auto text-gray-500 transition-colors duration-300 bg-gray-100 border border-gray-300 appearance-none max-h-36 min-h-12 rounded-xl">
-						<div class="flex items-center gap-2 mb-1 rounded-lg">
+					<div v-if="details?.content?.text" class="z-10 w-full mt-4 overflow-auto text-gray-500 transition-colors duration-300 bg-gray-100 border border-gray-300 appearance-none max-h-36 min-h-12 rounded-xl">
+						<div class="sticky top-0 left-0 flex items-center gap-2 p-2 px-3 bg-gray-100">
 							<img v-if="details.author.url" :src="details.author.url" :alt="details.author.name" class="z-10 object-cover w-6 h-6 border border-gray-200 rounded-full" />
 							<span class="gap-1 text-sm font-semibold text-gray-800 text-balance">
 								{{ details?.author.name }}
@@ -17,7 +17,7 @@
 							</span>
 						</div>
 
-						<p class="text-sm">
+						<p class="px-3 pb-2 text-sm">
 							{{ details.content.text }}
 						</p>
 					</div>

@@ -1,12 +1,12 @@
 <template>
-	<FieldFormBaseLayer class="mb-5" :callback :url :onSuccess :onError :method :resize :schema label=" Edit comment">
+	<FieldFormBaseLayer class="mb-5" :callback :url :onSuccess :onError :method :resize :schema label=" Apply changes">
 		<template v-slot="{ errors }">
 			<div class="py-3 mt-5 border-y h-fit">
 				<p class="text-gray-600 -mt-7">Edit your comment to share your thoughts with the community! Your comment will be visible to everyone.</p>
 
 				<div class="mb-6">
-					<div v-if="details?.content?.text" class="z-10 w-full p-2 px-3 mt-4 overflow-auto text-gray-500 transition-colors duration-300 bg-gray-100 border border-gray-300 appearance-none max-h-36 min-h-12 rounded-xl">
-						<div class="flex items-center gap-2 mb-1 rounded-lg">
+					<div v-if="details?.content?.text" class="z-10 w-full mt-4 overflow-auto text-gray-500 transition-colors duration-300 bg-gray-100 border border-gray-300 appearance-none max-h-36 min-h-12 rounded-xl">
+						<div class="sticky top-0 left-0 flex items-center gap-2 p-2 px-3 bg-gray-100">
 							<img v-if="details.author.url" :src="details.author.url" :alt="details.author.name" class="z-10 object-cover w-6 h-6 border border-gray-200 rounded-full" />
 							<span class="gap-1 text-sm font-semibold text-gray-800 text-balance">
 								{{ details?.author.name }}
@@ -17,13 +17,13 @@
 							</span>
 						</div>
 
-						<p class="text-sm">
+						<p class="px-3 pb-2 text-sm">
 							{{ details.content.text }}
 						</p>
 					</div>
 				</div>
 
-				<field name="comment" v-slot="{ field, meta }: any">
+				<field name="comment" v-model="context" v-slot="{ field, meta }: any">
 					<div class="-mt-4 space-y-2">
 						<label class="text-sm font-medium text-gray-700" for="comment">
 							Message <span class="text-red-700">{{ "*" }}</span>
@@ -58,9 +58,18 @@
 		details: { type: Object, required: false, default: () => ({}) },
 	});
 
+	const context = ref(details?.content?.text);
+
 	const schema = toTypedSchema(
 		zod.object({
-			comment: zod.string({ message: "This field is required" }).min(1, "This field is required").max(500, "Message must be less than 500 characters"),
+			comment: zod
+				.string({ message: "This field is required" })
+				.min(1, "This field is required")
+				.max(500, "Message must be less than 500 characters")
+
+				.refine((comment) => comment != details.content.text, {
+					message: "This field has not been changed",
+				}),
 		})
 	);
 </script>
