@@ -1,14 +1,14 @@
 <template>
 	<div v-if="pagination.total > 1" class="flex items-center w-full gap-2 mt-2">
-		<button @click="goToPage(pagination.page - 1)" :disabled="pagination.page === 1" class="flex items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] disabled:opacity-80 border border-[#756145] rounded-xl">
+		<button @click="goToPage(pagination.page - 1)" :disabled="pagination.page === 1 || loading" class="flex items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] disabled:opacity-80 border border-[#756145] rounded-xl">
 			<Icon name="ri:arrow-left-s-line" size="1.2rem" />
 		</button>
 
-		<button v-for="page in visiblePages" :key="page" @click="goToPage(page)" :class="[page === pagination.page ? 'bg-gray-200' : '']" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm text-black border border-gray-200 rounded-xl">
+		<button :disabled="loading" v-for="page in visiblePages" :key="page" @click="goToPage(page)" :class="[page === pagination.page ? 'bg-gray-200' : '']" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm text-black border border-gray-200 rounded-xl">
 			{{ page }}
 		</button>
 
-		<button @click="goToPage(pagination.page + 1)" :disabled="pagination.page === pagination.total" class="flex items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] disabled:opacity-80 border border-[#756145] rounded-xl">
+		<button @click="goToPage(pagination.page + 1)" :disabled="pagination.page === pagination.total || loading" class="flex items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] disabled:opacity-80 border border-[#756145] rounded-xl">
 			<Icon name="ri:arrow-right-s-line" size="1.2rem" />
 		</button>
 	</div>
@@ -21,6 +21,11 @@
 			page: 1,
 			total: 1,
 		}),
+	});
+
+	const loading = defineModel("loading", {
+		type: Boolean,
+		default: false,
 	});
 
 	const visiblePages = computed(() => {
@@ -38,6 +43,8 @@
 	const router = useRouter();
 
 	const goToPage = (page: number) => {
+		loading.value = true;
+
 		if (pagination.value.page <= pagination.value.total) {
 			pagination.value.page = page;
 

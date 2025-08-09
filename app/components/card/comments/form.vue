@@ -10,7 +10,9 @@
 					<Icon :class="isAnimating ? 'animate-like' : ''" name="ri:message-3-line" size="1.2rem" />
 					<UtilsCounter :count="count" />
 				</button>
-				<button @click="reload()" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+				<button @click="reload({ 
+					params: { page: pagination.page },
+				})" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 					<icon :class="loading ? ' animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
 				<button @click="open({})" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
@@ -22,7 +24,7 @@
 				<p class="mb-2 -mt-4">Join the conversation</p>
 			</div>
 		</div>
-		<CardCommentsButtons v-model="pagination" />
+		<CardCommentsButtons v-model="pagination" v-model:loading="loading" />
 	</div>
 </template>
 
@@ -36,11 +38,15 @@
 		}),
 	});
 
+	const loading = defineModel('loading', {
+		type: Boolean,
+		default: false,
+	});
+
 	defineProps({
 		placeholder: { type: String, default: "Leave an message" },
 		count: { type: Number, default: 0 },
 		isAnimating: { type: Boolean, default: false },
-		loading: { type: Boolean, default: false },
 		reload: { type: Function, required: true },
 		open: { type: Function, required: true },
 	});

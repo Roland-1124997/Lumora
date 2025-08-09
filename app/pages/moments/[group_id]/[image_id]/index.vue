@@ -32,11 +32,13 @@
 						</div>
 						<hr class="mt-4 mb-2 md:hidden" />
 						<CardImageGallery :content="content?.related || []" :loaded :id="group_id" :pane="paneRight" />
+
 						<div v-if="content?.has_interactions">
 							<hr class="my-2 mt-4" />
-							<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="comment.reload" v-model="pagination" :open="openComment" />
+							<CardCommentsForm v-model:loading="loading" :count="comments_count" :isAnimating :reload="comment.reload" v-model="pagination" :open="openComment" />
 							<div class="flex flex-col gap-3">
-								<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
+								<CardComments v-if="!loading" v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
+								<CardCommentsLoader :loading :comments />
 							</div>
 						</div>
 					</div>
@@ -63,9 +65,11 @@
 					<CardImageGallery :content="content?.related || []" :loaded :id="group_id" :pane="paneRight" />
 					<div class="mb-36" v-if="content?.has_interactions">
 						<hr class="my-2 mt-4" />
-						<CardCommentsForm :loading :count="comments_count" :isAnimating :reload="comment.reload" v-model="pagination" :open="openComment" />
+						<CardCommentsForm v-model:loading="loading" :count="comments_count" :isAnimating :reload="comment.reload" v-model="pagination" :open="openComment" />
 						<div class="flex flex-col gap-3">
-							<CardComments v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
+							{{ pagination.page }}
+							<CardComments v-if="!loading" v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
+							<CardCommentsLoader :loading :comments />
 						</div>
 					</div>
 					<div class="mb-36" v-else></div>
@@ -187,7 +191,6 @@
 	const loading = ref(true);
 	const comment = useApi<ApiUserComments>();
 	const comments = ref<UserComments[]>([]);
-	const comment_id = ref();
 
 	const pagination = reactive({
 		page: useRoute().query.page ? parseInt(useRoute().query.page as string) : 1,
@@ -197,7 +200,7 @@
 	comment.prepare({
 		baseURL: `/api/moments/comments/${group_id}/${content.value?.id}`,
 		options: { signal: abortController.signal, query: { page: pagination.page } },
-		onSuccess: ({ response }) => {
+		onSuccess: ({ response, action }) => {
 			loading.value = true;
 
 			pagination.total = response.pagination?.total || 1;
@@ -217,17 +220,13 @@
 		},
 	});
 
-	setTimeout(async () => {
-		await comment.load();
-		loading.value = false;
-	}, 1500);
-
 	watch(
 		() => pagination.page,
 		async (page) =>
 			await comment.reload({
 				params: { page: page },
-			})
+			}),
+		{ immediate: true }
 	);
 
 	/*
