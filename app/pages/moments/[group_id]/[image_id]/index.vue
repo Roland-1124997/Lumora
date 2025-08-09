@@ -219,14 +219,9 @@
 		},
 	});
 
-	watch(
-		() => pagination.page,
-		async (page) =>
-			await comment.reload({
-				params: { page: page },
-			}),
-		{ immediate: true }
-	);
+	watch(() => pagination.page, async (page) => await comment.reload({
+		params: { page: page },
+	}));
 
 	/*
 	 ************************************************************************************
