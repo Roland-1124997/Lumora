@@ -67,7 +67,6 @@
 						<hr class="my-2 mt-4" />
 						<CardCommentsForm v-model:loading="loading" :count="comments_count" :isAnimating :reload="comment.reload" v-model="pagination" :open="openComment" />
 						<div class="flex flex-col gap-3">
-							{{ pagination.page }}
 							<CardComments v-if="!loading" v-for="comment in comments" :key="comment.id" :content="comment" :permisions="content?.permision" :onDelete="createDeleteCommentFunction" :onEdit="handleEdit" :onReply="handleReply" />
 							<CardCommentsLoader :loading :comments />
 						</div>
