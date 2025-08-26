@@ -38,7 +38,7 @@
 					<img v-if="loaded && targetIsVisible" :src="content.author.url" :alt="content.id" class="object-cover w-full h-full" />
 					<icon v-else class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="1em" />
 				</div>
-				<div :class="content.author.is_owner ? ' cursor-default' : 'cursor-pointer' " @click="!content.author.is_owner ? userDetailsFunction(content.author.id) : ''">
+				<div :class="content.author.is_owner ? ' cursor-default' : 'cursor-pointer'" @click="!content.author.is_owner ? userDetailsFunction(content.author.id) : ''">
 					<p class="text-sm font-semibold text-gray-800 truncate">
 						{{ content.author.name }}
 					</p>
@@ -47,7 +47,7 @@
 							{{ content.group.name }}
 						</p>
 						<p class="text-xs text-gray-600 truncate md:text-sm">
-							<NuxtTime :datetime="content.accepted_at" locale="en" relative/>
+							<NuxtTime :datetime="content.accepted_at" year="numeric" month="short" day="2-digit" hour="2-digit" minute="2-digit" />
 						</p>
 					</div>
 				</div>
@@ -62,24 +62,24 @@
 
 	const hearts = ref(0);
 	const comments = ref(0);
-	
+
 	const liked = ref(false);
 	const loaded = ref(false);
 
 	const { content, methods, has_interaction } = defineProps({
 		content: { type: Object, required: true },
 		methods: { type: Array, required: false },
-		has_interaction: { type: Boolean, default: true}
+		has_interaction: { type: Boolean, default: true },
 	});
 
-	if(content.has_interactions && has_interaction) {
+	if (content.has_interactions && has_interaction) {
 		comments.value = content.has_interactions.comments.count || 0;
 		hearts.value = content.has_interactions.likes.count;
 		liked.value = content.has_interactions.has_liked;
 	}
 
 	const isAnimating = ref(false);
-	
+
 	watch(targetIsVisible, (value) => {
 		if (value) {
 			setTimeout(() => {
@@ -113,48 +113,46 @@
 					comments: { count: comments.value },
 				},
 			});
-
 		}
 	});
 
 	const { open } = useModal();
 	const { makeRequest } = useRetryableFetch({ throwOnError: false });
-	
-	const route = useRoute()
-	const path = route.path
+
+	const route = useRoute();
+	const path = route.path;
 
 	const userDetailsFunction = async (account_id: string) => {
-
-		
 		const { data, error } = await makeRequest<UserWithGroupsAndPosts>(`/api/user/${account_id}`);
 
-		if(data.value) {
+		if (data.value) {
 			navigateTo({
 				query: {
-					uid : account_id
+					uid: account_id,
 				},
-				replace: true
-			})
+				replace: true,
+			});
 
 			open({
 				type: "details",
-				details: data.value.data
+				details: data.value.data,
 			});
-			
-		} else if(error.value) {
+		} else if (error.value) {
 			addToast({
 				message: "An error occurred, unable to get the user details",
 				type: "error",
-				duration: 5000
-			})
+				duration: 5000,
+			});
 		}
-		
 	};
 
 	setTimeout(() => {
-		callOnce( async () => {
-			if(route.query.uid ) await userDetailsFunction(route.query.uid  as string)
-		}, { mode: "navigation"})
+		callOnce(
+			async () => {
+				if (route.query.uid) await userDetailsFunction(route.query.uid as string);
+			},
+			{ mode: "navigation" }
+		);
 	}, 300);
 
 	const pinImage = async () => {
@@ -166,11 +164,11 @@
 		isAnimating.value = true;
 		setTimeout(() => (isAnimating.value = false), 300);
 
-		const { data, error } = await makeRequest<Interactions>(`/api/moments/${group_id}/${content.id}`, { 
-			method: "PATCH" 
-		})
+		const { data, error } = await makeRequest<Interactions>(`/api/moments/${group_id}/${content.id}`, {
+			method: "PATCH",
+		});
 
-		if(data.value) {
+		if (data.value) {
 			hearts.value = data.value.data.likes.count;
 			liked.value = data.value.data.has_liked;
 
@@ -195,14 +193,13 @@
 					comments: { count: comments.value },
 				},
 			});
-
 		}
 
-		if(error.value) addToast({
-			message: `Unable to like this image at the moment.`,
-			type: "error",
-			duration: 5000,
-		});
-			
+		if (error.value)
+			addToast({
+				message: `Unable to like this image at the moment.`,
+				type: "error",
+				duration: 5000,
+			});
 	};
 </script>

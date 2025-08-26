@@ -13,7 +13,7 @@
 					</div>
 
 					<p v-if="content.last_action != 'Pending'" class="text-sm text-gray-500">
-						<NuxtTime :datetime="content.last_active" locale="en" relative/>
+						<NuxtTime :datetime="content.last_active" weekday="short" year="numeric" month="short" day="2-digit" hour="2-digit" minute="2-digit" />
 					</p>
 				</div>
 				<p class="-mt-1 text-sm text-gray-500">
