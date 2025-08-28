@@ -19,7 +19,7 @@
 			<div class="grid grid-cols-3 gap-2 mt-4 sm:h-[18rem] md:h-[15rem] xl:h-[19rem]">
 				<div v-for="post in posts" :key="post.id" class="relative flex-shrink-0 w-full h-full overflow-hidden bg-gray-200 border rounded-md aspect-square snap-start">
 					<button @click="navigate(`/moments/${post.group_id}/${post.id}`)" class="">
-						<img :src="post.media.url" :alt="post.id" class="z-40 object-cover w-full h-full aspect-square" />
+						<img :src="post.media.url" :alt="post.id" class="z-40 object-cover w-full h-full transition duration-300 aspect-square hover:scale-105" />
 					</button>
 					<div class=" absolute bottom-1 left-1 flex items-center justify-between p-[0.30rem] px-2 text-black bg-white text-xs border rounded-lg">
 						{{ post.name }}

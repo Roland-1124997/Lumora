@@ -2,9 +2,9 @@
 	<div v-if="List">
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4 sm:mt-2 lg:-mt-4">
 			<div class="items-center hidden gap-2 md:flex">
-				<button :disabled="!accepted" @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<button :disabled="!accepted" @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit ">
 					<icon name="ri:image-circle-ai-line" size="1.4em" />
-					<span> Create posts </span>
+					<span> Create post(s) </span>
 				</button>
 				<NuxtLink :to="`/moments/pending-queue/${group_id}`" aria-label="pending-queue" v-if="need_approval && has_permisons" class="flex items-center justify-center gap-2 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
 					<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-h-5 h-fit w-fit">
@@ -18,8 +18,7 @@
 			</div>
 
 			<button :disabled="!accepted" id="uploadPhoto" title="uploadPhoto" @click="createUploadFunction()" class="flex md:hidden items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-				<icon name="ri:image-circle-ai-line" size="1.4em" />
-				<span> Create posts </span>
+				<span> Create post(s) </span>
 			</button>
 			<NuxtLink :to="`/moments/pending-queue/${group_id}`" aria-label="pending-queue" v-if="need_approval && has_permisons" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
 				<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit">
@@ -325,7 +324,7 @@
 	const createUploadFunction = () => {
 		const { onSuccess } = open({
 			type: "images",
-			name: "Create experience",
+			name: "Upload Image(s)",
 			url: `/api/moments/${group_id}`,
 		});
 
@@ -334,7 +333,7 @@
 			else await handleReload();
 
 			addToast({
-				message: need_approval.value ? "Your image has been submitted for approval." : "Your image has been posted successfully.",
+				message: need_approval.value ? "Your image(s) has been submitted for approval." : "Your image(s) has been posted successfully.",
 				type: "success",
 				duration: 5000,
 			});

@@ -1,12 +1,12 @@
 <template>
-	<div ref="target" class="border-b select-text">
-		<div class="w-full h-40 overflow-hidden bg-gray-200 border sm:h-[27dvh] md:h-52 rounded-xl">
+	<div ref="target" class="transition border-b select-text">
+		<div class="w-full h-40 overflow-hidden bg-gray-200 border sm:h-[27dvh] md:h-52 rounded-xl group">
 			<div v-if="content.has_been_accepted && has_interaction" class="relative z-40 flex items-center justify-start gap-2 p-2">
-				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
-					<icon :class="[liked ? 'text-red-600' : '', isAnimating ? 'animate-like' : '']" :name="liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2em" />
+				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
+					<icon :class="[liked ? 'text-red-600 hover:text-red-700' : '', content.author.is_owner ? 'text-red-700 cursor-not-allowed' : '', isAnimating ? 'animate-like' : '']" class="transition" :name="content.author.is_owner ? 'ri:heart-fill' : liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2em" />
 					<UtilsCounter :count="hearts" />
 				</button>
-				<button :disabled="content.author.is_owner" class="relative gap-1 z-50 flex items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+				<button :disabled="content.author.is_owner" class="relative gap-1 z-50 flex items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
 					<icon name="ri:message-3-line" size="1.2em" />
 					<UtilsCounter :count="comments" />
 				</button>
@@ -23,10 +23,10 @@
 				</button>
 			</div>
 			<NuxtLink v-if="content.has_been_accepted && loaded && targetIsVisible" :to="content.url ? content.url : `${$route.path}/${content.id}`">
-				<img :src="content.media.url" :alt="content.id" :class="has_interaction ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full h-full aspect-square" />
+				<img :src="content.media.url" :alt="content.id" :class="has_interaction ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full h-full transition duration-300 aspect-square group-hover:scale-105" />
 			</NuxtLink>
 			<div v-else-if="!content.has_been_accepted && loaded && targetIsVisible">
-				<img :src="content.media.url" :alt="content.id" :class="has_interaction ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full h-full aspect-square" />
+				<img :src="content.media.url" :alt="content.id" :class="has_interaction ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="object-cover w-full h-full transition duration-300 aspect-square group-hover:scale-105" />
 			</div>
 			<div :class="has_interaction ? '-mt-[2.86rem] md:-mt-[2.88rem]' : ''" class="flex items-center justify-center w-full h-full" v-else>
 				<icon class="bg-gray-400 animate-spin" name="ri:loader-2-line" size="2em" />
