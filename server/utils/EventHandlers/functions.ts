@@ -15,8 +15,7 @@ export const defineSupabaseEventHandler = (callback: (event: H3Event, user: User
             if (!!data && !cookie) return useReturnResponse(event, unauthorizedError)
         }
 
-        await useStateChange(client)
-
+        
         return callback(event, user, client, server)
 
     })

@@ -1,5 +1,8 @@
-export default defineEventHandler((event) => {
-    if (!checkRateLimit(event)) return useReturnResponse(event, {
+export default defineEventHandler(async (event) => {
+
+    const resource_available = checkRateLimit(event)
+
+    if (!resource_available) return useReturnResponse(event, {
         status: {
             success: false,
             message: "Too many requests",

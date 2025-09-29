@@ -2,7 +2,7 @@
 	
     const { data, height } = defineProps<{
         data: Array<{ month: string; users: number }>
-        height: number
+        height: number,
     }>()
 
 	const categories = computed(() => ({
@@ -12,21 +12,18 @@
 		},
 	}));
 
-    
-    
-
 	const xFormatter = (i: number): string =>  `${data[i]?.month}`;
-	const yFormatter = (i: number) => i;
+    const yFormatter = (i: number) => i.toString();
 </script>
 
 <template>
 	<BarChart key="light" 
-    :data="data" 
+    :data 
     :height 
-    :categories="categories" 
+    :categories
     :y-axis="['users']" 
-    :xNumTicks="2" 
-    :radius="4" 
+    :xNumTicks="(data.length - 1)" 
+    :radius="0" 
     :y-grid-line="true" 
     :hideLegend="true"
     :x-formatter="xFormatter" 

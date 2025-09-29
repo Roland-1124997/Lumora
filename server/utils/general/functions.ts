@@ -5,6 +5,7 @@ import os from "os";
 import { createTransport } from 'nodemailer'
 import { consola } from 'consola';
 
+
 interface Storage {
     bucket_id: string,
     total_size_megabyte: string,
@@ -90,18 +91,10 @@ export const useSupabaseUsage = async () => {
         groups: groupStorage
     }
 
-    const { data: active, error: activeError } = await supabase.rpc("get_monthly_active_users").limit(3).order("month", { ascending: false });
+    const { data: monthlyUsers, error: activeError } = await supabase.rpc('get_monthly_active_users')
 
-    if (!activeError) {
-
-        const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' })
-
-        TOTAL_MONTHLY_ACTIVE_USERS = active.reverse().map((item: { month: string; active_users: number }) => ({
-            month: monthFormatter.format(new Date(item.month)),
-            users: item.active_users,
-        }))
-    }
-        
+    if (!activeError) TOTAL_MONTHLY_ACTIVE_USERS = monthlyUsers;
+    
 }
 
 export const useRenderMemory = async () => {
@@ -120,7 +113,6 @@ export const useRenderMemory = async () => {
     .catch(() => { })
 }
 
-
 export const useGetCpuUsagePercent = () => {
     const cpus = os.cpus();
     let idle = 0, total = 0;
@@ -134,9 +126,6 @@ export const useGetCpuUsagePercent = () => {
     const totalAvg = total / cpus.length;
     return { idle: idleAvg, total: totalAvg };
 }
-
-
-
 
 export const useSendNotification = async (options: { title: string, message: string, target_id: string }) => {
     

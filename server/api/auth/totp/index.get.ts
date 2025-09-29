@@ -13,6 +13,10 @@ export default defineSupabaseEventHandler(async (event, user, client, server) =>
     ************************************************************************************
     */
 
+    await server.rpc("track_monthly_user", {
+        uid: user.id,
+    });
+
     return useReturnResponse(event, {
         status: {
             success: true,

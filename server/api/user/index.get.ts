@@ -1,6 +1,7 @@
 export default defineEventHandler(async (event) => {
 
     const client = await serverSupabaseClient(event);
+    const server = serverSupabaseServiceRole(event);
     const currentSession = await useGetCookies(event);
     
     const { data, error } = await useGetSession(client, currentSession);
@@ -23,6 +24,10 @@ export default defineEventHandler(async (event) => {
             maxAge: 60 * 60 * 24 * 14,
             httpOnly: true,
         })
+
+        await server.rpc("track_monthly_user", {
+            uid: data.user?.id,
+        });
 
         return useReturnResponse(event, {
             status: {

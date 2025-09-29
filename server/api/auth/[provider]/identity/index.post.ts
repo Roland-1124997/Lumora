@@ -23,6 +23,8 @@ export default defineEventHandler(async (event) => {
         }
     })
 
+    
+
     if (data.user.factors) {
 
         const session: Omit<Session, "user"> | null = await serverSupabaseSession(event);
@@ -47,6 +49,10 @@ export default defineEventHandler(async (event) => {
     /*
     ************************************************************************************
     */
+
+    await server.rpc("track_monthly_user", {
+        uid: data.user?.id,
+    });
 
     const invite = getCookie(event, "invite_token")
     const session: Omit<Session, "user"> | null = await serverSupabaseSession(event)
