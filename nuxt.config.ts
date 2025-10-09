@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 import vue from '@vitejs/plugin-vue'
+import path from 'path'
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
 
@@ -100,11 +101,11 @@ export default defineNuxtConfig({
           intervalSeconds: 60,
         },
         '/api/users/': {
-          methods: ['GET'], 
+          methods: ['GET'],
           maxRequests: 120,
           intervalSeconds: 60,
         },
-        
+
       }
     }
   },
@@ -118,14 +119,14 @@ export default defineNuxtConfig({
       httpOnly: true,
       secure: false
     },
-    types: "./server/utils/supabase/types/database.types.ts"
+    types: path.resolve(process.cwd(), "server/utils/supabase/types/database.types.ts")
   },
 
   routeRules: {
     "/moments/**": { ssr: false },
-    "/monitor": { ssr: false},
-    "/notifications": { ssr: false},
-    "/account": { ssr: false}
+    "/monitor": { ssr: false },
+    "/notifications": { ssr: false },
+    "/account": { ssr: false }
   },
 
   veeValidate: {
@@ -184,7 +185,7 @@ export default defineNuxtConfig({
       suppressWarnings: true,
     },
   },
-  
+
   css: [
     '@/assets/css/tailwind.css'
   ],

@@ -16,11 +16,15 @@
 	const { makeRequest } = useRetryableFetch({ maxAttempts: 1, throwOnError: false });
 
 	const handleGoogleSuccess = async (response: any) => {
+		
+		navigateTo("/auth/confirmation?type=google");
+		
 		const { data } = await makeRequest("/api/auth/google/identity", {
 			method: "POST",
 			body: response,
 		});
 
+		await new Promise((resolve) => setTimeout(resolve, 1000));
 		if (data.value) navigateTo(data.value.status.redirect);
 	};
 </script>

@@ -1,4 +1,5 @@
 export default defineEventHandler(async (event) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const client = await serverSupabaseClient(event)
     const server = serverSupabaseServiceRole(event)

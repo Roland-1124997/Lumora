@@ -3,7 +3,7 @@ export { serverSupabaseClient, serverSupabaseUser, serverSupabaseSession, server
 
 const supabase: SupabaseClient = createClient<Database>(
     process.env.SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_KEY || '',
+    process.env.SUPABASE_SECRET_KEY || '',
 );
 
 export const useSupaBaseServer = () => supabase
