@@ -4,7 +4,7 @@
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
 				<button @click="$route.path !== '/moments' ? handleBack() : ''" class="flex items-center justify-center gap-2">
 					<icon v-if="$route.path !== '/moments'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>
-					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-52 md:w-fit">
+					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-48 md:w-fit">
 						<span v-if="$route.path == '/moments'">Lumora</span>
 						<span v-else-if="$route.name?.includes('settings-group_id')">{{ group }}/<span class="text-sm text-gray-600">Settings</span></span>
 						<span v-else-if="$route.name?.includes('pending-queue-group_id')">{{ group }}/<span class="text-sm text-gray-600">Queue</span></span>
@@ -38,7 +38,7 @@
 		<UtilsToast />
 
 		<ModalBaselayer v-model="modal">
-			<ModalSublayer v-if="modal.type == 'details'" :details="modal.details" v-model="modal"/>
+			<ModalSublayer v-if="modal.type == 'details'" :details="modal.details" v-model="modal" />
 			<FieldFormCreateGroup v-if="modal.type == 'Create'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
 			<FieldFormDeleteGroup v-if="modal.type.includes('Group')" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :type="modal.type" :resize="modal.resize" v-model="modal" />
 			<FieldFormCreateImage v-if="modal.type == 'images'" :callback="closeModal" :url="modal.url" :onError="modal.onError" :onSuccess="modal.onSuccess" :resize="modal.resize" v-model="modal" />
@@ -120,7 +120,7 @@
 	});
 
 	const handleBack = () => {
-		if(!router.options.history.state.back) return router.replace("/moments")
+		if (!router.options.history.state.back) return router.replace("/moments");
 		return router.back();
 	};
 
