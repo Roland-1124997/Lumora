@@ -5,7 +5,6 @@ import os from "os";
 import { createTransport } from 'nodemailer'
 import { consola } from 'consola';
 
-
 interface Storage {
     bucket_id: string,
     total_size_megabyte: string,
@@ -159,9 +158,9 @@ const { smtpSender, smtpToken, smtpUser, smtpServer } = useRuntimeConfig()
 const transporter = createTransport({
     service: 'Gmail',
     host: smtpServer,
-    port: 465,
-    secure: true,
-    requireTLS: true,
+    port: 587,
+    secure: false,
+    requireTLS: false,
     tls: {
         ciphers: 'SSLv3',
         rejectUnauthorized: false,
@@ -171,16 +170,14 @@ const transporter = createTransport({
         user: smtpUser,
         pass: smtpToken
     },
-    debug: true,
-    logger: true,
 });
 
 transporter.verify((error) => {
     if (error) consola.error('Server is not ready to send mail', {
-        message: (error as any)?.message,
-        code: (error as any)?.code,
-        command: (error as any)?.command,
-        responseCode: (error as any)?.responseCode,
+        cause: error.cause,
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
     });
     else consola.success("Mail server initialized")
 });
@@ -200,28 +197,35 @@ export const useMailer = async (options: { recepient: string, subject: string, b
         html: body,
     }
 
-    await new Promise((resolve, reject) => {
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) return reject(error);
-            resolve(info);
-        });
-    })
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
 
-        .then((info: any) => {
-            consola.success('Email sent:', info.messageId, info.response)
-            response.success = true
-        })
-
-        .catch((error) => {
             consola.error('Email not sent:', {
-                code: error?.code,
-                command: error?.command,
-                responseCode: error?.responseCode,
-                response: error?.response,
-                message: error?.message,
-            })
-            response.error = error
-        });
+                cause: error.cause,
+                message: error.message,
+                name: error.name,
+                stack: error.stack,
+            });
+            
+            response.success = false;
+            response.error = error;
+        }
+
+        else {
+
+            consola.success('Email sent:',  {
+                messageId: info.messageId,
+                response: info.response,
+                accepted: info.accepted,
+                rejected: info.rejected,
+                envelope: info.envelope,
+            });
+            
+            response.success = true;
+            response.error = null;
+        }
+
+    });
 
     return response
 
