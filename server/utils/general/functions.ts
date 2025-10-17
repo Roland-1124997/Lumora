@@ -152,25 +152,24 @@ export const useSendNotification = async (options: { title: string, message: str
 
 };
 
-
 const { smtpSender, smtpToken, smtpUser, smtpServer } = useRuntimeConfig()
 
 const transporter = createTransport({
-    service: 'Gmail',
     host: smtpServer,
-    port: 587,
-    secure: false,
-    requireTLS: false,
+    port: 465,
+    secure: true,
     tls: {
         ciphers: 'SSLv3',
         rejectUnauthorized: false,
-        minVersion: 'TLSv1.2',
     },
     auth: {
         user: smtpUser,
         pass: smtpToken
     },
 });
+
+
+let serverReady = false
 
 transporter.verify((error) => {
     if (error) consola.error('Server is not ready to send mail', {
@@ -179,12 +178,17 @@ transporter.verify((error) => {
         name: error.name,
         stack: error.stack,
     });
-    else consola.success("Mail server initialized")
+
+
+    else {
+        consola.success("Mail server initialized")
+        serverReady = true
+    }
 });
 
 export const useMailer = async (options: { recepient: string, subject: string, body: any }) => {
     const { recepient, subject, body } = options
-
+    
     const response: any = {
         success: null,
         error: null
@@ -197,36 +201,44 @@ export const useMailer = async (options: { recepient: string, subject: string, b
         html: body,
     }
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
+    if (!serverReady) {
+        response.success = false;
+        response.error = new Error("Mail server is not ready");
 
-            consola.error('Email not sent:', {
-                cause: error.cause,
-                message: error.message,
-                name: error.name,
-                stack: error.stack,
-            });
-            
-            response.success = false;
-            response.error = error;
-        }
+        return response
+    }
 
-        else {
+    await new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) return reject(error);
+            resolve(info);
+        });
+    })
 
-            consola.success('Email sent:',  {
-                messageId: info.messageId,
-                response: info.response,
-                accepted: info.accepted,
-                rejected: info.rejected,
-                envelope: info.envelope,
-            });
-            
-            response.success = true;
-            response.error = null;
-        }
+    .then((info: any) => {
+        consola.success('Email sent:',  {
+            messageId: info.messageId,
+            response: info.response,
+            accepted: info.accepted,
+            rejected: info.rejected,
+            envelope: info.envelope,
+        });
 
+        response.success = true;
+    })
+
+    .catch((error) => {
+        consola.error('Email not sent:', {
+            cause: error.cause,
+            message: error.message,
+            name: error.name,
+            stack: error.stack,
+        });
+        response.success = false;
+        response.error = error;
     });
 
-    return response
+    
 
-};
+    return response
+}
