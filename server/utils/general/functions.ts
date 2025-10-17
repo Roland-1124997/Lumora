@@ -159,7 +159,7 @@ const { smtpSender, smtpToken, smtpUser, smtpServer } = useRuntimeConfig()
 const transporter = createTransport({
     service: 'Gmail',
     host: smtpServer,
-    port: 587,
+    port: 465,
     secure: true,
     requireTLS: true,
     tls: {
@@ -173,9 +173,6 @@ const transporter = createTransport({
     },
     debug: true,
     logger: true,
-    connectionTimeout: 15000,
-    greetingTimeout: 10000,
-    socketTimeout: 20000,
 });
 
 transporter.verify((error) => {
