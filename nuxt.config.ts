@@ -1,6 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
-import vue from '@vitejs/plugin-vue'
 import path from 'path'
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
@@ -23,14 +22,12 @@ export default defineNuxtConfig({
     "@nuxtjs/supabase",
     "@pinia/nuxt",
     "nuxt-charts",
+    "nuxt-email-renderer"
   ],
 
   nitro: {
     experimental: {
       websocket: true,
-    },
-    rollupConfig: {
-      plugins: [vue()]
     },
   },
 

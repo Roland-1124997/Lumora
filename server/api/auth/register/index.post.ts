@@ -78,18 +78,14 @@ export default defineEventHandler(async (event) => {
         httpOnly: true,
     });
 
-    // const template = await render(UseEmail, {
-    //     token: token
-    // })
+    const html = await renderEmailComponent("VerifyAccountEmail", {
+        token: token,
+    });
 
     const { error } = await useMailer({
         recepient: request.email,
-        subject: "Verify your email",
-        body: `
-            <p>Thank you for registering! Please verify your email by entering the following code in the verification form:</p>
-            <h2>${token}</h2>
-            <p>If you did not register, please ignore this email.</p>
-        `,
+        subject: "Account verification required",
+        body: html,
     });
 
     if (error) {

@@ -58,14 +58,14 @@ export default defineEventHandler(async (event) => {
         httpOnly: true,
     });
 
+    const html = await renderEmailComponent("ResetPasswordEmail", {
+        token: token,   
+    });
+
     const { error } = await useMailer({
         recepient: request.email,
-        subject: "Reset your password",
-        body: `
-            <p>You requested a password reset. Please enter the following code in the password reset form to continue:</p>
-            <h2>${token}</h2>
-            <p>If you did not request a password reset, you can safely ignore this email.</p>
-        `,
+        subject: "Password reset verification required",
+        body: html
     });
 
     if (error) {
