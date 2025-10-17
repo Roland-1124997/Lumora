@@ -157,25 +157,38 @@ export const useSendNotification = async (options: { title: string, message: str
 const { smtpSender, smtpToken, smtpUser, smtpServer } = useRuntimeConfig()
 
 const transporter = createTransport({
+    service: 'Gmail',
     host: smtpServer,
-    port: 465,
+    port: 587,
     secure: true,
+    requireTLS: true,
     tls: {
         ciphers: 'SSLv3',
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        minVersion: 'TLSv1.2',
     },
     auth: {
         user: smtpUser,
         pass: smtpToken
     },
+    debug: true,
+    logger: true,
+    connectionTimeout: 15000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
 });
 
 transporter.verify((error) => {
-    if (error) consola.error('Server is not ready to send mail', error.message);
+    if (error) consola.error('Server is not ready to send mail', {
+        message: (error as any)?.message,
+        code: (error as any)?.code,
+        command: (error as any)?.command,
+        responseCode: (error as any)?.responseCode,
+    });
     else consola.success("Mail server initialized")
 });
 
-export const useMailer = async (options: { recepient : string, subject: string, body: any}) => {
+export const useMailer = async (options: { recepient: string, subject: string, body: any }) => {
     const { recepient, subject, body } = options
 
     const response: any = {
@@ -197,15 +210,21 @@ export const useMailer = async (options: { recepient : string, subject: string, 
         });
     })
 
-    .then((info: any) => {
-        consola.success('Email sent: ', info.response);
-        response.success = true
-    })
+        .then((info: any) => {
+            consola.success('Email sent:', info.messageId, info.response)
+            response.success = true
+        })
 
-    .catch((error) => {
-        consola.error('Email not sent: ', error.message);
-        response.error = error
-    });
+        .catch((error) => {
+            consola.error('Email not sent:', {
+                code: error?.code,
+                command: error?.command,
+                responseCode: error?.responseCode,
+                response: error?.response,
+                message: error?.message,
+            })
+            response.error = error
+        });
 
     return response
 
