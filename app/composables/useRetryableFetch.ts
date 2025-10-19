@@ -7,20 +7,62 @@ export function useRetryableFetch(configuration: { maxAttempts?: number; delay?:
         ...configuration,
     };
 
+    const getCsrf = () => {
+        
+        const cookie = useCookie<string | undefined>("csrf-token") || undefined;
+        return cookie.value;
+        
+    };
+
+    const setCsrf = (token?: string | null) => {
+        if (!token) return;
+        const cookie = useCookie<string | undefined>("csrf-token");
+        cookie.value = token;
+    };
+
     const fetchWithRetry = async <T>(
         url: Parameters<typeof $fetch>[0],
         options: Parameters<typeof $fetch>[1] & { sessions?: boolean },
         attempts = 0
     ): Promise<ApiResponse<T>> => {
-        return $fetch<ApiResponse<T>>(url, options).catch((error: ErrorResponse) => {
-            if (++attempts < maxAttempts) {
-                return new Promise<ApiResponse<T>>((resolve) =>
-                    setTimeout(resolve, delay)
-                ).then(() => fetchWithRetry<T>(url, options, attempts));
-            }
+        const headers: Record<string, string> = {
+            ...(options?.headers as Record<string, string> | undefined),
+        };
 
-            return Promise.reject(error);
-        });
+        const currentToken = getCsrf();
+        if (currentToken) headers["x-csrf-token"] = currentToken;
+
+        const userOnResponse = (options)?.onResponse as ((context: any) => void) | undefined;
+        
+        const withHeaders = {
+            ...options, headers,
+            onResponse: (context: any) => {
+
+                
+                const headerToken = context.response?.headers?.get?.("x-csrf-token");
+                setCsrf(headerToken);
+                
+                if (typeof userOnResponse === "function") userOnResponse(context);
+            },
+        };
+
+        return $fetch<ApiResponse<T>>(url, withHeaders)
+            
+        .then((response) => {
+                const maybeNew = (response as any)?.data?.token;
+                setCsrf(maybeNew);
+                return response;
+            })
+            
+            .catch((error: ErrorResponse) => {
+                if (++attempts < maxAttempts) {
+                    return new Promise<ApiResponse<T>>((resolve) =>
+                        setTimeout(resolve, delay)
+                    ).then(() => fetchWithRetry<T>(url, withHeaders, attempts));
+                }
+
+                return Promise.reject(error);
+            });
     };
 
     const makeRequest = async <T>(

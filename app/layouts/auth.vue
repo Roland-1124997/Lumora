@@ -9,6 +9,9 @@
 					<span class="text-2xl font-semibold">Lumora</span>
 				</div>
 			</header>
+			
+			<UtilsToast />
+			
 			<main class="w-full h-full max-w-lg mx-auto space-y-8">
 				<slot></slot>
 			</main>

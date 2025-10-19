@@ -102,13 +102,31 @@
 		}
 
 		if(error.value) {
+
+			console.log(error.value.message.includes("Too Many Requests"));
+
+
 			if (error.value.message.includes("aborted")) {
 				setTimeout(() => addToast({
 					message: "The request has been canceled.",
 					type: "error",
 					duration: 5000,
 				}), 1000);
-			} else onError({ error: error.value, actions });
+			} 
+
+			if (error.value.message.includes("Too Many Requests")) {
+				setTimeout(() => addToast({
+					message: "You have exceeded the number of allowed requests.",
+					type: "error",
+					duration: 5000,
+				}), 1000);
+				
+			}
+			
+			
+			
+			
+			else onError({ error: error.value, actions });
 		}
 
 		loading.value = false;

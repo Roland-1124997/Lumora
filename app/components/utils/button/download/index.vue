@@ -3,8 +3,7 @@
 </template>
 
 <script setup lang="ts">
-	import { set } from "zod/v4";
-
+	
 	const { url } = defineProps({
 		url: { type: String, default: "/" },
 	});

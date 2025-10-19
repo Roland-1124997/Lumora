@@ -220,7 +220,6 @@ export const useMailer = async (options: { recepient: string, subject: string, b
             messageId: info.messageId,
             response: info.response,
             accepted: info.accepted,
-            rejected: info.rejected,
             envelope: info.envelope,
         });
 

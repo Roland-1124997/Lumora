@@ -87,6 +87,11 @@ export default defineNuxtConfig({
           maxRequests: 15,
           intervalSeconds: 30,
         },
+        '/api/auth/forgot/': {
+          methods: ["POST"],
+          maxRequests: 5,
+          intervalSeconds: 60 * 60,
+        },
         '/api/moments/': {
           methods: ["POST"],
           maxRequests: 2,

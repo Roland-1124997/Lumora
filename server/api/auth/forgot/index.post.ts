@@ -62,23 +62,23 @@ export default defineEventHandler(async (event) => {
         token: token,   
     });
 
-    const { error } = await useMailer({
-        recepient: request.email,
-        subject: "Password reset verification required",
-        body: html
-    });
+    // const { error } = await useMailer({
+    //     recepient: request.email,
+    //     subject: "Password reset verification required",
+    //     body: html
+    // });
 
-    if (error) {
-        return useReturnResponse(event, {
-            ...internalServerError,
-            error: {
-                type: "fields",
-                details: {
-                    email: ["Failed to send verification email"]
-                }
-            }
-        });
-    }
+    // if (error) {
+    //     return useReturnResponse(event, {
+    //         ...internalServerError,
+    //         error: {
+    //             type: "fields",
+    //             details: {
+    //                 email: ["Failed to send verification email"]
+    //             }
+    //         }
+    //     });
+    // }
 
     return useReturnResponse(event, {
         status: {
