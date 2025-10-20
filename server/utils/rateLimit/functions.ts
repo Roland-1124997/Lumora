@@ -1,16 +1,28 @@
 export const rateLimits = new Map<string, { count: number; timestamp: number }>();
 const routesConfig: any = useRuntimeConfig().rateLimit.routes;
 
-const getRateLimitForRoute = (path: string, method: string) => {
-    if (!path.endsWith('/')) path += '/';
+// Ensure consistent trailing slash handling for matching and keys
+const normalizePath = (path: string) => (path?.endsWith('/') ? path : `${path}/`);
 
-    for (let route in routesConfig) {
-        const routeConfig = routesConfig[route];
-        const routePattern = new RegExp(`^${route.replace(/\[.*?\]/g, '[^/]+').replace(/\*/g, '.*').replace(/\/$/, '')}/?$`);
-        
+// Find the matching route entry and return both the config and the route key used
+const getRateLimitForRoute = (
+    rawPath: string,
+    method: string
+): { routeKey: string; config: { methods: string[]; maxRequests: number; intervalSeconds: number } } | null => {
+    const path = normalizePath(rawPath);
+
+    for (const routeKey in routesConfig) {
+        const config = routesConfig[routeKey];
+        const routePattern = new RegExp(
+            `^${routeKey
+                .replace(/\[.*?\]/g, '[^/]+')
+                .replace(/\*/g, '.*')
+                .replace(/\/$/, '')}/?$`
+        );
+
         if (routePattern.test(path)) {
-            if (routeConfig.methods.includes('*') || routeConfig.methods.includes(method)) {
-                return routeConfig;
+            if (config.methods.includes('*') || config.methods.includes(method)) {
+                return { routeKey, config };
             }
         }
     }
@@ -20,36 +32,39 @@ const getRateLimitForRoute = (path: string, method: string) => {
 export const cleanupRateLimitForKey = (key: string): void => {
     const now = Date.now();
 
-    const [ip, method, path] = key.split('-');
-    const routeConfig = getRateLimitForRoute(path, method);
+    // Keys are structured JSON: { ip, method, route }
+    let parsed: { ip: string; method: string; route: string } | null = JSON.parse(key);
+
+    if (!parsed) return;
+    const routeConfig = routesConfig?.[parsed.route];
     if (!routeConfig) return;
 
-    const { intervalSeconds } = routeConfig;
-    const windowMs = intervalSeconds * 1000;
+    const windowMs = routeConfig.intervalSeconds * 1000;
 
     if (rateLimits.has(key)) {
         const data = rateLimits.get(key)!;
-        const secondsUntilReset = Math.ceil((windowMs - (now - data.timestamp)) / 1000);
-
-        if (secondsUntilReset <= 0) rateLimits.delete(key);
+        if (now - data.timestamp >= windowMs) {
+            rateLimits.delete(key);
+        }
     }
 };
 
 export const checkRateLimit = (event: H3Event): boolean => {
-    const path = event.path.split("?")[0] || "/";
-    const method = event.node.req.method || "GET"; 
-    const routeConfig = getRateLimitForRoute(path, method);
+    const rawPath = event.path.split("?")[0] || "/";
+    const method = event.node.req.method || "GET";
+    const match = getRateLimitForRoute(rawPath, method);
 
-    if (!routeConfig) {
-        return true; 
-    }
+    if (!match) return true; 
+    
 
+    const { config: routeConfig, routeKey } = match;
     const { maxRequests, intervalSeconds } = routeConfig;
     const windowMs = intervalSeconds * 1000;
 
     const ip = getIP(event);
     const now = Date.now();
-    const key = `${ip}-${method}-${path}`;
+
+    const key = JSON.stringify({ ip, method, route: routeKey });
 
     cleanupRateLimitForKey(key);
 

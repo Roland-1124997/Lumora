@@ -5,11 +5,8 @@ export default defineEventHandler(async (event) => {
 
     const method = event.method.toUpperCase();
 
-    
     const rotateToken = () => {
         
-        
-    
         const token = (crypto?.randomUUID?.() ||
             `${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}.${Math.random()
                 .toString(36)
@@ -42,6 +39,7 @@ export default defineEventHandler(async (event) => {
     const valid = !!headerToken && !!cookieToken && headerToken === cookieToken;
 
     if (!valid) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         return useReturnResponse(event, {
             status: {
                 success: false,

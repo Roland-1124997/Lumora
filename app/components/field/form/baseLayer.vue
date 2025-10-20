@@ -103,8 +103,6 @@
 
 		if(error.value) {
 
-			console.log(error.value);
-
 			if (error.value.message.includes("aborted")) {
 				setTimeout(() => addToast({
 					message: "The request has been canceled.",
@@ -118,7 +116,7 @@
 					message: "You have exceeded the number of allowed requests.",
 					type: "error",
 					duration: 5000,
-				}), 1000);
+				}), 200);
 			}
 
 			else onError({ error: error.value, actions });
