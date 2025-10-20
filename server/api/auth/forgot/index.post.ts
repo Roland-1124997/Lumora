@@ -59,24 +59,24 @@ export default defineEventHandler(async (event) => {
     });
 
     const html = await renderEmailComponent("ResetPasswordEmail", {
-        token: token,   
+        token: token,
     });
 
     const { error } = await useMailer({
-         recepient: request.email,
-         subject: "Password reset verification required",
-         body: html
+        recepient: request.email,
+        subject: "Password reset verification required",
+        body: html
     });
 
     if (error) {
         return useReturnResponse(event, {
-             ...internalServerError,
-             error: {
-                 type: "fields",
-                 details: {
-                     email: ["Failed to send verification email"]
-                 }
-             }
+            ...internalServerError,
+            error: {
+                type: "fields",
+                details: {
+                    email: ["Failed to send verification email"]
+                }
+            }
         });
     }
 
