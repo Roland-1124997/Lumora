@@ -9,7 +9,7 @@
 			</p>
 		</div>
 
-		<FieldFormTotp url="/api/auth/verify/email" :schema="schema" :onSuccess="handleSuccess" :onError="handleError" :back="false"  />
+		<FieldFormTotp url="/api/auth/verify/email" :schema="schema" :onSuccess="handleSuccess" :onError="handleError" />
 		<UtilsSeparator :line="true" />
 
 	</div>

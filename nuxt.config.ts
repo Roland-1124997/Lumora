@@ -39,10 +39,10 @@ export default defineNuxtConfig({
       resource: process.env.RENDER_RESOURCE,
       uri: process.env.RENDER_URI
     },
-    smtpSender: process.env.SMTP_SENDER,
-    smtpServer: process.env.SMTP_SERVER,
-    smtpUser: process.env.SMTP_USER,
-    smtpToken: process.env.SMTP_TOKEN,
+    email: {
+      key: process.env.RESEND_API_KEY,
+      sender: process.env.EMAIL_FROM_ADDRESS
+    },
     vapidPublicKey: process.env.VAPID_PUBLIC_KEY,
     vapidPrivateKey: process.env.VAPID_PRIVATE_KEY,
     public: {

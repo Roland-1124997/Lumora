@@ -2,7 +2,7 @@ import webpush from "web-push";
 import sharp from "sharp";
 import os from "os";
 
-import { createTransport } from 'nodemailer'
+import { Resend } from 'resend';
 import { consola } from 'consola';
 
 interface Storage {
@@ -152,39 +152,9 @@ export const useSendNotification = async (options: { title: string, message: str
 
 };
 
-const { smtpSender, smtpToken, smtpUser, smtpServer } = useRuntimeConfig()
+const { email } = useRuntimeConfig()
 
-const transporter = createTransport({
-    host: smtpServer,
-    port: 465,
-    secure: true,
-    tls: {
-        ciphers: 'SSLv3',
-        rejectUnauthorized: false,
-    },
-    auth: {
-        user: smtpUser,
-        pass: smtpToken
-    },
-});
-
-
-let serverReady = false
-
-transporter.verify((error) => {
-    if (error) consola.error('Server is not ready to send mail', {
-        cause: error.cause,
-        message: error.message,
-        name: error.name,
-        stack: error.stack,
-    });
-
-
-    else {
-        consola.success("Mail server initialized")
-        serverReady = true
-    }
-});
+const resend = new Resend(email.key);
 
 export const useMailer = async (options: { recepient: string, subject: string, body: any }) => {
     const { recepient, subject, body } = options
@@ -195,49 +165,29 @@ export const useMailer = async (options: { recepient: string, subject: string, b
     }
 
     const mailOptions = {
-        from: smtpSender,
+        from: email.sender,
         to: recepient,
         subject: subject,
         html: body,
     }
 
-    if (!serverReady) {
-        response.success = false;
-        response.error = new Error("Mail server is not ready");
+    const { data, error} = await resend.emails.send(mailOptions);
 
-        return response
-    }
-
-    await new Promise((resolve, reject) => {
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) return reject(error);
-            resolve(info);
-        });
-    })
-
-    .then((info: any) => {
-        consola.success('Email sent:',  {
-            messageId: info.messageId,
-            response: info.response,
-            accepted: info.accepted,
-            envelope: info.envelope,
-        });
-
-        response.success = true;
-    })
-
-    .catch((error) => {
+    if (error) {
         consola.error('Email not sent:', {
-            cause: error.cause,
             message: error.message,
             name: error.name,
-            stack: error.stack,
+            code: error.statusCode,
         });
+
         response.success = false;
         response.error = error;
-    });
+    }
 
-    
+    else {
+        consola.success('Email sent:',  { id: data.id, });
+        response.success = true;
+    }
 
     return response
 }

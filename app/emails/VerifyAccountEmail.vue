@@ -21,7 +21,7 @@
 																<tbody>
 																	<tr>
 																		<td style="vertical-align: middle; padding-right: 12px">
-																			<EImg src="https://llumora.onrender.com/_ipx/_/icons/icon_dark_512.png" alt="Lumora" width="40" height="40" style="display: block; border: 0; outline: none; text-decoration: none" />
+																			<EImg src="https://lumora.roland-meijer.nl/_ipx/_/icons/icon_dark_512.png" alt="Lumora" width="40" height="40" style="display: block; border: 0; outline: none; text-decoration: none" />
 																		</td>
 																		<td style="vertical-align: middle">
 																			<div style="font-size: 18px; color: #0f172a; font-weight: 700">Lumora</div>
@@ -39,7 +39,7 @@
 															<div role="textbox" aria-label="Reset code" style="display: block; background: #f8fafc; border: 1px dashed #e6edf3; padding: 14px 20px; font-weight: 700; font-size: 22px; letter-spacing: 6px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; color: #0f172a; text-align: center; max-width: 240px; margin: 18px 0">{{ token || "Unknown" }}</div>
 															<p style="margin: 0; color: #6b7280; font-size: 12px">If you did not register, you can safely ignore this email.</p>
 															<p style="margin: 12px 0 0">
-																<a href="https://llumora.onrender.com" style="text-decoration: underline; font-weight: 700; font-size: 10px" target="_blank" rel="noopener"> llumora.onrender.com </a>
+																<a href="https://lumora.roland-meijer.nl" style="text-decoration: underline; font-weight: 700; font-size: 10px" target="_blank" rel="noopener"> lumora.roland-meijer.nl </a>
 															</p>
 														</td>
 													</tr>

@@ -34,13 +34,19 @@
 
 	const onReturn = async () => {
 
-		const { data }  = await makeRequest<null>("/api/auth/cancel", { method: "POST" })
+		const route = useRoute();
 
-		if(data.value) {
-			store.clearSession();
-			navigateTo(data.value.status.redirect);
+		if(route.fullPath.includes("/auth/totp")) {
+
+			const { data }  = await makeRequest<null>("/api/auth/cancel", { method: "POST" })
+
+			if(data.value) {
+				store.clearSession();
+				navigateTo(data.value.status.redirect);
+			}
 		}
 
+		useRouter().back();
 	};
 
 	const { value } = useField<string>(`code`);
