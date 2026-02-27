@@ -5,6 +5,10 @@ export const usePush = () => {
         return isIos && isStandalone
     }
 
+    const { makeRequest } = useRetryableFetch()
+
+
+
     const { addToast } = useToast()
     const active = ref(false)
 
@@ -45,10 +49,10 @@ export const usePush = () => {
             .then((subscription) => {
                 if (!subscription) return
 
-                return $fetch('/api/notifications', {
-                    method: 'POST',
-                    body: { subscription }
+                return makeRequest('/api/notifications', {
+                    method: 'POST', body: { subscription },
                 })
+
             })
             .then((res) => {
                 if (res !== undefined) {
@@ -86,7 +90,7 @@ export const usePush = () => {
 
                 return subscription.unsubscribe().then((success) => {
                     if (success) {
-                        return $fetch('/api/notifications', { method: 'DELETE' })
+                        return makeRequest('/api/notifications', { method: 'DELETE' }) 
                     } else {
                         throw new Error("Failed to unsubscribe from push")
                     }
