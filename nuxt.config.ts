@@ -154,6 +154,7 @@ export default defineNuxtConfig({
       start_url: "/",
       scope: "/",
       theme_color: "#FFFFFF",
+      display: "standalone",
       display_override: ["window-controls-overlay", "standalone", "minimal-ui", "fullscreen", "browser"],
       icons: [
         {

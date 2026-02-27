@@ -20,9 +20,9 @@ export const usePush = () => {
                     return
                 }
 
-                if (isIosPwa()) {
+                if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
                     addToast({
-                        message: `Native Push notifications are not supported.`,
+                        message: "Push not supported in this browser.",
                         type: "error",
                         duration: 5000,
                     })
