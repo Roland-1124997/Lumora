@@ -17,7 +17,7 @@
 
 		<section v-if="List.length >= 1 && !searchLoading" @scroll="updateScrollPercentage" v-bind="containerProps" class="overflow-y-auto h-[75dvh] md:h-[80dvh]">
 			<div v-bind="wrapperProps" class="flex flex-col w-full gap-3">
-				<div :id="content.id" class="last:pb-[9.6rem]" v-for="(content, index) in List" :key="content.id">
+				<div :id="`moment-${content.id}`" class="last:pb-[9.6rem] moments" v-for="(content, index) in List" :key="content.id">
 					<LazyCardGroup :content />
 				</div>
 			</div>
@@ -120,9 +120,7 @@
 		if (result.value) {
 			List.value = result.value.data;
 			totalPages.value = result.value.pagination?.total || 0;
-		}
-
-		if (error.value) List.value = [];
+		} else if (error.value) List.value = [];
 	};
 
 	const handleManualReload = async () => {
@@ -172,7 +170,7 @@
 
 			loading.value = false;
 		},
-		{ direction: "bottom", distance: 20 }
+		{ direction: "bottom", distance: 20 },
 	);
 
 	/*
@@ -197,7 +195,7 @@
 						type: "success",
 						duration: 5000,
 					}),
-				800
+				800,
 			);
 		});
 	};
@@ -212,4 +210,81 @@
 			name: "Join group",
 			url: "/api/invitations/",
 		});
+
+	const storage = useTourStorage();
+	const state = useLocalStorage("moments-tour", { completed: false });
+
+	const flow = storage.tour.create("moments-tour", {
+		onFinish: () => {
+			state.value.completed = true;
+		},
+		onCancel: () => {
+			state.value.completed = true;
+		},
+	});
+
+	flow.step({
+		id: "account",
+		target: "#account",
+		title: "Account",
+		content: "Click here to access your account settings, where you can manage your profile, preferences, and other personal information.",
+	});
+
+	flow.step({
+		id: "moments",
+		target: "#moments",
+		title: "Moments",
+		content: "This is the Moments section, where you can view and manage your photo groups. Explore shared memories and interact with your community.",
+	});
+
+	flow.step({
+		id: "notifications",
+		target: "#notifications",
+		title: "Notifications",
+		content: "Click here to view your notifications. Stay updated on new posts, comments, and other activities within your groups.",
+	});
+
+	flow.step({
+		id: "search",
+		target: "#search",
+		title: "Search Groups",
+		content: "This search bar allows you to find specific groups. Type in keywords related to the group you're looking for and press enter to see the results.",
+	});
+
+	flow.step({
+		id: "reload",
+		target: "#reload",
+		title: "Reload Groups",
+		content: "If you want to refresh the list of groups, click this button. It will fetch the latest data and update your view.",
+	});
+
+	flow.step({
+		id: "createLink",
+		target: "#createLink",
+		title: "Join a Group",
+		content: "Click this button to join a group using an invitation link. Enter the link provided by the group owner to become a member.",
+	});
+
+	flow.step({
+		id: "createGroup",
+		target: "#createGroup",
+		title: "Create a New Group",
+		content: "Click this button to create a new group. You can set the group name, description, and invite members to join.",
+	});
+
+	if (List.value.length >= 1)
+		flow
+			.step({
+				id: "group-card",
+				target: ".moments:first-child",
+				title: "Group Overview",
+				content: "Each group card displays essential information about the group, including its name, description, and member count. Click on a group to view more details and interact with its content.",
+				popover: { disableAdvanceButton: true },
+				behavior: { allowInteraction: true },
+			})
+			.onTargetEvent("click", (event, context) => context.advance());
+
+	onMounted(() => {
+		if (!state.value.completed) storage.workflow = flow.build();
+	});
 </script>

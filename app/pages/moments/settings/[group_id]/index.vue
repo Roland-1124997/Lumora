@@ -1,10 +1,13 @@
 <template>
 	<div>
 		<div>
-			<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4 sm:mt-2 md:-mt-5 ">
+			<div class="sticky z-50 pt-3 -mt-5 bg-white -top-4 sm:mt-2 md:-mt-5">
 				<div class="flex items-center justify-between w-full gap-2 mb-3 md:justify-end">
-					<FieldInputSearch v-if="content?.accepted" class="hidden md:flex" placeholder="Search member..." :disabled="!content?.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
-					<NuxtLink v-if="content?.permision?.edit" aria-label="logbook" :to="`/moments/logbook/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
+					<template v-if="!isMobile">
+						<FieldInputSearch v-if="content?.accepted" class="hidden md:flex" placeholder="Search member..." :disabled="!content?.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
+					</template>
+
+					<NuxtLink id="logbook" v-if="content?.permision?.edit" aria-label="logbook" :to="`/moments/logbook/${group_id}`" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
 						<Icon name="ri:book-marked-fill" size="1.4rem" />
 					</NuxtLink>
 					<button v-if="content?.permision?.create && content?.accepted" id="CreateLink" title="CreateLink" @click="CreateLink" :disabled="loading" class="flex w-fit items-center justify-center gap-2 p-2 px-2 text-sm text-[#756145] hover:bg-gray-50 border border-[#756145] rounded-xl">
@@ -17,12 +20,16 @@
 					<button v-if="content?.permision?.delete" id="deleteGroup" title="deleteGroup" @click="deleteData" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Delete group</button>
 					<button v-else id="leaveGroup" title="leaveGroup" @click="leaveGroup" class="flex w-full md:w-44 items-center justify-center gap-2 p-2 px-2 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">Leave group<span class="hidden md:flex"></span></button>
 				</div>
-				<FieldInputSearch v-if="content?.accepted" class="md:hidden" placeholder="Search member..." :disabled="!content.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
+
+				<template v-if="isMobile">
+					<FieldInputSearch v-if="content?.accepted" class="md:hidden" placeholder="Search member..." :disabled="!content.accepted" :update="handleSearch" :uri="`/api/moments/members/${group_id}?pending=${activeTab == 'requests'}`" />
+				</template>
+
 				<hr class="pb-3 mt-3" />
 			</div>
 
 			<div :class="PWAInstalled ? 'pb-32' : 'pb-20'" class="flex flex-col gap-4 overflow-scroll">
-				<div v-if="content?.permision?.change" class="p-4 border rounded-xl">
+				<div id="details" v-if="content?.permision?.change" class="p-4 border rounded-xl">
 					<Form :validation-schema="schema" @submit="handleSubmit">
 						<div class="flex items-center justify-between mb-1">
 							<h1 class="font-bold">Group details</h1>
@@ -63,7 +70,7 @@
 					</Form>
 				</div>
 
-				<div class="p-4 border rounded-xl">
+				<div id="members" class="p-4 border rounded-xl">
 					<div class="flex items-center justify-between -mb-1">
 						<h1 class="font-bold">Members</h1>
 						<button @click="setActiveTab(activeTab)" id="reloadMembers" title="reloadMembers" :disabled="searchLoading" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
@@ -73,7 +80,7 @@
 					<p v-if="activeTab == 'members'" class="mb-3 text-sm text-gray-500">List with active group members</p>
 					<p v-else class="mb-3 text-sm text-gray-500">List with active invite requests</p>
 
-					<div v-if="content?.accepted" class="flex items-center gap-2 justify-evenly p-[0.20rem] border rounded-xl w-full overflow-hidden bg-gray-100">
+					<div id="switch" v-if="content?.accepted" class="flex items-center gap-2 justify-evenly p-[0.20rem] border rounded-xl w-full overflow-hidden bg-gray-100">
 						<button :disabled="searchLoading" @click="setActiveTab('members')" :class="activeTab == 'members' ? 'bg-white font-bold' : ''" class="flex items-center justify-center w-full p-1 rounded-lg">
 							<span class="text-xs">Members</span>
 						</button>
@@ -139,7 +146,7 @@
 					</div>
 				</div>
 
-				<div v-if="content?.accepted" class="p-4 border rounded-xl">
+				<div id="invites" v-if="content?.accepted" class="p-4 border rounded-xl">
 					<div class="flex items-center justify-between -mb-1">
 						<h1 class="font-bold">Invite links</h1>
 						<button @click="reloadInvite" :disabled="InviteLoading" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
@@ -153,12 +160,21 @@
 
 					<div class="overflow-x-auto">
 						<table class="w-full overflow-hidden text-sm border-collapse">
+							<thead class="border-b border-gray-200">
+								<tr>
+									<th class="p-3 text-sm font-semibold text-left text-gray-700 border-r">Token</th>
+									<th class="p-3 text-sm font-semibold text-center text-gray-700 border-r">Expires</th>
+									<th class="p-3 text-sm font-semibold text-center text-gray-700 border-r">Uses</th>
+									<th class="p-3 text-sm font-semibold text-center text-gray-700">Actions</th>
+								</tr>
+							</thead>
+
 							<tbody>
 								<tr v-if="!InviteLoading" v-for="link in inviteLinks" :key="link.id" class="transition-all border-b border-gray-100 hover:bg-gray-50">
-									<td class="p-3 text-left">
-										<button @click="share(link)" :class="isLinkExpired(link) || getRemainingUses(link) === 0 ? ' opacity-50' : ' underline'" class="truncate max-w-[150px] overflow-auto font-black">{{ link.code }}</button>
+									<td class="p-3 text-left border-r">
+										<button @click="share(link)" :class="isLinkExpired(link) || getRemainingUses(link) === 0 ? ' opacity-50' : ' underline'" class="truncate text-blue-800 max-w-[150px] overflow-auto font-black">{{ link.code }}</button>
 									</td>
-									<td class="p-3 text-center text-gray-800">
+									<td class="p-3 text-center text-gray-800 border-r">
 										<div v-if="isLinkExpired(link) === null">
 											<Icon name="ri:infinity-line" size="1.3rem" />
 										</div>
@@ -166,7 +182,7 @@
 
 										<span v-else>{{ useDateFormat(link.expiresAt || "", "DD-MM HH:mm") }}</span>
 									</td>
-									<td class="p-3 font-semibold text-center text-gray-600">
+									<td class="p-3 font-semibold text-center text-gray-600 border-r">
 										<div v-if="getRemainingUses(link) === null">
 											<Icon name="ri:infinity-line" size="1.3rem" />
 										</div>
@@ -196,10 +212,10 @@
 					</div>
 				</div>
 
-				<div v-if="content?.permision?.change" class="p-4 mb-2 border rounded-xl">
+				<div id="additional" v-if="content?.permision?.change" class="p-4 mb-2 border rounded-xl">
 					<div class="">
 						<div v-for="(section, index) in config.sections" :key="index">
-							<h1 class="mb-1 font-bold" :class="{ 'mt-4': index > 0 }">{{ section.title }}</h1>
+							<h1 class="mb-1 font-bold" :class="{ 'mt-4': Number(index) > 0 }">{{ section.title }}</h1>
 							<p v-if="index == 0" class="mb-3 text-sm text-gray-500">Additional group setting that can be changed</p>
 
 							<hr class="my-3" />
@@ -255,7 +271,7 @@
 
 	const group_id = useRoute().params.group_id;
 
-	const button = templateRef("hidden");
+	const button = templateRef("hidden") as Ref<HTMLButtonElement>;
 	const clickButton = () => button.value.click();
 
 	const { PWAInstalled } = inject<any>("PWA");
@@ -487,7 +503,7 @@
 				JSON.stringify({
 					type: "delete",
 					group_id,
-				})
+				}),
 			);
 
 			addToast({
@@ -536,7 +552,7 @@
 			webSocket.send(
 				JSON.stringify({
 					type: "update-topics",
-				})
+				}),
 			);
 
 			addToast({
@@ -551,7 +567,7 @@
 				message: `An error occurred, unable to leave the group`,
 				type: "error",
 				duration: 5000,
-			})
+			}),
 		);
 	};
 
@@ -579,7 +595,7 @@
 						type: "kick",
 						group_id,
 						member_id: member_id.value,
-					})
+					}),
 				);
 
 				addToast({
@@ -595,7 +611,7 @@
 				message: `An error occurred, unable to reject the member`,
 				type: "error",
 				duration: 5000,
-			})
+			}),
 		);
 	};
 
@@ -621,7 +637,7 @@
 						type: "kick",
 						group_id,
 						member_id: member_id.value,
-					})
+					}),
 				);
 
 				addToast({
@@ -637,7 +653,7 @@
 				message: `An error occurred, unable to kick the member`,
 				type: "error",
 				duration: 5000,
-			})
+			}),
 		);
 	};
 
@@ -659,7 +675,7 @@
 				webSocket.send(
 					JSON.stringify({
 						type: "update-topics",
-					})
+					}),
 				);
 
 				addToast({
@@ -675,7 +691,7 @@
 				message: `An error occurred, unable to accept the member`,
 				type: "error",
 				duration: 5000,
-			})
+			}),
 		);
 	};
 
@@ -684,19 +700,17 @@
 	 */
 
 	const createUpdateFunction = async (id: string) => {
-		
 		const { makeRequest } = useRetryableFetch({ throwOnError: false });
-		
-		const url = `/api/moments/members/permissions/${group_id}/${id}`
+
+		const url = `/api/moments/members/permissions/${group_id}/${id}`;
 		const { data, error } = await makeRequest<any>(url);
 
-		if(data.value) {
-		
+		if (data.value) {
 			const { onSuccess, onError } = open({
 				type: "update:member",
 				name: "Edit Permissions",
 				url: url,
-				details: data.value
+				details: data.value,
 			});
 
 			onSuccess(async () => {
@@ -708,7 +722,7 @@
 					webSocket.send(
 						JSON.stringify({
 							type: "update-topics",
-						})
+						}),
 					);
 
 					addToast({
@@ -726,16 +740,16 @@
 					message: `An error occurred, unable to update the member`,
 					type: "error",
 					duration: 5000,
-				})
+				}),
 			);
 		}
 
-		if(error.value) addToast({
-			message: "An error occurred, unable to get the user",
-			type: "error",
-			duration: 5000
-		})
-
+		if (error.value)
+			addToast({
+				message: "An error occurred, unable to get the user",
+				type: "error",
+				duration: 5000,
+			});
 	};
 
 	/*
@@ -773,7 +787,7 @@
 			const changed = name.value !== originalName.value || description.value !== originalDescription.value || isConfigChanged();
 			if (blocked.value !== changed) blocked.value = changed;
 		},
-		{ deep: true }
+		{ deep: true },
 	);
 
 	onBeforeRouteLeave((event) => {
@@ -803,7 +817,7 @@
 		zod.object({
 			name: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
 			description: zod.string({ message: "This field is required" }).nonempty({ message: "This field is required" }),
-		})
+		}),
 	);
 
 	const handleSubmit = async (values: Record<string, any>, actions: Actions) => {
@@ -844,6 +858,112 @@
 
 		loading.value = false;
 	};
+
+	const isMobile = ref(window.innerWidth < 768);
+
+	const state = useLocalStorage("moments-tour-4", { completed: false });
+
+	const storage = useTourStorage();
+	const flow = storage.tour.create("moments-tour-4", {
+		onFinish: () => {
+			state.value.completed = true;
+		},
+		onCancel: () => {
+			state.value.completed = true;
+		},
+	});
+
+	flow.step({
+		id: "search",
+		target: "#search",
+		title: "Search members",
+		content: "Use this search bar to find specific members in your group. You can search by name or email.",
+	});
+
+	if (content.value?.permision?.edit) {
+		flow.step({
+			id: "logbook",
+			target: "#logbook",
+			title: "Logbook",
+			content: "The logbook allows you to view the history of changes made to the group, including member additions, removals, and updates. This helps you keep track of all activities within your group.",
+		});
+	}
+
+	if (content.value?.permision?.create && content.value?.accepted) {
+		flow.step({
+			id: "CreateLink",
+			target: "#CreateLink",
+			title: "Create invite link",
+			content: "Click this button to generate a new invite link for your group. You can share this link with others to allow them to join your group.",
+		});
+	}
+
+	if (content.value?.permision?.change) {
+		flow.step({
+			id: "updateSettings",
+			target: "#updateSettings",
+			title: "Update group settings",
+			content: "Use this section to update your group's name, description, and other settings. Make sure to save your changes before leaving the page.",
+		});
+	}
+
+	if (content.value?.permision?.delete) {
+		flow.step({
+			id: "deleteGroup",
+			target: "#deleteGroup",
+			title: "Delete group",
+			content: "Click this button to permanently delete your group. This action cannot be undone, so make sure you really want to delete the group before proceeding.",
+		});
+	} else {
+		flow.step({
+			id: "leaveGroup",
+			target: "#leaveGroup",
+			title: "Leave group",
+			content: "Click this button to leave the group. You will no longer have access to the group's content and will need to be re-invited if you wish to join again.",
+		});
+	}
+
+	if (content.value?.permision?.change)
+		flow.step({
+			id: "details",
+			target: "#details",
+			title: "Group details",
+			content: "This section allows you to update your group's name, description, and other settings. Make sure to save your changes before leaving the page.",
+		});
+
+	flow.step({
+		id: "members",
+		target: "#members",
+		title: "Manage members",
+		content: "This section allows you to manage the members of your group. You can view their roles, accept or reject pending requests, and update their permissions.",
+	});
+
+	flow.step({
+		id: "tabs",
+		target: "#switch",
+		title: "Switch between members and requests",
+		content: "Use these tabs to switch between viewing the list of current members and pending invite requests. This allows you to easily manage both aspects of your group.",
+		behavior: { allowInteraction: true },
+	});
+
+	flow.step({
+		id: "invites",
+		target: "#invites",
+		title: "Invite links",
+		content: "This section displays all the invite links that have been created for your group. You can view their expiration dates, remaining uses, and delete any links that are no longer needed.",
+	});
+
+	if (content.value?.permision?.change)
+		flow.step({
+			id: "additional",
+			target: "#additional",
+			title: "Additional settings",
+			content: "This section allows you to configure additional settings for your group. You can enable or disable specific features based on your group's needs.",
+		});
+
+	onMounted(() => {
+		if (!state.value.completed) storage.workflow = flow.build();
+	});
 </script>
 
 <style scoped>

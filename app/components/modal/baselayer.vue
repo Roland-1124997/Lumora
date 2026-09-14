@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<Transition name="modal">
-			<div v-if="status && modalStatus.minimized" class="fixed z-50 flex items-start justify-center transform bottom-5 right-[7.8rem] md:bottom-[0.85rem] md:right-[18.5rem] w-fit">
+			<div v-if="status && modalStatus.minimized" class="fixed z-[90] flex items-start justify-center transform bottom-5 right-[7.8rem] md:bottom-[0.85rem] md:right-[18.5rem] w-fit">
 				<div tabindex="0">
 					<Transition name="modalDelay">
 						<div ref="modalDelay" v-if="DelayStatus">

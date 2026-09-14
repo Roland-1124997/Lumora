@@ -1,12 +1,12 @@
 <template>
-	<div ref="target" class="transition border-b select-text">
+	<div ref="target" class="transition border-b select-text moment-card">
 		<div class="w-full h-40 overflow-hidden bg-gray-200 border sm:h-[27dvh] md:h-52 rounded-xl group">
 			<div v-if="content.has_been_accepted && has_interaction" class="relative z-40 flex items-center justify-start gap-2 p-2">
-				<button :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
+				<button id="likes" :disabled="content.author.is_owner" @click="likeImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
 					<icon :class="[liked ? 'text-red-600 hover:text-red-700' : '', content.author.is_owner ? 'text-red-700 cursor-not-allowed' : '', isAnimating ? 'animate-like' : '']" class="transition" :name="content.author.is_owner ? 'ri:heart-fill' : liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2em" />
 					<UtilsCounter :count="hearts" />
 				</button>
-				<button :disabled="content.author.is_owner" class="relative gap-1 z-50 flex items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
+				<button id="comments" :disabled="content.author.is_owner" class="relative gap-1 z-50 flex items-center justify-between p-[0.30rem] text-black bg-white border rounded-lg">
 					<icon name="ri:message-3-line" size="1.2em" />
 					<UtilsCounter :count="comments" />
 				</button>
@@ -15,10 +15,11 @@
 				<button @click="pinImage" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon :name="pinned ? 'ri:unpin-line' : 'ri:pushpin-line'" size="1.2em" />
 				</button>
-				<button @click="methods[0]" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+
+				<button @click="executeMethod(0)" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon name="ri:check-line" size="1.2em" />
 				</button>
-				<button @click="methods[1]" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
+				<button @click="executeMethod(1)" class="relative z-50 flex gap-1 items-center justify-between p-[0.30rem] disabled:opacity-70 text-black bg-white border rounded-lg">
 					<icon name="ri:close-line" size="1.2em" />
 				</button>
 			</div>
@@ -71,6 +72,10 @@
 		methods: { type: Array, required: false },
 		has_interaction: { type: Boolean, default: true },
 	});
+
+	const executeMethod = (index: number) => {
+		(methods?.[index] as (() => void) | undefined)?.();
+	};
 
 	if (content.has_interactions && has_interaction) {
 		comments.value = content.has_interactions.comments.count || 0;
@@ -148,10 +153,11 @@
 
 	setTimeout(() => {
 		callOnce(
+			"setup",
 			async () => {
 				if (route.query.uid) await userDetailsFunction(route.query.uid as string);
 			},
-			{ mode: "navigation" }
+			{ mode: "navigation" },
 		);
 	}, 300);
 
@@ -183,7 +189,7 @@
 					comments: {
 						count: comments.value,
 					},
-				})
+				}),
 			);
 
 			updateItemByMetaId(group_id, content.id, {

@@ -1,18 +1,18 @@
 <template>
 	<div class="select-none">
-		<div class="hidden md:flex">
+		<div v-if="!isMobile" class="flex">
 			<splitpanes :horizontal="isMobile" class="w-full h-full" @resize="savePaneSize">
 				<pane :size="paneLeft" class="pl-3 -mt-4 border-l md:pr-3" min-size="50" max-size="70">
 					<div class="hidden w-full gap-2 mb-4 md:flex">
-						<button v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex items-center disabled:opacity-70 justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<button id="like" v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex items-center disabled:opacity-70 justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							<UtilsCounter :count="likes_count" />
 						</button>
-						<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<button id="delete" v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon name="ri:delete-bin-2-line" size="1.2rem" />
 						</button>
-						<UtilsButtonDownload :url="content?.media?.url" />
-						<button v-if="content?.has_interactions" @click="openComment({})" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
+						<UtilsButtonDownload id="download" :url="content?.media?.url" />
+						<button id="comment" v-if="content?.has_interactions" @click="openComment({})" class="flex items-center justify-center gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 					</div>
 					<CardImageThumbnail :loaded :content="content || []" ref="thumbnail" />
 				</pane>
@@ -20,15 +20,15 @@
 				<pane :size="paneRight" class="pl-3 overflow-hidden border-l mb-36 md:mb-auto">
 					<div class="md:h-[82.5vh] overflow-scroll">
 						<div class="flex w-full gap-2 mt-4 mb-2 md:hidden">
-							<button v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex disabled:opacity-70 items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+							<button id="like" v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex disabled:opacity-70 items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 								<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 								<UtilsCounter :count="likes_count" />
 							</button>
-							<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+							<button id="delete" v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 								<Icon name="ri:delete-bin-2-line" size="1.2rem" />
 							</button>
-							<UtilsButtonDownload :url="content?.media?.url" />
-							<button v-if="content?.has_interactions" @click="openComment({})" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
+							<UtilsButtonDownload id="download" :url="content?.media?.url" />
+							<button id="comment" v-if="content?.has_interactions" @click="openComment({})" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 						</div>
 						<hr class="mt-4 mb-2 md:hidden" />
 						<CardImageGallery :content="content?.related || []" :loaded :id="group_id" :pane="paneRight" />
@@ -46,20 +46,20 @@
 			</splitpanes>
 		</div>
 
-		<div class="md:hidden">
+		<div v-else class="md:hidden">
 			<div class="w-full h-full">
 				<div class="pl-3 -mt-4 border-l md:pr-3">
 					<CardImageThumbnail :loaded :content="content || []" ref="thumbnail" />
 					<div class="flex w-full gap-2 mt-4 mb-2">
-						<button v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex items-center disabled:opacity-70 justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<button id="like" v-if="content?.has_interactions" :disabled="content.author?.is_owner" @click="likeImage" class="flex items-center disabled:opacity-70 justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon :class="isAnimating ? 'animate-like' : ''" :name="content.has_interactions.has_liked ? 'ri:heart-fill' : 'ri:heart-line'" size="1.2rem" />
 							<UtilsCounter :count="likes_count" />
 						</button>
-						<button v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+						<button id="delete" v-if="content?.permision?.can_delete_message" @click="createDeleteFunction" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 							<Icon name="ri:delete-bin-2-line" size="1.2rem" />
 						</button>
-						<UtilsButtonDownload :url="content?.media?.url" />
-						<button v-if="content?.has_interactions" @click="openComment({})" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
+						<UtilsButtonDownload id="download" :url="content?.media?.url" />
+						<button id="comment" v-if="content?.has_interactions" @click="openComment({})" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-sm border border-[#756145] rounded-xl">Comment</button>
 					</div>
 					<hr class="mt-4 mb-2 md:hidden" />
 					<CardImageGallery :content="content?.related || []" :loaded :id="group_id" :pane="paneRight" />
@@ -219,9 +219,13 @@
 		},
 	});
 
-	watch(() => pagination.page, async (page) => await comment.reload({
-		params: { page: page },
-	}));
+	watch(
+		() => pagination.page,
+		async (page) =>
+			await comment.reload({
+				params: { page: page },
+			}),
+	);
 
 	/*
 	 ************************************************************************************
@@ -349,7 +353,7 @@
 				image_id: content.value?.id,
 				likes: { count: likes_count.value },
 				comments: { count: comments_count.value },
-			})
+			}),
 		);
 	};
 
@@ -441,6 +445,73 @@
 		paneLeft.value = event.panes[0].size;
 		paneRight.value = event.panes[1].size;
 	};
+
+	const storage = useTourStorage();
+	const state = useLocalStorage("moments-tour-3", { completed: false });
+	const flow = storage.tour.create("moments-tour-3", {
+		onFinish: () => {
+			state.value.completed = true;
+		},
+		onCancel: () => {
+			state.value.completed = true;
+		},
+	});
+
+	flow.step({
+		id: "like",
+		target: "#like",
+		title: "Like this post",
+		content: "Click the heart icon to like this post. Your support helps the community grow!",
+	});
+
+	if (content.value?.permision?.can_delete_message) {
+		flow.step({
+			id: "delete",
+			target: "#delete",
+			title: "Delete this post",
+			content: "Click the delete icon to remove this post. This action is irreversible.",
+		});
+	}
+
+	flow.step({
+		id: "download",
+		target: "#download",
+		title: "Download this post",
+		content: "Click the download icon to save this post to your device. Enjoy the moment anytime!",
+	});
+
+	flow.step({
+		id: "comment",
+		target: "#comment",
+		title: "Comment on this post",
+		content: "Click the comment icon to share your thoughts. Join the conversation and connect with others!",
+	});
+
+	flow.step({
+		id: "comment-form",
+		target: "#comment-button-send",
+		title: "Submit your comment",
+		content: "Click the send button to open the comment form. Share your thoughts and engage with the community!",
+	});
+
+	if (content.value?.related)
+		flow
+			.step({
+				id: "gallery",
+				target: ".gallery:first-child",
+				title: "Explore related posts",
+				content: "Discover more moments by exploring related posts in this gallery. Click on any image to view it in detail and join the conversation!",
+				popover: { disableAdvanceButton: true },
+				behavior: { allowInteraction: true },
+			})
+			.onTargetEvent("click", (event, context) => context.advance());
+
+	onMounted(() => {
+		if (!state.value.completed)
+			setTimeout(() => {
+				storage.workflow = flow.build();
+			}, 1500);
+	});
 </script>
 
 <style>

@@ -1,8 +1,9 @@
 <template>
 	<div class="min-h-screen">
+		<UtilsTour />
 		<header :class="PWAInstalled ? 'top-11 lg:top-6 xl:top-0' : 'top-0'" class="fixed z-50 w-full bg-white">
 			<div class="flex items-center justify-between max-w-5xl px-4 py-4 mx-auto border-b lg:px-0">
-				<button @click="$route.path !== '/moments' ? handleBack() : ''" class="flex items-center justify-center gap-2">
+				<button id="back" @click="$route.path !== '/moments' ? handleBack() : ''" class="flex items-center justify-center gap-2">
 					<icon v-if="$route.path !== '/moments'" name="material-symbols:arrow-back-ios-new-rounded" size="1.2rem"></icon>
 					<h1 class="text-xl font-semibold truncate md:max-w-none max-w-48 md:w-fit">
 						<span v-if="$route.path == '/moments'">Lumora</span>
@@ -14,10 +15,10 @@
 					</h1>
 				</button>
 				<div class="flex items-center gap-2">
-					<UtilsButton to="/account" :options="{ name: username, url: avatar }" />
-					<UtilsButton to="/moments" iconName="ri:archive-stack-fill" />
+					<UtilsButton id="account" to="/account" :options="{ name: username, url: avatar }" />
+					<UtilsButton id="moments" to="/moments" iconName="ri:archive-stack-fill" />
 					<UtilsButton v-if="part_of_team" to="/monitor" iconName="ri:database-2-fill" />
-					<UtilsButton to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
+					<UtilsButton id="notifications" to="/notifications" iconName="ri:notification-2-fill" :options="{ count: unreadNotificationsCount }" />
 				</div>
 			</div>
 			<div>

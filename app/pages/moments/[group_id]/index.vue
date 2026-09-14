@@ -1,39 +1,25 @@
 <template>
 	<div v-if="List">
 		<div class="flex items-center justify-between gap-2 mb-3 -mt-4 sm:mt-2 lg:-mt-4">
-			<div class="items-center hidden gap-2 md:flex">
-				<button :disabled="!accepted" @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit ">
-					<icon name="ri:image-circle-ai-line" size="1.4em" />
-					<span> Create post(s) </span>
-				</button>
-				<NuxtLink :to="`/moments/pending-queue/${group_id}`" aria-label="pending-queue" v-if="need_approval && has_permisons" class="flex items-center justify-center gap-2 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
-					<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-h-5 h-fit w-fit">
+			<button :disabled="!accepted" id="createPosts" title="uploadPhoto" @click="createUploadFunction()" class="flex items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
+				<span> Create post(s) </span>
+			</button>
+
+			<div class="flex items-center gap-2">
+				<NuxtLink id="queue" :to="`/moments/pending-queue/${group_id}`" aria-label="pending-queue" v-if="need_approval && has_permisons" class="flex items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
+					<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit">
 						<span class="-mt-[0.10rem]">{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}</span>
 					</span>
 					<icon name="ri:folder-received-fill" size="1.4em" />
 				</NuxtLink>
-				<button :disabled="!downloadable" id="download" title="download" @click="handleDownload()" class="md:flex hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
+				<button :disabled="!downloadable" id="download" title="download" @click="handleDownload()" class="flex items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
 					<icon name="ri:download-2-fill" size="1.4em" />
 				</button>
-			</div>
 
-			<button :disabled="!accepted" id="uploadPhoto" title="uploadPhoto" @click="createUploadFunction()" class="flex md:hidden items-center justify-center w-full gap-2 p-2 px-4 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl md:w-fit">
-				<span> Create post(s) </span>
-			</button>
-			<NuxtLink :to="`/moments/pending-queue/${group_id}`" aria-label="pending-queue" v-if="need_approval && has_permisons" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
-				<span v-if="posts_count_need_approval >= 1" :class="posts_count_need_approval > 99 ? ' min-w-[1.90rem]' : ' min-w-5'" class="flex items-center justify-center p-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full min-h-5 h-fit w-fit">
-					<span class="-mt-[0.10rem]">{{ posts_count_need_approval > 99 ? "99+" : posts_count_need_approval }}</span>
-				</span>
-				<icon name="ri:folder-received-fill" size="1.4em" />
-			</NuxtLink>
-			<button :disabled="!downloadable" id="download" title="download" @click="handleDownload()" class="flex md:hidden items-center justify-center gap-1 p-2 text-[#756145] border border-[#756145] hover:bg-gray-100 disabled:opacity-50 rounded-xl w-fit">
-				<icon name="ri:download-2-fill" size="1.4em" />
-			</button>
-			<div class="flex items-center gap-2">
 				<button :disabled="reload" id="reload" title="reload" @click="handleManualReload()" class="flex items-center justify-center p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon :class="reload ? 'animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
-				<NuxtLink :to="`/moments/settings/${group_id}`" aria-label="settings" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
+				<NuxtLink id="settings" :to="`/moments/settings/${group_id}`" aria-label="settings" class="flex items-center justify-center gap-2 p-2 px-2 text-white bg-[#756145] border border-[#756145] rounded-xl w-fit">
 					<icon name="ri:settings-3-fill" size="1.4em" />
 				</NuxtLink>
 			</div>
@@ -236,7 +222,7 @@
 			if (Page.value >= totalPages.value || loading.value) return;
 			await useFetchPost({ update: true }, loading, 500);
 		},
-		{ direction: "bottom", distance: 20 }
+		{ direction: "bottom", distance: 20 },
 	);
 
 	watch(scrollPercentage, (percentage) => updateScrollData(group_id, percentage, scrollPixels.value));
@@ -245,10 +231,10 @@
 	 ************************************************************************************
 	 */
 
-	const downloadable = ref(true)
+	const downloadable = ref(true);
 
 	const handleDownload = async () => {
-		downloadable.value = false
+		downloadable.value = false;
 		addToast({
 			message: "Preparing your images for download. This may take a few moments...",
 			type: "info",
@@ -271,13 +257,14 @@
 			URL.revokeObjectURL(url);
 		}
 
-		if (error.value) addToast({
-			message: "Failed to download images.",
-			type: "error",
-			duration: 5000,
-		});
+		if (error.value)
+			addToast({
+				message: "Failed to download images.",
+				type: "error",
+				duration: 5000,
+			});
 
-		downloadable.value = true
+		downloadable.value = true;
 	};
 
 	const handleManualReload = async () => {
@@ -339,4 +326,90 @@
 			});
 		});
 	};
+
+	const storage = useTourStorage();
+	const state = useLocalStorage("moments-tour-2", { completed: false });
+	const flow = storage.tour.create("moments-tour-2", {
+		onFinish: () => {
+			state.value.completed = true;
+		},
+		onCancel: () => {
+			state.value.completed = true;
+		},
+	});
+
+	flow.step({
+		id: "back",
+		target: "#back",
+		title: "Back button",
+		content: "Click this button to return to the previous page. If you're on the main moments page, this button will not appear.",
+	});
+
+	flow.step({
+		id: "createPosts",
+		target: "#createPosts",
+		title: "Create Post(s)",
+		content: "Click this button to create a new post. You can upload images, and share your moments with the group.",
+	});
+
+	if (need_approval.value && has_permisons.value) {
+		flow.step({
+			id: "queue",
+			target: "#queue",
+			title: "Pending Queue",
+			content: "Click this button to view the pending queue. Here you can approve or reject posts that require moderation.",
+		});
+	}
+
+	flow.step({
+		id: "download",
+		target: "#download",
+		title: "Download Group Images",
+		content: "Click this button to download all images from the group. The images will be prepared and downloaded as a zip file.",
+	});
+
+	flow.step({
+		id: "reload",
+		target: "#reload",
+		title: "Refresh Group List",
+		content: "Click this button to refresh the list of posts in the group. This will fetch the latest posts and update the view.",
+	});
+
+	flow.step({
+		id: "settings",
+		target: "#settings",
+		title: "Group Settings",
+		content: "Click this button to access the group settings. Here you can manage group details, members, and permissions.",
+	});
+
+	if (List.value.length >= 1 && !reload.value) {
+		flow.step({
+			id: "likes",
+			target: "#likes",
+			title: "Like a Post",
+			content: "Click this button to like a post. You can show your appreciation for the content shared by others in the group.",
+		});
+
+		flow.step({
+			id: "comments",
+			target: "#comments",
+			title: "Comments on a Post",
+			content: "Display the number of comments on a post. You can click on the post to view and add comments, engaging with the community.",
+		});
+
+		flow
+			.step({
+				id: "openPost",
+				target: ".moment-card:first-child",
+				title: "Open a Post",
+				content: "Click on a post to view it in detail. You can see the full image, read comments, and interact with the post.",
+				popover: { disableAdvanceButton: true },
+				behavior: { allowInteraction: true },
+			})
+			.onTargetEvent("click", (event, context) => context.advance());
+	}
+
+	onMounted(() => {
+		if (!state.value.completed) storage.workflow = flow.build();
+	});
 </script>

@@ -15,7 +15,7 @@
 				})" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 					<icon :class="loading ? ' animate-spin' : ''" name="ri:refresh-line" size="1.4em" />
 				</button>
-				<button @click="open({})" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
+				<button id="comment-button-send" @click="open({})" class="flex items-center justify-center gap-2 p-2 px-4 text-sm text-white bg-[#756145] border border-[#756145] rounded-xl">
 					<icon name="ri:send-plane-fill" size="1.4em" />
 				</button>
 			</div>

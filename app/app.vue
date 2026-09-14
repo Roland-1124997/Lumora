@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div data-glow-tour-theme="light">
 		<NuxtRouteAnnouncer />
 		<NuxtLayout>
 			<NuxtPage></NuxtPage>
